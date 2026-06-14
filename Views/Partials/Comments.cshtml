@@ -1,0 +1,177 @@
+﻿@using MyProject12.Models;
+@using MyProject12;
+@using Umbraco.Cms.Core.Security;
+@inject DB db
+@inject IMemberManager _memberManager
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@{
+    var memberLogged = _memberManager.IsLoggedIn();
+}
+
+<div class="container ">
+    <hr />
+    <div class="comments mb-5">
+        <h3 class="text-center">תגובות</h3>
+                @if (memberLogged)
+        {
+        <div class="text-center">
+            <button id="comment" class="btn btn-round btn-primary">
+                תגובה חדשה
+            </button>
+        </div>
+
+
+            @Html.Partial("CreateComment", new MyProject12.ViewModels.CommentView() { parentID = Model.Id })
+
+        <div id="newComment" ></div>
+        }
+        @{
+            int id = Model.Id;
+            // Fetch all comments for the given parentID
+            var allComments = db.Comments.Where(x => x.parentID == id).ToList();
+
+            // Fetch top-level comments (those without a parentCommentID)
+            var topLevelComments = allComments.Where(x => !x.parentCommentID.HasValue).OrderByDescending(x => x.time).ToList();
+
+            if(topLevelComments.Count == 0)
+            {
+                <h4 class="text-center">אין עדיין תגובות</h4>
+            }
+
+            foreach (var comment in topLevelComments)
+            {
+                @Html.Partial("Comment", comment)
+
+                // Now fetch and render the replies to the top-level comment
+                var replies = allComments.Where(x => x.parentCommentID == comment.ID).OrderBy(x => x.time);
+                foreach (var reply in replies)
+                {
+                    @Html.Partial("Comment", reply)
+                }
+            }
+        }
+    </div>
+</div>
+
+<script>
+
+    var newReply = false;
+
+    $(document).on('click', '.comment-title', function (e) {
+        if ($(this).parent().parent().hasClass("hide-comment")) $(this).parent().parent().removeClass("hide-comment");
+        else $(this).parent().parent().addClass("hide-comment");
+    });
+
+    $(document).ready(function () {
+
+        function scrollToElement($element) {
+            var elementCenter = $element.offset().top + ($element.outerHeight() / 2);
+            var viewportHeight = $(window).height();
+
+            $('html, body').animate({
+                scrollTop: elementCenter - (viewportHeight / 2)
+            }, 500); // 500ms duration for the scroll
+        }
+        $(document).on("click", ".btn-reply", function () {
+            let $replyForm = $("#comment-form").removeClass("hide");
+
+            let $commentContainer = $(this).closest('.comment-container');
+
+            // Set the parentCommentID for the reply form
+            $replyForm.find(".parentCommentID").val($commentContainer.attr("id"));
+
+            // Find where to insert the reply form based on the arrow icon
+            let $next = $commentContainer.next();
+            while ($next.length && $next.find('.material-icons:contains("subdirectory_arrow_left")').length) {
+                $next = $next.next();
+            }
+
+            // Move the reply form to the right position
+            if ($next.length) {
+                $next.before($replyForm);
+            } else {
+                $commentContainer.after($replyForm);
+            }
+            newReply = true;
+            $("#comment").removeClass("hide");
+
+            scrollToElement($replyForm);
+        });
+
+        // When the close button on the reply form is clicked.
+        $(document).on("click", ".reply-form .btn-x", function () {
+            $(this).closest('.reply-form').remove();
+        });
+
+        // Optionally: Hide the reply form when clicking outside
+        $(document).click(function (event) {
+            if (!$(event.target).closest(".comment-container, .reply-form, .btn-reply").length) {
+                $(".reply-form").remove();
+            }
+        });
+    });
+
+    function handleAjaxSuccess(response, status, xhr) {
+        var $form = $(this);
+
+        // If it's the main comment form, place the new comment below #newComment
+        if (newReply === false) {
+            $("#newComment").after(response);
+
+            // Hide the form
+            $form.parent().addClass("hide");
+
+            // Reset the form's fields
+            $form[0].reset();
+
+            // Show the #comment button again
+            $("#comment").removeClass("hide");
+
+            return;  // Exit the function after processing main comment
+        }
+
+
+        // For reply forms
+        var parentCommentID = $form.find(".parentCommentID").val();
+
+        if (parentCommentID) {
+            // It's a reply
+            var $parentComment = $("#" + parentCommentID);
+
+            // Check for subsequent replies to the same parent
+            var $next = $parentComment.next();
+            while ($next.length && $next.find('.material-icons:contains("subdirectory_arrow_left")').length) {
+                $next = $next.next();
+            }
+
+            // Insert the new reply
+            if ($next.length) {
+                $next.before(response);
+            } else {
+                $parentComment.after(response);
+            }
+        } else {
+            // This else block might not be needed since the "main comment" case is already handled above.
+            $(".comment-container:first").before(response);
+        }
+        $form[0].reset();
+
+        // Hide the form
+        $form.parent().addClass("hide");
+
+    }
+
+
+
+    $("#comment").click(function () {
+        $(this).addClass("hide");
+        $(this).after($("#comment-form").removeClass("hide"));
+        newReply = false;
+        $("#comment-form").find(".parentCommentID").val(null);
+
+    });
+
+
+
+</script>

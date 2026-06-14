@@ -1,0 +1,64 @@
+﻿@model ContactView
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using MyProject12.ViewModels;
+
+
+<div class="card px-5 pb-5 pt-3 contact-card">
+    <div id="contact">
+        <h2 class="title">שלחו לנו הודעה</h2>
+        <form method="post" class="form text-right" data-ajax="true" data-ajax-method="POST" data-ajax-mode="replace" data-ajax-update="#contact" action="@Url.SurfaceAction("Create","Contacts")">
+            @Html.AntiForgeryToken()
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="form-group bmd-form-group">
+                        @Html.LabelFor(m => m.name, new { @class = "bmd-label-floating" })
+                        @Html.TextBoxFor(m => m.name, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.name)
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group bmd-form-group">
+                        @Html.LabelFor(m => m.familyName, new { @class = "bmd-label-floating" })
+                        @Html.TextBoxFor(m => m.familyName, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.familyName)
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="form-group bmd-form-group">
+                        @Html.LabelFor(m => m.email, new { @class = "bmd-label-floating" })
+                        @Html.TextBoxFor(m => m.email, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.email)
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group bmd-form-group">
+                        @Html.LabelFor(m => m.phone, new { @class = "bmd-label-floating" })
+                        @Html.TextBoxFor(m => m.phone, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.phone)
+                    </div>
+                </div>
+            </div>
+            <span class="bmd-form-group">
+                @Html.LabelFor(m => m.content, new { @class = "bmd-label-floating", @style = "margin-top:-28px;" })
+                @Html.TextAreaFor(m => m.content, new { @class = "form-control", @rows = "3" })
+                @Html.ValidationMessageFor(m => m.content)
+            </span>
+            <input type="hidden" data-captcha-input="true" name="captcha" id="captchaInput" />
+            <div class="media-footer text-center">
+                <button type="submit" class="btn btn-round btn-primary my-2" required="required">שליחה<div class="ripple-container"></div></button>
+            </div>
+        </form>
+    </div>
+</div>
+@Html.Partial("~/Views/Partials/RecaptchaScript.cshtml")
+
+<script>
+
+
+    $(document).ready(function () {
+        loadRecaptcha();
+    });
+</script>

@@ -1,0 +1,146 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Books>
+@{
+    Layout = "master.cshtml";
+}
+
+
+<div class="sec-page-header page-header header-filter clear-filter" style="margin-top:0em;background-image: url('@Url.GetCropUrl(Model.Image, "full")');">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="text-center">
+                    <h1>ספרים</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="d-flex justify-content-center">
+<div class="books-player" style=" background-color:#fdb88a;border-radius:15px;">
+    <div id="media-player" class="video">
+
+        <div id="player-wrapper">
+        </div>
+    </div>
+</div>
+</div>
+
+<script>
+    var player;
+    var source;
+    var video;
+
+    var initVideo = function () {
+
+        source = "";
+
+
+
+        $('#player-wrapper').html('<video poster="" id="player"></video>');
+        video = document.querySelector('#player');
+
+
+        var plyr_controls = ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen', 'rewind', 'fast-forward'];
+        var plyr_settings = ['captions', 'quality', 'loop', 'speed'];
+        var quality = function (q) {
+            switch (q) {
+                case -1:
+                    hls.currentLevel = -1;
+                    break;
+            }
+        };
+
+        source = '@(Model.BooksVideo)';
+        player = new Plyr(video, { type: 'video', title: @Html.Raw(System.Text.Json.JsonSerializer.Serialize("נגן וידאו - ספרים")) });
+        player.source = {
+            type: 'video',
+            sources: [
+                {
+                    src: '@(Model.BooksVideo)',
+                    provider: 'youtube', // or 'vimeo', etc., based on the external link type
+                },
+            ],
+        };
+
+    }
+
+
+    $(document).ready(function () {
+        setTimeout(() => {
+            initVideo();
+        }, 150);
+    });
+
+</script>
+<h3 class="title text-center text-primary mt-5 mb-5 mx-3">@Model.Subtitle</h3>
+<div class="container pt-0 mb-5">
+    <div class="row justify-content-center px-2 mx-3">
+
+        @if (Model.BooksList != null)
+        {
+            foreach (Book book in Model.BooksList)
+            {
+                <div class="rotating-card-container m-2" >
+                    <div class="card card-rotate text-center my-0" style="display:block">
+                        <div class="front" style="width: 300px; height:350px;">
+                            <div class="card-body text-center px-0" style="display:block; ">
+                                <h4 class="card-title mb-3">
+                                    @book.Title
+                                </h4>
+                                <img class="img" src="@Url.GetCropUrl(book.Image, "small")" alt="@book.ImageAlt" style="width: 250px">
+                            </div>
+                        </div>
+                        <div rel="prefetch" class="back" style="width: 300px; height:350px;">
+                            <div class="card-body">
+                                <a href="@book.Url()">
+                                    <h4 class="card-title mb-2">
+                                        @book.Title
+                                    </h4>
+
+                                    <div class="card-description">
+                                        @book.ShortDescription
+                                    </div>
+                                </a>
+
+                                @if (book.SpecialOffer)
+                                {
+                                <h6 class="card-category text-success m-0 mt-3">במבצע!</h6>
+                                }
+                                <div class="row mt-3 justify-content-center">
+
+                                @if (!string.IsNullOrEmpty(book.BuyUrl))
+                                {
+
+                                    <a href="@book.BuyUrl" class="px-2 mx-1 btn btn-primary btn-round"><i class="mdi-small mdi-book" aria-hidden="true"></i> פיזי &nbsp;</a>
+                                }
+                                @if (!string.IsNullOrEmpty(book.DigitalUrl))
+                                {
+
+                                    <a href="@book.DigitalUrl" class="px-2 mx-1 btn btn-primary btn-round"><i class="mdi-small mdi-tablet-cellphone" aria-hidden="true"></i> דיגיטלי &nbsp;</a>
+                                }
+                                @if (!string.IsNullOrEmpty(book.VoiceUrl))
+                                {
+
+                                    <a href="@book.VoiceUrl" class="px-2 mx-1 btn btn-primary btn-round"><i class="mdi-small mdi-volume-high" aria-hidden="true"></i> קולי &nbsp;</a>
+                                }
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+
+            }
+        }
+
+    </div>
+
+</div>
+
+

@@ -1,0 +1,1235 @@
+﻿
+
+
+<!doctype html>
+<html lang="he">
+
+<head>
+    <link rel="manifest" href="/manifest.json">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#f77b26" />
+        <meta name="description" content="&#x5DE;&#x5DC;&#x5DB;&#x5D5;&#x5D3;&#x5EA; &#x5D4;&#x5EA;&#x5E2;&#x5E0;&#x5D5;&#x5D2; | &#x5DE;&#x5E9;&#x5D4; &#x5E9;&#x5E8;&#x5D5;&#x5DF;">
+    <meta property="og:title" content="&#x5DE;&#x5DC;&#x5DB;&#x5D5;&#x5D3;&#x5EA; &#x5D4;&#x5EA;&#x5E2;&#x5E0;&#x5D5;&#x5D2; | &#x5DE;&#x5E9;&#x5D4; &#x5E9;&#x5E8;&#x5D5;&#x5DF;" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="http://mo6.azurewebsites.net/&#x5DE;&#x5D0;&#x5DE;&#x5E8;&#x5D9;&#x5DD;/&#x5E7;&#x5D5;&#x5D0;&#x5E6;&#x5D9;&#x5E0;&#x5D2;-&#x5E2;&#x5E6;&#x5DE;&#x5D9;/&#x5DE;&#x5DC;&#x5DB;&#x5D5;&#x5D3;&#x5EA;-&#x5D4;&#x5EA;&#x5E2;&#x5E0;&#x5D5;&#x5D2;-&#x5DE;&#x5E9;&#x5D4;-&#x5E9;&#x5E8;&#x5D5;&#x5DF;/" />
+
+        <meta property="og:description" content="&#x5DE;&#x5DC;&#x5DB;&#x5D5;&#x5D3;&#x5EA; &#x5D4;&#x5EA;&#x5E2;&#x5E0;&#x5D5;&#x5D2; | &#x5DE;&#x5E9;&#x5D4; &#x5E9;&#x5E8;&#x5D5;&#x5DF;" />
+
+    <meta property="og:image" content="https://mo6.co.il/media/t10alxvh/748_bc35a0655992c66b907c528a87b23c0a.jpeg?width=540&amp;amp;height=380" />
+
+    <title>&#x5DE;&#x5E9;&#x5D4; &#x5E9;&#x5E8;&#x5D5;&#x5DF; - &#x5DE;&#x5DC;&#x5DB;&#x5D5;&#x5D3;&#x5EA; &#x5D4;&#x5EA;&#x5E2;&#x5E0;&#x5D5;&#x5D2; | &#x5DE;&#x5E9;&#x5D4; &#x5E9;&#x5E8;&#x5D5;&#x5DF;</title>
+
+
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Heebo:400,500,700|Roboto:300,400,500,700|Roboto&#x2B;Slab:400,700|Material&#x2B;Icons" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" />
+
+    <link href="/sb/css-bundle.css.v666ee3e1671d80ee6cd9f5e0b2c825f6b3220e2a" rel="stylesheet" />
+
+
+
+    <script src="/sb/js-bundle.js.v666ee3e1671d80ee6cd9f5e0b2c825f6b3220e2a"></script>
+
+
+
+
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-V1H7MXFHR1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-V1H7MXFHR1');
+    </script>
+
+    <!-- Google Tag Manager -->
+    <script>
+        (function (w, d, s, l, i) {
+            w[l] = w[l] || []; w[l].push({
+                'gtm.start':
+                    new Date().getTime(), event: 'gtm.js'
+            }); var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-P8M99BNJ');</script>
+    <!-- End Google Tag Manager -->
+</head>
+
+<body class="index-page sidebar-collapse" dir="rtl">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript>
+        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P8M99BNJ"
+                height="0" width="0" style="display:none;visibility:hidden"></iframe>
+    </noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+
+    <script src="/js/db-helper.js"></script>
+    <script>
+        // --- Global PWA Flags and Install Logic ---
+        let deferredPrompt;
+
+        const isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+        let hasPWA = false;
+
+        (async () => {
+          if ('getInstalledRelatedApps' in navigator) {
+            try {
+              const apps = await navigator.getInstalledRelatedApps();
+              hasPWA = apps.some(a => a.platform === 'webapp' && a.id === 'https://mo6.co.il/');
+            } catch {}
+          }
+        })();
+
+        const isPC = (() => {
+          if (navigator.userAgentData && 'mobile' in navigator.userAgentData) {
+            return !navigator.userAgentData.mobile;
+          }
+          return !/Android|iPhone|iPad|iPod|Mobi|Mobile|Windows Phone|BlackBerry|Opera Mini/i.test(navigator.userAgent);
+        })();
+
+        const isIOS = () => {
+          const ua = navigator.userAgent || '';
+          const iDevice = /iPad|iPhone|iPod/.test(ua);
+          const iPadOS = !iDevice && navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+          return iDevice || iPadOS;
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+          const appBtn = document.getElementById('our-app');
+          const mainAppDiv = document.getElementById('main-app'); // The content area of your modal
+
+          if (appBtn) {
+            if (isPWA) {
+              appBtn.style.display = 'none';
+            } else {
+              appBtn.style.display = 'inline-block';
+            }
+          }
+
+          if (isIOS()) {
+            if (mainAppDiv) {
+              renderIOSInstallUI(mainAppDiv);
+            }
+          } else if (isPC) {
+            const installPwaBtn = document.getElementById('install-pwa-btn');
+            if (installPwaBtn) {
+              installPwaBtn.textContent = 'להתקנה במחשב';
+            }
+          }
+        });
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+          e.preventDefault();
+          deferredPrompt = e;
+        });
+
+        let installing = false;
+
+        function dismissInstallModal() {
+          const el = document.getElementById('appInstallModal');
+          if (!el) return;
+
+          if (window.bootstrap && typeof bootstrap.Modal === 'function') {
+            let instance = bootstrap.Modal.getInstance(el);
+            if (!instance) instance = new bootstrap.Modal(el);
+            instance.hide();
+            return;
+          }
+          const $jq = window.jQuery || window.$;
+          if ($jq && typeof $jq.fn?.modal === 'function') {
+            $jq(el).modal('hide');
+            return;
+          }
+          el.classList.remove('show');
+          el.setAttribute('aria-hidden', 'true');
+          el.style.display = 'none';
+          const backdrop = document.querySelector('.modal-backdrop');
+          if (backdrop) backdrop.parentNode.removeChild(backdrop);
+          document.body.classList.remove('modal-open');
+          document.body.style.paddingRight = '';
+        }
+
+        function renderInstallingUI(container) {
+          container.innerHTML = `
+            <div class="text-center" style="max-width:520px;margin:24px auto;padding:0 16px;">
+              <div class="mt-3 mb-2"><i class="mdi-huge mdi-progress-download mdi-xl text-primary"></i></div>
+              <h3 class="mb-3" style="font-size:1.1rem;">מסיים להתקין…</h3>
+            </div>
+          `;
+        }
+
+        function renderPCSuccessUI(container) {
+          container.innerHTML = `
+            <div class="text-center" style="max-width:520px;margin:24px auto;padding:0 16px;">
+              <div class="mt-4 mb-3"><i class="mdi-huge mdi-check mdi-xl text-success"></i></div>
+              <h3 class="text-success font-weight-bold mb-4" style="font-size:1.5rem;">האפליקציה הותקנה בהצלחה</h3>
+            </div>
+          `;
+        }
+
+        function renderSuccessUI(container) {
+          container.innerHTML = `
+            <div class="text-center" style="max-width:520px;margin:24px auto;padding:0 16px;">
+              <div class="mt-4 mb-3"><i class="mdi-huge mdi-check mdi-xl text-success"></i></div>
+              <h3 class="text-success font-weight-bold mb-4" style="font-size:1.5rem;">האפליקציה הותקנה בהצלחה</h3>
+              <div class="text-center text-primary mb-4">
+                <img src="/images/icon-app.webp" class="mt-2" alt="Logo" style="width:60px; height:60px;">
+              </div>
+              <div class="text-muted mb-4" style="font-size:.95rem;">
+                כדי לפתוח את האפליקציה המותקנת<br/>
+                חפשו את הסמל החדש במסך הבית או במגירת האפליקציות.
+              </div>
+              <button id="continue-here-btn" type="button" class="btn btn-primary mb-3">להמשך כאן בדפדפן</button>
+            </div>
+          `;
+        }
+
+        function renderIOSInstallUI(container) {
+          container.innerHTML = `
+            <div class="modal-body text-center p-4">
+              <div class="mb-4">
+                <img src="/images/icon-app.webp" alt="סמל האפליקציה" style="width:60px; height:60px;">
+              </div>
+              <h3 class="modal-title h5 mb-3">התקנת האתר כאפליקציה במכשירך</h3>
+              <div class="text-end px-3">
+                <ol class="list-unstyled text-center" style="max-width:320px; margin: 0 auto;">
+                  <li class="mb-3">לחצו על סמל ה<strong>שיתוף</strong> (ריבוע עם חץ עליון).</li>
+                  <li class="mb-3">גללו ובחרו באפשרות "<strong>הוספה למסך הבית</strong>".</li>
+                  <li class="mb-2">אשרו את הפעולה בלחיצה על "<strong>הוספה</strong>".</li>
+                </ol>
+              </div>
+              <p class="text-muted mt-4 mb-4" style="font-size: .9rem;">
+                שימו לב! באייפון סמל השיתוף נמצא בתחתית המסך, ובאייפד הוא ממוקם בסרגל העליון.
+              </p>
+              <button id="continue-here-btn" type="button" class="btn btn-primary btn-round">הבנתי, תודה!</button>
+            </div>
+          `;
+        }
+
+        document.addEventListener('click', async (event) => {
+          const target = event.target;
+
+          if (target.id === 'continue-here-btn') {
+            dismissInstallModal();
+            return;
+          }
+
+          // This logic now only applies to Android/PC, as iOS users won't see the #install-pwa-btn.
+          if (target.id !== 'install-pwa-btn' || installing) return;
+
+          // The iOS check is no longer needed here because it's handled on page load.
+          if (!deferredPrompt) {
+            return;
+          }
+
+          installing = true;
+          const mainAppDiv = document.getElementById('main-app');
+          deferredPrompt.prompt();
+          const { outcome } = await deferredPrompt.userChoice.catch(() => ({ outcome: 'dismissed' }));
+          deferredPrompt = null;
+
+          if (outcome !== 'accepted') {
+            installing = false;
+            return;
+          }
+
+          const installBtn = document.getElementById('our-app');
+          if (installBtn) installBtn.style.display = 'none';
+
+          if (!mainAppDiv) {
+            installing = false;
+            return;
+          }
+
+          if (isPC) {
+            renderPCSuccessUI(mainAppDiv);
+          } else {
+            renderInstallingUI(mainAppDiv);
+            await new Promise(r => setTimeout(r, 5000));
+            renderSuccessUI(mainAppDiv);
+          }
+
+          installing = false;
+        });
+
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register('/sw.js')
+            .then(registration => console.log('Service Worker registered with scope:', registration.scope))
+            .catch(error => console.log('Service Worker registration failed:', error));
+        }
+    </script>
+
+
+    
+<script>
+
+    function loadRecaptcha() {
+        // Check if the reCAPTCHA script is already loaded
+        if (!window.grecaptcha) {
+            var script = document.createElement('script');
+            script.src = 'https://www.google.com/recaptcha/api.js?render=6LecSuwnAAAAADoYyhH08Ee69PBfM1wwY4q9MQmp&onload=onRecaptchaLoad';
+            document.body.appendChild(script);
+        }
+    }
+    $(document).ready(function () {
+
+        document.addEventListener("submit", function (event) {
+            var formName = event.target.getAttribute('name');
+
+            if (formName === "loginForm") {
+                handleFormSubmission("loginForm", "login", '[data-captcha-login=true]');
+            }
+            else if (formName === "registerForm") {
+                handleFormSubmission("registerForm", "register", '[data-captcha-register=true]');
+            }
+        });
+
+
+
+
+        loadRecaptcha();
+    });
+
+    //called by ajax
+    async function handleCommentSubmission(continueSubmission) {
+        return new Promise((resolve, reject) => {
+            grecaptcha.execute("6LecSuwnAAAAADoYyhH08Ee69PBfM1wwY4q9MQmp", { action: 'comment' })
+                .then(function (token) {
+                    $("[data-captcha-comment=true]").val(token); // Add token to the hidden input field
+                    console.log(typeof continueSubmission);
+                    resolve(); // Resolve the Promise when the operation is completed
+                })
+                .catch(function (error) {
+                    reject(error); // Reject the Promise if an error occurs
+                });
+        });
+    }
+
+    function handleFormSubmission(formName, actionType, tokenFieldSelector) {
+
+        event.preventDefault();
+
+        grecaptcha.execute("6LecSuwnAAAAADoYyhH08Ee69PBfM1wwY4q9MQmp", { action: actionType }).then(function (token) {
+            $(tokenFieldSelector).val(token); // Add token to the hidden input field
+            $('form[name="' + formName + '"]').submit();
+        });
+    }
+</script>
+    <script>
+        $(document).ready(function () {
+
+            $(function () {
+                $('body').openAccessibility({
+                    textSelector: 'h1,h2,h3,h4,h5,h6,a,span,p,button,i',
+                    isMobileEnabled: true
+                });
+                if ($('#cd-vertical-nav').length) {
+                    // Move it to the beginning of the body tag
+                    $('body').prepend($('#cd-vertical-nav'));
+                }
+                if ($('.cd-nav-trigger').length) {
+                    // Move them to the beginning of the body tag
+                    $('.cd-nav-trigger').each(function () {
+                        $('body').prepend($(this));
+                    });
+                }
+            })
+
+                });
+    </script>
+    <div class="bodyAccessibility">
+
+        
+
+<nav class="navbar bg-info fixed-top  navbar-expand-lg navbar-color-on-scroll navbar-transparent" color-on-scroll="100" id="sectionsNav">
+    <div class="container" style="height:50px">
+        <div class="navbar-translate">
+            <div class="d-flex">
+                <a class="navbar-brand pt-1" href="/">
+                    <img src="/media/sz3hjxoe/icon-moshe-sharon.svg" alt="Icon" class="icon">
+                </a>
+                <a class="navbar-brand" href="/">
+                    משה שרון
+                </a>
+            </div>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="navbar-toggler-icon"></span>
+                <span class="navbar-toggler-icon"></span>
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ml-auto">
+                <li class="dropdown nav-item">
+                    <a href="/אודות" class="nav-link">
+                        <i class="mdi mdi-information mdi-line-1"></i>  אודות
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/מאמרים">
+                        <i class="mdi mdi-card-text mdi-line-1"></i>  מאמרים
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/פודקאסטים">
+                        <i class="mdi mdi-headphones mdi-line-1"></i>  פודקאסטים
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/קורסים-והרצאות">
+                        <i class="mdi mdi-library-video mdi-line-1"></i>  קורסים והרצאות
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/אירועים">
+                        <i class="mdi mdi-calendar mdi-line-1"></i>  אירועים
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/ספרים">
+                        <i class="mdi mdi-bookshelf mdi-line-1"></i>  ספרים
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/צור-קשר">
+                        <i class="mdi mdi-contact-mail mdi-line-1"></i>  צור קשר
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/מנוי">
+                        <i class="mdi mdi-crown mdi-line-1"></i>  מנוי
+                    </a>
+                </li>
+
+                <li class="nav-item" style="text-align:center">
+                        <div class="nav-link px-4" style="margin-left:0px; margin-right:0px;">
+                            <button class="btn btn-primary btn-round px-3 py-2 mb-3 mb-sm-0 d-inline-flex align-items-center" data-toggle="modal" data-target="#loginModal"><i class="mdi-small mdi-line-1-2 mdi-login-variant"></i> התחברות</button>
+
+                            <button class="btn btn-success btn-round px-3 py-2 d-inline-flex align-items-center" data-toggle="modal" data-target="#registerModal"><i class="mdi-small mdi-line-1-2 mdi-pencil-box-outline"></i> הרשמה</button>
+
+                        </div>
+                </li>
+
+
+            </ul>
+        </div>
+
+    </div>
+</nav>
+
+        
+<style>
+    p
+    {
+        font-size:16px;
+    }
+</style>
+
+<div class="sec-page-header page-header header-filter clear-filter" style="margin-top:0em;background-image: url('/media/cimfktjk/articles.png?width=1920&amp;height=1080');">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="text-center">
+                    <h1>&#x5E7;&#x5D5;&#x5D0;&#x5E6;&#x27;&#x5D9;&#x5E0;&#x5D2; &#x5E2;&#x5E6;&#x5DE;&#x5D9;</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="container my-5">
+    <div class="my-5">
+
+        <span itemprop='itemListElement' itemscope itemtype='https://schema.org/ListItem'><a class='title text-primary' itemprop='item' href='/מאמרים/'><span itemprop='name'>מאמרים</span></a><meta itemprop='position' content='1' /></span> &nbsp>&nbsp <span itemprop='itemListElement' itemscope itemtype='https://schema.org/ListItem'><a class='title text-primary' itemprop='item' href='/מאמרים/קואצינג-עצמי/'><span itemprop='name'>קואצ'ינג עצמי</span></a><meta itemprop='position' content='2' /></span>
+        &nbsp>&nbsp
+        <span itemprop='itemListElement' itemscope itemtype='https://schema.org/ListItem'>
+            <a class="title text-primary" itemprop="item" href="/&#x5DE;&#x5D0;&#x5DE;&#x5E8;&#x5D9;&#x5DD;/&#x5E7;&#x5D5;&#x5D0;&#x5E6;&#x5D9;&#x5E0;&#x5D2;-&#x5E2;&#x5E6;&#x5DE;&#x5D9;/&#x5DE;&#x5DC;&#x5DB;&#x5D5;&#x5D3;&#x5EA;-&#x5D4;&#x5EA;&#x5E2;&#x5E0;&#x5D5;&#x5D2;-&#x5DE;&#x5E9;&#x5D4;-&#x5E9;&#x5E8;&#x5D5;&#x5DF;/">
+                <span itemprop="name">&#x5DE;&#x5DC;&#x5DB;&#x5D5;&#x5D3;&#x5EA; &#x5D4;&#x5EA;&#x5E2;&#x5E0;&#x5D5;&#x5D2; | &#x5DE;&#x5E9;&#x5D4; &#x5E9;&#x5E8;&#x5D5;&#x5DF;</span>
+            </a>
+            <meta itemprop="position" content="3" />
+        </span>
+</div>
+    <div class="row article p-md-3">
+        <div class="col-lg-12 p-md-5 p-4 mt-md-0 mt-4">
+
+            <h3 class="text-center mt-0"><strong>&#x5DE;&#x5DC;&#x5DB;&#x5D5;&#x5D3;&#x5EA; &#x5D4;&#x5EA;&#x5E2;&#x5E0;&#x5D5;&#x5D2; | &#x5DE;&#x5E9;&#x5D4; &#x5E9;&#x5E8;&#x5D5;&#x5DF;</strong></h3>
+            <div class="mt-5 text-justify">
+            <p>באחד ממסעותיי בעולם פגשתי את אמיר. אמיר הוא בן 36, לא נשוי ואין לו ילדים, האמת היא שהוא גם לא עובד, מטייל בד"כ או בשפה שלו "הוא במסע". רוב שעות ימיו של אמיר מתרכזות בלעשן סמים. כשפגשתי אותו, למרגלות ההימליה, הוא לא הפסיק לדבר על להשיג חומר, לגלגל ולהשיג כסף בכל דרך אפשרית בשביל "הזכות לחשוב צלול" כדבריו.<br>מוזר היה לי לראות שבאותה המידה שאני חשתי רתיעה מדרך חייו, כך גם הוא חש כלפיי. כשדיברתי אתו על כך שהלימוד של תיאוריות רוחניות – פסיכולוגיות הפך אותי לאופטימיסט, הוא אמר שהדרך היחידה לראות את העולם בצורה ורודה היא דרך עיניים אדומות. כשדיברתי על עבודה ופרנסה הוא ממש ירד עליי ועל הקפיטליזם שהשתלט על דרך המחשבה שלי. קפיטליסט או לא, בסוף הדיון הבטחתי לו שאם יום אחד יהיה לי משרד משלי והוא יחפש עבודה, אציע לו משרה. הוא צחק ואמר שישמח לעמוד במשרד ולגרוס. מלשון גראס, הוא סיכם, אל תתלהב.<br>כשחזרתי מהודו, סחבתי אותו אתי כמה חודשים, לקח לי זמן להבין במה אמיר צודק או למה גם אני מכור לא פחות ממנו, ולא פחות חשוב – אולי זה אני שחי בקיבעון? במה הוא טועה?</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p><strong>מנגנון התענוג הטבעי</strong><br>כשמתבוננים על בני האדם, אפילו לכמה רגעים, מגלים מיד שאם יש משהו שאפשר להגיד על כולם, להכליל, היא העובדה שהם מחפשים שיהיה להם טוב ושלא יהיה להם רע. חד וחלק. כולנו מחפשים אחר תענוג כזה או אחר: אוכל, מין, ידע, כבוד מנוחה, שליטה וכו', ובורחים מקשיים או מכל דבר שעושה לנו רע. המנגנון הפשוט, ההישרדותי הזה תואר בהרחבה בכל הדתות והפילוסופיות לאורך הדורות.<br>נדייק ונאמר כך, יש בכל אדם מנגנון, מנוע חיפוש פנימי שמורכב משלושה חלקים:<br>א. רדיפה אחר תענוג<br>ב. בריחה מסבל<br>ג. חסכון באנרגיה<br>נדמה לרגע אל מול עינינו אריה רובץ תחת עץ רענן ובטנו מתחילה לקרקר, הוא מתחיל לסרוק במבטו את השטח מסביב ורואה שתי איילות ועדר פילים. הרעב שלו אומר לו שהוא צריך לאכול אחד מהם (א') למרות שהוא מזהה פילון קטנטון בעדר הוא מחליט שלא להתקיף אותו בגלל כמות הפילים הגדולים (בריחה מסבל) בהתבוננות מחודשת הוא מזהה שאחת האיילות צולעת קמעה ומחליט לתקוף אותה (חסכון באנרגיה). התהליך שתיארנו מתרחש במוחו של האריה במשך לא יותר משלוש שניות ובעוד כעשר דקות אחרי שהוא יברך "שהכל נהיה בדברו" נוכל להגיד לו "אמן".<br>ומה לגבי האדם? תוך אלפית שניה הוא מחליט באיזו דרך לנסוע לעבודה, מה לאכול וכו'. המנגנון הזה מנהל אותנו השכם וערב. אחת הדוגמאות הכי יפות: האדם ישן ופתאום מתעורר כי הוא חש בשלפוחיתו. ואז הוא מתחיל לחשב: אם אקום אוכל להפטר מהתחושה המציקה, מצד שני אולי זה יעיר אותי ולא אוכל להירדם שוב... מה לעשות? לשנות תנוחה או לקום?<br>אותו חסכון באנרגיה בהשגת התענוג בא לידי ביטוי כמעט בכל תחום בחיים: ניקח למשל אדם שרוצה "להרגיע את רעבונו" במטבח המשרדי. הוא מגיע ורואה במקרר חסה ועוגה קנויה. מוחו מחשב בשניות: כמה זמן יקח לו לשטוף את החסה, לחתוך, לתבל אותה ולאכול אותה, ואז מחליט לפתוח את העוגה ולקחת כמה ביסים. מנסיון אישי זה יכול אפילו לקרות למי שהחליט בבוקרו של אותו יום בדיוק שהוא פוצח בדיאטה...<br>מפתיע? ממש לא. מדובר על חישוב אינסטינקטיבי - הישרדותי. בשביל להשיג את השובע הנדרש, את אותם 400 קלוריות שירגיעו אותו עד שיגיע הביתה הוא יכול להשיג עם הרבה פחות השקעה. כמה פרוסות עוגה וסגרנו עניין. גם טעים גם משביע גם בלי יותר מדי מאמץ. אתם יודעים כמה קלוריות יש במאה גרם חסה? שמונה. אתם יודעים כמה חסה הוא יצטרך לאכול כדי לשבוע? פלא שרוב האנשים מעדיפים "חטיפים" על פני חסה או מלפפון?</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p><strong>הדלת של המלכודת</strong><br>קחו אדם נורמלי, הוא קם בבוקר שותה קפה, אח"כ בעשר הוא חייב עוד אחד להתעורר יחד עם ביסקוויט, ב 14:00 הוא עייף אחרי האוכל אז הוא חייב איזה שוקולד ליד הקפה שיעיר אותו, ב 16:00 עוד משהו קטן עם הקפה וגם בלילה הוא חייב איזה חטיף מול הטלוויזיה.<br>והנה, מתוך הדוגמא הפשוטה הזו, נוכל להבין את המלכודת. כי אם נשאל שאלה אחרת שהיא מה יותר בריא או מה יותר נכון, ולא מה יתן לי מקסימום תענוג במינימום מאמץ, הרי שהחסה היא התשובה הראויה וכל אדם יודע זאת ודאי. אז למה אנחנו בוחרים לחטוף אנרגיה?<br>מצד אחד, הרי ודאי שהטבע אומר לנו שזה טוב, מצד שני התענוג המיידי הזה – הוא הוא המלכודת, וברגע שטעמת ממנו, תצטרך כוחות נפש אדירים, מלחמה ממש, בכדי לצאת משליטתו. זה נכון גם לגבי שוקולד אבל לא רק. מה לגבי סיגריות? האם זו לא אותה המלכודת ממש? ומה לגבי אישה אחרת? סליחה על הדוגמא אבל גבר שהרגיל עצמו "לחטוף" יחסים עם נשים אחרות, האם יימצא טעם באשתו? הרי אישה אחרת זה לא מורכב כמו עם אשתו. היא ודאי לא דורשת ממנו עזרה עם הילדים או בבית. אין לה דרישות. היא שוקולד ולא חסה. עכשיו לך תהנה ממלפפון מיד אחרי מילקי... (כבר התנצלתי על הדוגמא...) וככה נהרסים בתים בישראל. מבינים את המלכודת?</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p><strong>הדובדבן שבקצפת של המלכודת</strong><br>המצב הנכון: כשאוכלים תפוח שהטבע ברא מקבלים ויטמינים ומינרלים, סוכרים וסיבים. התרכובת הזו כשלעצמה היא בריאה ונכונה לגוף מאוד, כולל הלעיסות וכו', או כמו שאומרת בתי בת השש "מי שאוכל תפוח נותן לרופא לנוח". אותו הדבר לגבי אורז מלא שמכיל בתוכו סוכרים שמתפרקים בגוף בצורה איטית. זה הטבע בהתגלמותו. הנסיון החברתי לזקק תענוג לקפסולה הוא הבעייתי. לוקחים תפוח ומזקקים ממנו את המתיקות וזורקים את הסיבים, לוקחים את האורז המלא וזורקים ממנו את כל החלקים הטובים. למה? כי זה יותר טעים...<br>מצבי הביניים: כשאוכלים שוקולד, חוץ מתענוג ואינסולין שמשוחרר לדם וגורם הרגשה טובה, יש שם גם חומר שהגוף איכשהו משתמש בו: שומן, סוכר, קקאו. כששותים קפה, הקפאין ממכר אבל יש שם גם חלב ומים שהגוף משתמש בהם. כשמעשנים אז הניקוטין נכנס לגוף ואין לגוף שום דבר מה לקבל ממנו אבל הוא מזיק בצורה בינונית.<br>שיא המלכודת הם הסמים. מקסימום תענוג ואין בזה שום דבר. זה תענוג שזורם ישירות לכל המקומות בגוף שמזהים אותו ככזה ונותן הרגשה טובה. כמו אחרי אוכל רק בלי המאמץ, כמו אחרי יחסי מין רק בלי המאמץ. אם הייתי אומר זאת לאמיר הוא היה מגן על האבקה שלו וטוען שהיא טבעית...</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p><strong>הפרדוקס</strong><br>ודווקא דרך הסמים (דוגמא קיצונית אבל אותו הרעיון ממש) נוכל להבין את הפרדוקס של החיים של כולנו. כי מי שמתחיל ליהנות מקיצורי הדרך הללו לא יכול ליהנות יותר מדברים פשוטים והוא נלכד יותר ויותר בתוך המנגנון הזה ולא יכול להפסיק. לא עם השוקולד ולא עם סיגריה ולא עם מאהבות ולא עם סמים. הדבר הכי גרוע שיכול לחוות אדם בקזינו למשל: להרוויח בפעם הראשונה שלו באיזה משחק 20,000 דולר בשנייה אחת. אם הוא לא עוצר את זה ברגע זה הוא נכנס למלכודת וסחרור שיהרוס לו את כל החיים. הוא לא יוכל יותר לעבוד כי עכשיו הוא יודע שאפשר בשנייה להרוויח את הסכום שהוא מרוויח בשנה. אז מה הפרדוקס? הפרדוקס הוא שבשלב מסויים, אותם תענוגים שהיוו בשבילו "היי" הופכים להיות התענוג הנורמלי, הוא כבר לא נהנה מהם כמו בהתחלה. הוא מקבל תענוג מינימלי מאנרגיה מקסימלית. זו בדיוק הייתה הבעיה שלי עם אמיר, הוא פיתח "דעות ורעיונות" כדי להצדיק את המצב שלו, שהוא לא באמת יכול לחזור לארץ ולחיות חיים נורמליים. מרוב שהוא לא יכול הוא שכנע את עצמו שהוא לא רוצה.<br>וכאן, במצב הזה יש שני שלבים הרסניים במיוחד:<br>א. שלב ההחמרה: הוא כל הזמן מוסיף יותר ויותר הנאות מוקצנות כדי להרגיש משהו. המהמר ימכור את כל נכסיו בשביל לחוות שוב את התענוג הקיצוני הזה.<br>ב. שלב שבירת הכלים: כל החיים שלו נהרסים. המסומם לא מצליח לחזור לחיים נורמליים, המעשן ואוכל הג'אנק יחלו במחלות, המשפחה של רודף השמלות תתפרק והמהמר? הוא ירד מהארץ.<br>מילה נוספת לפני שעוברים לפתרון: נדמה שהמלכודת איננה רק אישית אלא גם חברתית-תרבותית. לפעמים נדמה שהחברה בימינו מעבירה מסר ממולכד לכתחילה. אם בעבר לעבוד ארבעים שנה באותו מקום עבודה היה נחשב למקור לגאווה, בימינו השאיפה היא "להביא מכה", להרוויח הרבה כסף במינימום זמן ומאמץ. באמת מכה...<br>פעם בכדי להשיג אוכל היית צריך לרוץ, להתחבא, להשתמש ביכולות ולצוד. היום אתה לא צריך לצאת מהבית, אתה מזמין עם הפלאפון או אם אתה בדרכים, אתה אפילו לא חייב לצאת מהאוטו ולהתיישב, בשביל זה יש מק דרייב.<br>דוגמא נוספת – ספרים לעומת סרטים. ספר הוא ספא לדמיון, מתנה לכל אדם חושב. סרט לעומת זאת – הפצצה של החושים. לקרוא ספר לוקח כמה שעות או כמה ימים, יש צורך להתרכז. סרט הוא כמו גלולה – אתה בוהה בה והיא כבר תעניק לך הכל – אז פלא שהדור של ימינו חולה במחלת הקשב והריכוז?<br>הדור האינטרנטי – טלויזיוני מדגים לנו שהמגמה היא שתשב בבית עם שלט ולא תעשה כלום. הניוון בהתגלמותו והיפך הטבע כמובן.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p><strong>מה עושים? איך יוצאים מהמלכודת?</strong><br>בספר דברים נאמר "רְאֵה נָתַתִּי לְפָנֶיךָ הַיּוֹם, אֶת-הַחַיִּים וְאֶת-הַטּוֹב, וְאֶת-הַמָּוֶת, וְאֶת-הָרָע... וּבָחַרְתָּ, בַּחַיִּים לְמַעַן תִּחְיֶה, אַתָּה וְזַרְעֶךָ."<br>ולכאורה לא ברור - יש מישהו שלא רוצה לבחור בחיים? שלא רוצה לבחור בטוב? אז זהו – כולם רוצים טוב, זו הייתה נקודת המוצא שלנו, אז איך הגענו למצב של שבירה וחורבן? של התמכרות לרע ולזבל?<br>התשובה היא שנפלנו למלכודת ושאפשר לצאת ממנה בכמה שלבים:<br>שלב א': רצון – אתה רוצה להרגיש שוב טעם בדברים הפשוטים?<br>שלב ב': בחירת סביבה נכונה לתהליך. אם יוצאים לפאב, מה אעשה שם? אנשנש חסה? הסביבה משפיעה עלינו יותר ממה שאנחנו חושבים<br>שלב ג': הימנעות – שוקולד, סיגריות, קפה וכו' הם לא דברים שליליים נטו אבל בכדי להגיע למצב שאתה שולט בהם ולא הם בך יש צורך להפסיק לחלוטין את השימוש בהם עד הודעה חדשה. כרגע אתה גם ככה לא באמת נהנה מהם.<br>שלב ד': ניהול השינוי – בתהליך ניהול השינוי אתה עלול לחוש קריז, דכאון, ריקנות או תסמינים שונים של ניקוי כמו חולי וכו' (הגוף והנפש מוציאים החוצה את הרעלים הפיזיים והנפשיים שהכנסת אליו). בשלב הזה צריכים הרבה אמונה, חברים תומכים, לא להתרגש אם יש נפילות ובעיקר, שוב, רצון אמיתי להיות נקי.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p><strong>לסיכום,</strong><span>&nbsp;תענוג הוא סם החיים של כל בני אדם אבל הוא גם סם המוות של רובנו, המכורים אליו בצורה זו או אחרת. ההצעה הנ"ל, להתנקות, היא לא בגלל שכותב המאמר החליט מהתנזר מהחיים הטובים או משהו כזה אלא דווקא להיפך, דווקא בגלל "ובחרת בחיים", שהרי כשאתה מכור אתה לא באמת נהנה. המטרה היא שנוכל כולנו ליהנות בלי המלכודת. בהצלחה.</span></p>
+<p>&nbsp;</p>
+<p><span>תודה לרב יובל הכהן אשרוב על שפקח עיניי לרעיון&nbsp;המובא במאמר</span></p>
+<p>&nbsp;</p>
+<p style="text-align: center;"><span><a href="/מאמרים/קואצינג-עצמי/" title="אני המאמן/ת של עצמי">עוד מאמרים בהתפתחות אישית וקואצ'ינג עצמי</a> | <a rel="noopener" href="/ספרים/" target="_blank" title="ספרים">הספרים של משה שרון</a> | <a rel="noopener" href="/קורסים-והרצאות/" target="_blank" title="שיעורים">מנוי לקורסים של משה שרון</a></span></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="my-5">
+    <h3 class="text-center">שיתוף</h3>
+
+    <div class="text-center">
+        <a href="https://www.facebook.com/sharer.php?u=https://mo6.co.il/&#x5DE;&#x5D0;&#x5DE;&#x5E8;&#x5D9;&#x5DD;/&#x5E7;&#x5D5;&#x5D0;&#x5E6;&#x5D9;&#x5E0;&#x5D2;-&#x5E2;&#x5E6;&#x5DE;&#x5D9;/&#x5DE;&#x5DC;&#x5DB;&#x5D5;&#x5D3;&#x5EA;-&#x5D4;&#x5EA;&#x5E2;&#x5E0;&#x5D5;&#x5D2;-&#x5DE;&#x5E9;&#x5D4;-&#x5E9;&#x5E8;&#x5D5;&#x5DF;/">
+            <button class="btn btn-just-icon btn-round btn-facebook">
+                <i class="mdi mdi-line-inherit mdi-facebook"> </i>
+            </button>
+        </a>
+        <a href="mailto:?body=https://mo6.co.il/&#x5DE;&#x5D0;&#x5DE;&#x5E8;&#x5D9;&#x5DD;/&#x5E7;&#x5D5;&#x5D0;&#x5E6;&#x5D9;&#x5E0;&#x5D2;-&#x5E2;&#x5E6;&#x5DE;&#x5D9;/&#x5DE;&#x5DC;&#x5DB;&#x5D5;&#x5D3;&#x5EA;-&#x5D4;&#x5EA;&#x5E2;&#x5E0;&#x5D5;&#x5D2;-&#x5DE;&#x5E9;&#x5D4;-&#x5E9;&#x5E8;&#x5D5;&#x5DF;/">
+            <button class="btn btn-just-icon btn-round btn-google">
+                <i class="mdi mdi-line-inherit mdi-email"> </i>
+            </button>
+        </a>
+        <a href="https://twitter.com/share?url=https://mo6.co.il/&#x5DE;&#x5D0;&#x5DE;&#x5E8;&#x5D9;&#x5DD;/&#x5E7;&#x5D5;&#x5D0;&#x5E6;&#x5D9;&#x5E0;&#x5D2;-&#x5E2;&#x5E6;&#x5DE;&#x5D9;/&#x5DE;&#x5DC;&#x5DB;&#x5D5;&#x5D3;&#x5EA;-&#x5D4;&#x5EA;&#x5E2;&#x5E0;&#x5D5;&#x5D2;-&#x5DE;&#x5E9;&#x5D4;-&#x5E9;&#x5E8;&#x5D5;&#x5DF;/">
+            <button class="btn btn-just-icon btn-round btn-twitter">
+                <i class="mdi mdi-line-inherit mdi-twitter"></i>
+            </button>
+        </a>
+        <a href="whatsapp://send?text=https://mo6.co.il/&#x5DE;&#x5D0;&#x5DE;&#x5E8;&#x5D9;&#x5DD;/&#x5E7;&#x5D5;&#x5D0;&#x5E6;&#x5D9;&#x5E0;&#x5D2;-&#x5E2;&#x5E6;&#x5DE;&#x5D9;/&#x5DE;&#x5DC;&#x5DB;&#x5D5;&#x5D3;&#x5EA;-&#x5D4;&#x5EA;&#x5E2;&#x5E0;&#x5D5;&#x5D2;-&#x5DE;&#x5E9;&#x5D4;-&#x5E9;&#x5E8;&#x5D5;&#x5DF;/" data-action="share/whatsapp/share">
+            <button class="btn btn-just-icon btn-round btn-whatsapp">
+                <i class="mdi mdi-line-inherit mdi-whatsapp"> </i>
+            </button>
+        </a>
+    </div>
+</div>
+
+<div class="container ">
+    <hr />
+    <div class="comments mb-5">
+        <h3 class="text-center">תגובות</h3>
+                <h4 class="text-center">אין עדיין תגובות</h4>
+    </div>
+</div>
+
+<script>
+
+    var newReply = false;
+
+    $(document).on('click', '.comment-title', function (e) {
+        if ($(this).parent().parent().hasClass("hide-comment")) $(this).parent().parent().removeClass("hide-comment");
+        else $(this).parent().parent().addClass("hide-comment");
+    });
+
+    $(document).ready(function () {
+
+        function scrollToElement($element) {
+            var elementCenter = $element.offset().top + ($element.outerHeight() / 2);
+            var viewportHeight = $(window).height();
+
+            $('html, body').animate({
+                scrollTop: elementCenter - (viewportHeight / 2)
+            }, 500); // 500ms duration for the scroll
+        }
+        $(document).on("click", ".btn-reply", function () {
+            let $replyForm = $("#comment-form").removeClass("hide");
+
+            let $commentContainer = $(this).closest('.comment-container');
+
+            // Set the parentCommentID for the reply form
+            $replyForm.find(".parentCommentID").val($commentContainer.attr("id"));
+
+            // Find where to insert the reply form based on the arrow icon
+            let $next = $commentContainer.next();
+            while ($next.length && $next.find('.material-icons:contains("subdirectory_arrow_left")').length) {
+                $next = $next.next();
+            }
+
+            // Move the reply form to the right position
+            if ($next.length) {
+                $next.before($replyForm);
+            } else {
+                $commentContainer.after($replyForm);
+            }
+            newReply = true;
+            $("#comment").removeClass("hide");
+
+            scrollToElement($replyForm);
+        });
+
+        // When the close button on the reply form is clicked.
+        $(document).on("click", ".reply-form .btn-x", function () {
+            $(this).closest('.reply-form').remove();
+        });
+
+        // Optionally: Hide the reply form when clicking outside
+        $(document).click(function (event) {
+            if (!$(event.target).closest(".comment-container, .reply-form, .btn-reply").length) {
+                $(".reply-form").remove();
+            }
+        });
+    });
+
+    function handleAjaxSuccess(response, status, xhr) {
+        var $form = $(this);
+
+        // If it's the main comment form, place the new comment below #newComment
+        if (newReply === false) {
+            $("#newComment").after(response);
+
+            // Hide the form
+            $form.parent().addClass("hide");
+
+            // Reset the form's fields
+            $form[0].reset();
+
+            // Show the #comment button again
+            $("#comment").removeClass("hide");
+
+            return;  // Exit the function after processing main comment
+        }
+
+
+        // For reply forms
+        var parentCommentID = $form.find(".parentCommentID").val();
+
+        if (parentCommentID) {
+            // It's a reply
+            var $parentComment = $("#" + parentCommentID);
+
+            // Check for subsequent replies to the same parent
+            var $next = $parentComment.next();
+            while ($next.length && $next.find('.material-icons:contains("subdirectory_arrow_left")').length) {
+                $next = $next.next();
+            }
+
+            // Insert the new reply
+            if ($next.length) {
+                $next.before(response);
+            } else {
+                $parentComment.after(response);
+            }
+        } else {
+            // This else block might not be needed since the "main comment" case is already handled above.
+            $(".comment-container:first").before(response);
+        }
+        $form[0].reset();
+
+        // Hide the form
+        $form.parent().addClass("hide");
+
+    }
+
+
+
+    $("#comment").click(function () {
+        $(this).addClass("hide");
+        $(this).after($("#comment-form").removeClass("hide"));
+        newReply = false;
+        $("#comment-form").find(".parentCommentID").val(null);
+
+    });
+
+
+
+</script>
+
+
+    </div>
+
+    
+
+
+<footer class="footer footer-big" style="background-color:#dddddd">
+
+    <div class="container" >
+        <div class="content">
+            <div class="row">
+                <div class="col-md-4 flex-column d-flex flex-column">
+                    <h5>תוכן</h5>
+                    <a class="mb-2 text-gray" href="/">דף הבית</a>
+
+                    <a class="mb-2 text-gray" href="/אודות">אודות</a>
+
+                    <a class="mb-2 text-gray" href="/מאמרים">מאמרים</a>
+
+                    <a class="mb-2 text-gray" href="/קורסים-והרצאות">קורסים והרצאות</a>
+
+                    <a class="mb-2 text-gray" href="/אירועים">אירועים</a>
+
+                    <a class="mb-2 text-gray" href="/ספרים">ספרים</a>
+
+                    <a class="mb-2 text-gray" href="/צור-קשר">צור קשר</a>
+
+                    <a class="mb-2 text-gray" href="תקנון">תקנון האתר</a>
+
+
+
+                </div>
+                <div class="col-md-4">
+                    <h5>מדיה חברתית</h5>
+                    <a target="_blank" href="https://www.facebook.com/mo6aron"
+                    <button class="btn btn-just-icon  btn-facebook">
+                        <i class="mdi mdi-line-inherit mdi-facebook"> </i>
+                    </button>
+                    </a>
+                    <a target="_blank" href="https://www.instagram.com/mo6aron/">
+                        <button class="btn btn-just-icon instagram">
+                            <i class="mdi mdi-line-inherit mdi-instagram"> </i>
+                            </button>
+                        </a>
+                    <a target="_blank" href="https://www.youtube.com/@MosheSharon6">
+                        <button class="btn btn-just-icon  btn-youtube">
+                            <i class="mdi mdi-line-inherit mdi-youtube"> </i>
+                        </button>
+                    </a>
+                    <a target="_blank" href="https://chat.whatsapp.com/LvFG8ourAf81w2xZ5yswMH">
+                        <button class="btn btn-just-icon  btn-whatsapp">
+                            <i class="mdi mdi-line-inherit mdi-whatsapp"> </i>
+                        </button>
+                    </a>
+                    <a target="_blank" href="https://t.me/joinchat/GnRWhstxsMAWErGC">
+                        <button class="btn btn-just-icon" style="background-color:#2ca5e0;">
+                            <i class="mdi mdi-line-inherit mdi-telegram"> </i>
+                        </button>
+                    </a>
+                    </div>
+                <div class="col-md-4">
+    <h5 data-open-accessibility-text-original="17px" style="font-size: 17px;">הרשמה לניוזלטר</h5>
+    <div id="newsletter-signup-form">
+        <div id="ravcontent">
+            <div class="floatingarea  white" data-floatingalign="middle_middle" data-floatingopencondition="pageload" data-floatingopeneffect="" data-showfloating="true" data-enableoverlay="" data-showfloatingonceperclient="" data-closefloatingonpressoutside="" data-overlayopacity="100" data-floatingopenpageloaddelay="1000" data-floatingperctscroll="50" data-floatingopenfadeinduration="" data-floatingopenenterfromtopduration="" "=" ">  <div class=" floatingareaBackground" style="opacity:1 !important"></div>  <div class="  floatingareaAlignment " style="">
+                <div class=" floatingareaContainerElm floatingareaContainer " style="" data-heighthint="275px" data-widthhint="1232px">
+                    <div class="  closefloating " style=""> </div>   <div class=" multyparent bodyarea_multyelements" style="">
+                        <div class="inner_bodyarea_multyelements">
+                            <div data-responsive_settings="range(0,400) {{{
+setClass(&quot;display_tag_responsive_floatingform_narrow&quot;);
+}}}
+range(401,10000) {{{
+removeClass(&quot;display_tag_responsive_floatingform_narrow&quot;);
+}}}" class="overridestyle t0 t2105 t1504954 multyserial  multy  name_floatingFormContainer name_floatingFormContainer-simple name_floatingFormContainer-simple-inherited name_floatingFormContainer   sonof_ sonof_name_ after_ after_name_ before_ before_name_ display_tag_conf_multy_view_admin paddingInOutsideMulty" style="flex-basis:582px !important; " data-multy-unique-id="">
+                                <div class="multyinner" style="">
+                                    <div class=" multyparent multyelements" style="">
+                                        <div data-responsive_settings="" class="overridestyle t0 t2105 t1504954 multyimage  multy  name_closebutton name_closebutton-basic name_closebutton-basic-new name_closebutton  right sonof_multyserial sonof_name_floatingFormContainer-simple-inherited sonof_name_floatingFormContainer sonof_multyserial  sonof_name_floatingFormContainer sonof_name_floatingFormContainer-simple sonof_name_floatingFormContainer-simple-inherited after_ after_name_ before_multyserial before_name_serial-form_container  before_name_serial before_name_serial-form_container display_tag_multyimage_closepanelbutton display_tag_conf_multy_private" style=" display:none !important" data-multy-unique-id="">  <div class="multyinner" style="">  <div class="inputImageControl imageControl" style="width:38px !important;height:38px !important;">  <a href="#closePopup" target="_blank" data-open-accessibility-text-original="16px" style="font-size: 16px;">  <img src="//simages.ravpages.co.il/xsite_resources/static_images/templates_images/forms/global/closepanel/transparent-regular-white_38X38.png?ver=3.12&amp;rxc=1532355884" class="imageContainer inputImageControl imageControl" style="display:none !important;width:38px !important;" alt="" title=""> </a>  </div>  </div>  </div>  <div data-responsive_settings="" class="overridestyle t0 t2105 t1504954 multyserial  multy  name_serial name_serial-form_container name_serial   sonof_multyserial sonof_name_floatingFormContainer-simple-inherited sonof_name_floatingFormContainer sonof_multyserial  sonof_name_floatingFormContainer sonof_name_floatingFormContainer-simple sonof_name_floatingFormContainer-simple-inherited after_multyimage after_name_closebutton-basic-new  after_name_closebutton after_name_closebutton-basic after_name_closebutton-basic-new before_ before_name_ display_tag_conf_multy_view_all" style=" " data-multy-unique-id="">
+                                            <div class="multyinner" style="">
+                                                <div class=" multyparent multyelements" style="">
+                                                    <div data-responsive_settings="" class="overridestyle t0 t2105 t1504954 multyserial  multy  name_subarea name_subarea-simple name_subarea-simple-black name_subarea  center sonof_multyserial sonof_name_serial-form_container sonof_name_serial sonof_multyserial  sonof_name_serial sonof_name_serial-form_container after_ after_name_ before_multyserial before_name_subarea-simple-white  before_name_subarea before_name_subarea-simple before_name_subarea-simple-white display_tag_conf_multy_view_all backgroundColorInMultyInner paddingInOutsideMulty" style=" " data-multy-unique-id="">  <div class="multyinner" style="">  <div class=" multyparent multyelements" style="">  <div data-responsive_settings="" role="heading" aria-level="1" class="overridestyle t0 t2105 t1504954 multytext  multy  name_text name_text-regular name_text-regular-title_white_assisstant name_text   sonof_multyserial sonof_name_subarea-simple-black sonof_name_subarea sonof_multyserial  sonof_name_subarea sonof_name_subarea-simple sonof_name_subarea-simple-black after_ after_name_ before_multytext before_name_text-regular-subtitle_white_assistant  before_name_text before_name_text-regular before_name_text-regular-subtitle_white_assistant display_tag_multy_text_regular display_tag_conf_multy_view_all" style=" " data-multy-unique-id="">  <div class="multyinner" style=""> <div style="" class=" text_text text text-primary"><p data-open-accessibility-text-original="14px" style="font-size: 14px;"><span class="text-primary" style="font-size: 14px;" data-open-accessibility-text-original="14px">לקבלת מאמרים, הרצאות וקורסים חדשים</span></p></div> </div>  </div>  <div data-responsive_settings="" role="heading" aria-level="1" class="overridestyle t0 t2105 t1504954 multytext  multy  name_text name_text-regular name_text-regular-subtitle_white_assistant name_text   sonof_multyserial sonof_name_subarea-simple-black sonof_name_subarea sonof_multyserial  sonof_name_subarea sonof_name_subarea-simple sonof_name_subarea-simple-black after_multytext after_name_text-regular-title_white_assisstant  after_name_text after_name_text-regular after_name_text-regular-title_white_assisstant before_ before_name_ display_tag_multy_text_regular display_tag_conf_multy_view_all" style=" " data-multy-unique-id="">  <div class="multyinner" style=""> <div style="" class=" text_text text"><p class=" text_text text text-primary" data-open-accessibility-text-original="14px" style="font-size: 14px;">הרשמו עכשיו למגזין השבועי של משה שרון</p></div> </div>  </div>  </div>  </div>  </div>  <div data-responsive_settings="" class="overridestyle t0 t2105 t1504954 multyserial  multy  name_subarea name_subarea-simple name_subarea-simple-white name_subarea  center sonof_multyserial sonof_name_serial-form_container sonof_name_serial sonof_multyserial  sonof_name_serial sonof_name_serial-form_container after_multyserial after_name_subarea-simple-black  after_name_subarea after_name_subarea-simple after_name_subarea-simple-black before_ before_name_ display_tag_conf_multy_view_all backgroundColorInMultyInner paddingInOutsideMulty" style=" " data-multy-unique-id="">
+                                                        <div class="multyinner" style="">
+                                                            <div class=" multyparent multyelements" style="">
+                                                                <div data-responsive_settings="range(0,292) {{{
+                                                                     enableAutoScaler({targetWidth:292});
+                                                                     }}}
+                                                                     range(293,10000) {{{
+                                                                     disableAutoScaler();
+                                                                     }}}
+                                                                     range(0,400) {{{
+                                                                     setClass(&quot;display_tag_multyform_verticalform&quot;);
+                                                                     removeClass(&quot;display_tag_multyform_horizontalform&quot;);
+                                                                     }}}
+                                                                     range(401,10000) {{{
+                                                                     removeClass(&quot;display_tag_multyform_verticalform&quot;);
+                                                                     setClass(&quot;display_tag_multyform_horizontalform&quot;);
+                                                                     }}}
+                                                                     condition(range(0,550) &amp;&amp; formFieldsCount()>
+                                                                    1) {{{
+                                                                    setClass(&quot;display_tag_multyform_verticalform&quot;);
+                                                                    removeClass(&quot;display_tag_multyform_horizontalform&quot;);
+                                                                    }}}
+                                                                    condition(range(0,600) &amp;&amp; formFieldsCount() > 2) {{{
+                                                                    setClass(&quot;display_tag_multyform_verticalform&quot;);
+                                                                    removeClass(&quot;display_tag_multyform_horizontalform&quot;);
+                                                                    }}}
+                                                                    condition(range(0,700) &amp;&amp; formFieldsCount() > 3) {{{
+                                                                    setClass(&quot;display_tag_multyform_verticalform&quot;);
+                                                                    removeClass(&quot;display_tag_multyform_horizontalform&quot;);
+                                                                    }}}
+                                                                    condition(range(0,10000) &amp;&amp; formFieldsCount() > 4) {{{
+                                                                    setClass(&quot;display_tag_multyform_verticalform&quot;);
+                                                                    removeClass(&quot;display_tag_multyform_horizontalform&quot;);
+                                                                    }}}" class="overridestyle t0 t2105 t1504954 multyform  multy  name_form name_form-horizontal_square name_form-horizontal_square-inherited name_form   sonof_multyserial sonof_name_subarea-simple-white sonof_name_subarea sonof_multyserial  sonof_name_subarea sonof_name_subarea-simple sonof_name_subarea-simple-white after_ after_name_ before_ before_name_ display_tag_multyform_horizontalform display_tag_conf_multy_view_all" style=" " data-multy-unique-id="jsid10000001">  <div class="multyinner" style=""> <div class="formBody"> <form field-count="1" class="form" action="https://ravxx-subscriber-v1.ravpage.co.il/" method="post">  <div class=" multyparent multyfields" style="">  <div class="inner_multyfields">  <div data-responsive_settings="" class="overridestyle t0 t2105 t1504954 multyfield  multy  name_ name_   sonof_multyform sonof_name_form-horizontal_square-inherited sonof_name_form sonof_multyform  sonof_name_form sonof_name_form-horizontal_square sonof_name_form-horizontal_square-inherited after_ after_name_ before_ before_name_" style=" " data-multy-unique-id="">  <div class="multyinner" style="">  <div class=" field fieldname_subscribers_email fieldtype_singlelineText nolabel">  <input aria-label="הכנס את כתובת האימייל שלך..." name="fields[subscribers_email]" type="email" placeholder="כתובת האימייל שלך..." class="email required " value="">  </div>  </div>  </div>  </div>  </div>   <div class="submitbuttonbox">  <a href="#" class="submitButton" style="font-size: 16px;" data-open-accessibility-text-original="16px"> <div class="rightPart"></div> <input type="submit" class="btn btn-sm btn-primary" name="none" value="להרשמה"> <div class="leftPart"></div> <div class="clear"></div> </a>  </div> <input type="hidden" name="__ravxx_url__" value="http://form.ravpage.co.il/2ae29537c45e5642924d43bb22570a41657EC158"> <input type="hidden" name="__ravxx_source_info__" value="{&quot;public_id&quot;:&quot;2ae29537c45e5642924d43bb22570a41657EC158&quot;,&quot;normalized_url&quot;:&quot;http:\/\/form.ravpage.co.il\/2ae29537c45e5642924d43bb22570a41657EC158&quot;,&quot;url&quot;:&quot;http:\/\/form.ravpage.co.il\/2ae29537c45e5642924d43bb22570a41657EC158&quot;,&quot;group&quot;:&quot;24a1340d478621780bb8e4b0cad022dc&quot;}"> <input type="hidden" name="form_id" value="2479489"> <input type="hidden" name="encoding" value="utf-8"> </form> <div class="clear"></div> </div> </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>var __ravxxx_captcha__ = true;</script>
+<style>
+    body > div:has(iframe[src*="recaptcha"]) {
+        display: none !important;
+    }</style> <!--FORM_PROTECTION_CAPTCHA--> <script>document.addEventListener('DOMContentLoaded', () => { setTimeout(function () { const parsedURL = new URL(window.location.href); const hostname = parsedURL.hostname; if (window["__ravxxx_captcha__"]) { const scriptTag = document.createElement('script'); scriptTag.src = 'https://www.google.com/recaptcha/api.js?render=6LdUQi4mAAAAAK3x9z3v4BWVLqtHbQxeTn9rsT8b'; scriptTag.async = true; scriptTag.defer = true; document.head.appendChild(scriptTag); } }, 0); });</script>
+<script type="text/javascript">if (typeof console == "undefined") var console = { log: function () { } }; __ravpageContext = { 'locals': {}, 'updates': [] }; cookieStr = __ravpageContext.locals.cookiesStr = "" + document.cookie; publicID = __ravpageContext.locals.publicID = "2ae29537c45e5642924d43bb22570a41657EC158"; tabtype = __ravpageContext.locals.tabtype = "desktop"; analyticsTrackingID = __ravpageContext.locals.analyticsTrackingID = ""; pageURL = __ravpageContext.locals.pageURL = "http://form.ravpage.co.il/2ae29537c45e5642924d43bb22570a41657EC158"; formHandler = __ravpageContext.locals.formHandler = "~~${formHandler}~~"; pageType = __ravpageContext.locals.pageType = "form"; uniqueID = __ravpageContext.locals.uniqueID = "6614674_1702815602";</script>
+<script type="text/javascript">if (typeof (realbeginning) == 'undefined') realbeginning = new Date(); var begin_wrapper_1 = new Date(); if ((typeof (__ravpageContext) != 'undefined') && __ravpageContext.locals.console) __ravpageContext.locals.console.log('time till begin_wrapper_1', begin_wrapper_1 - realbeginning);</script><script type="text/javascript" src="//js.ravpages.co.il/xsite_resources/js/static/cached/xsites/formoutput/122023/xsites__formoutput__6ff6448017b4df3acd1bda5fcda4f5f1_a9400e332f8b92f25620695c49483c46_1702312210.js?rxc=1532355884"></script>
+<script type="text/javascript">if (typeof (realbeginning) == 'undefined') realbeginning = new Date(); if ((typeof (__ravpageContext) != 'undefined') && __ravpageContext.locals.console) __ravpageContext.locals.console.log('time after begin_wrapper_1', (new Date()) - realbeginning, '+(', (new Date()) - begin_wrapper_1, ')');</script>
+<script type="text/javascript">if (typeof (realbeginning) == 'undefined') realbeginning = new Date(); var begin_wrapper_1 = new Date(); if ((typeof (__ravpageContext) != 'undefined') && __ravpageContext.locals.console) __ravpageContext.locals.console.log('time till begin_wrapper_1', begin_wrapper_1 - realbeginning);</script>
+<script type="text/javascript">if (typeof (realbeginning) == 'undefined') realbeginning = new Date(); if ((typeof (__ravpageContext) != 'undefined') && __ravpageContext.locals.console) __ravpageContext.locals.console.log('time after begin_wrapper_1', (new Date()) - realbeginning, '+(', (new Date()) - begin_wrapper_1, ')');</script> <style type="text/css"></style>
+<div data-content-language="" class="RDUI_6614674_1702815602 a RDS100213 RMCONTENT RMFORM RMFORM_2105 entityType_floating_form floating_form desktop    color1  texture1  version4 afterinit" data-embed-type="flex">   </div>
+
+
+            </div>
+        </div>
+        <hr>
+        <div class="copyright float-right">
+            &copy;
+            <script>
+                document.write(new Date().getFullYear())
+            </script>
+            משה שרון
+        </div>
+    </div>
+</footer>
+
+
+<script>
+    $(document).ready(function () {
+
+                        });
+</script>
+
+
+<div id="loginModal" tabindex="-1" role="dialog" class="modal fade" style="display: none;" aria-hidden="true">
+
+    <div class="modal-dialog modal-login" role="document">
+        <div class="modal-content">
+            <div class="card card-signup card-plain">
+                <div class="modal-header">
+                    <div class="card-header card-header-primary text-center">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="material-icons">clear</i></button>
+                        <h3 class="mb-2 card-title">התחברות</h3>
+                    </div>
+                </div>
+                <div id="loginForm">
+
+
+                    <div class="login-form">
+<form action="/%D7%9E%D7%90%D7%9E%D7%A8%D7%99%D7%9D/%D7%A7%D7%95%D7%90%D7%A6%D7%99%D7%A0%D7%92-%D7%A2%D7%A6%D7%9E%D7%99/%D7%9E%D7%9C%D7%9B%D7%95%D7%93%D7%AA-%D7%94%D7%AA%D7%A2%D7%A0%D7%95%D7%92-%D7%9E%D7%A9%D7%94-%D7%A9%D7%A8%D7%95%D7%9F/" enctype="multipart/form-data" id="formc0c1c0e7d8bd4d399579972232b1b91e" method="post" name="loginForm">                            <div class="modal-body">
+                                <div class="card-body">
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="material-icons">mail</i>
+                                                </span>
+                                            </div>
+                                            <label class="bmd-label-floating login-field">אימייל</label>
+                                            <input data-val-required="נדרש אימייל" class="form-control" type="text" data-val="true" id="loginModel_Username" name="loginModel.Username" value="" />
+                                            <span class="login-error field-validation-valid" data-valmsg-for="loginModel.Username" data-valmsg-replace="true"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="material-icons">password</i>
+                                                </span>
+                                            </div>
+                                            <label class="bmd-label-floating login-field">סיסמא</label>
+                                            <input data-val-required="נדרשת סיסמא" class="form-control" type="password" data-val="true" data-val-length="The field Password must be a string with a maximum length of 256." data-val-length-max="256" id="loginModel_Password" maxlength="256" name="loginModel.Password" />
+                                            <span class="login-error field-validation-valid" data-valmsg-for="loginModel.Password" data-valmsg-replace="true"></span>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group justify-content-center">
+                                            <div class="input-group-prepend">
+                                            </div>
+                                            <input class="mx-2" type="checkbox" data-val="true" data-val-required="The Remember me? field is required." id="loginModel_RememberMe" name="loginModel.RememberMe" value="true">
+                                            <label class="form-check-label" for="loginModel_RememberMe">
+                                                זכור אותי
+                                            </label>
+                                        </div>
+                                    </div>
+
+
+                                    </div>
+                                </div>
+                            <div id="login-message"></div>
+                            <div class="modal-footer justify-content-center">
+                                <input type="hidden" name="captcha" id="captchaInputLogin" data-captcha-login="true" />
+                                <button type="submit" class="btn btn-primary btn-wd mb-4">התחברות</button>
+                            </div>
+<input name="__RequestVerificationToken" type="hidden" value="CfDJ8PhdAR4BIOJNutCsGDRSrnovxK3aJ71B1WjtW0Wt3UKeHC5SSBJ5F4mvFLgMafjRzXOnZlsRnK5kK-vDseLVRtLX11FqceP15YxzcY137lLnW6DVIZEDID6g21Z_tt4CBRks8QQo9My3bxlH2SsuW0g" /><input name="ufprt" type="hidden" value="CfDJ8PhdAR4BIOJNutCsGDRSrnq6soTWMbF1iwl_CqCDft2JRpUTj9cJhCzxZ4qtYnOPZleYMiqcqAZaEswsN2ayvx4i4zXbsFDCUpVe65YPn5VFkQSVOWkqakTPDpnC2AGUaxE8NK5hjXpKDBsmVzViADI" /><input name="loginModel.RememberMe" type="hidden" value="false"></form>                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    $(document).ready(function () {
+                });
+</script>
+<div id="registerModal" tabindex="-1" role="dialog" class="modal fade" style="display: none;" aria-hidden="true">
+
+    <div class="modal-dialog modal-login" role="document">
+        <div class="modal-content">
+            <div class="card card-signup card-plain">
+                <div class="modal-header">
+                    <div class="card-header card-header-success text-center">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="material-icons">clear</i></button>
+                        <h3 class="mb-2 card-title">הרשמה</h3>
+                    </div>
+                </div>
+
+<form action="/%D7%9E%D7%90%D7%9E%D7%A8%D7%99%D7%9D/%D7%A7%D7%95%D7%90%D7%A6%D7%99%D7%A0%D7%92-%D7%A2%D7%A6%D7%9E%D7%99/%D7%9E%D7%9C%D7%9B%D7%95%D7%93%D7%AA-%D7%94%D7%AA%D7%A2%D7%A0%D7%95%D7%92-%D7%9E%D7%A9%D7%94-%D7%A9%D7%A8%D7%95%D7%9F/" enctype="multipart/form-data" id="form630296386495406baf37cf92603eb69d" method="post" name="registerForm">                        <div style="text-align:center">
+                            <h4 class="mt-4">ברוכים הבאים!</h4>
+                            <p class="mx-4 my-3 "> כל אחד יכול להירשם בחינם לאתר שלנו, לכתוב תגובות ולהצטרף לדיונים על התוכן.<br /><br /> לאחר ההרשמה, אתם גם יכולים להפוך למנויים ולהינות מגישה מלאה לכל התכנים המרתקים שלנו בתשלום של 67 ₪ בחודש ברכישת מנוי חודשי מתחדש, או 47 ₪ לחודש ברכישת מנוי לשנה. הצטרפו אלינו וגלו עולם של תוכן משנה חיים!</p>
+                            <button class="btn btn-success btn-link btn-wd btn-lg" data-dismiss="modal" data-toggle="modal" data-target="#registerSubscribeModal">להרשמה עם רכישת מנוי לחצו כאן</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="card-body">
+
+
+
+                                <div class="form-group bmd-form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">
+                                                <i class="material-icons">badge</i>
+                                            </span>
+                                        </div>
+                                        <label class="bmd-label-floating login-field">שם מלא</label>
+                                        <input class="form-control form-control-green" aria-required="true" data-val="true" data-val-required="נדרש שם" data-val-regex="נדרש שם מלא - שם ושם משפחה" data-val-regex-pattern="^\s*\S+(\s+\S+)+\s*$" type="text" id="registerModel_Name" name="registerModel.Name" value="" />
+                                               <span class="login-error field-validation-valid" data-valmsg-for="registerModel.Name" data-valmsg-replace="true"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group bmd-form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">
+                                                <i class="material-icons">email</i>
+                                            </span>
+                                        </div>
+                                        <label class="bmd-label-floating login-field">אימייל</label>
+                                        <input data-val-email="כתובת האימייל אינה חוקית" data-val-required="נדרשת כתובת אימייל" class="form-control form-control-green" autocomplete="username" aria-required="true" type="email" data-val="true" id="registerModel_Email" name="registerModel.Email" value="" />
+                                        <span class="login-error field-validation-valid" data-valmsg-for="registerModel.Email" data-valmsg-replace="true"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group bmd-form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">
+                                                <i class="material-icons">password</i>
+                                            </span>
+                                        </div>
+                                        <label class="bmd-label-floating login-field">סיסמא</label>
+                                        <input data-val-required="נדרשת סיסמא" class="form-control form-control-green" autocomplete="new-password" aria-required="true" type="password" data-val="true" data-val-length="The field Password must be a string with a maximum length of 256." data-val-length-max="256" id="registerModel_Password" maxlength="256" name="registerModel.Password" />
+                                        <span class="login-error field-validation-valid" data-valmsg-for="registerModel.Password" data-valmsg-replace="true"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group bmd-form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">
+                                                <i class="material-icons">done_all</i>
+                                            </span>
+                                        </div>
+                                        <label class="bmd-label-floating login-field">אימות סיסמא</label>
+                                        <input data-val-equalto="הסיסמאות אינן תואמות" data-val-required="נדרשת סיסמא לאימות" class="form-control form-control-green" type="password" data-val="true" data-val-equalto-other="*.Password" id="registerModel_ConfirmPassword" name="registerModel.ConfirmPassword" />
+                                        <span class="login-error field-validation-valid" data-valmsg-for="registerModel.ConfirmPassword" data-valmsg-replace="true"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group bmd-form-group">
+                                    <div class="input-group justify-content-center">
+                                        <div class="input-group-prepend">
+                                        </div>
+                                        <input type="checkbox" name="takanon" class="mx-2" value="true" id="takanonCheckbox">
+                                        <label class="form-check-label" for="takanonCheckbox">
+                                            קראתי ואני מסכים <a class="text-success" href="/תקנון" target="_blank">לתקנון</a> האתר
+                                        </label>
+                                        <!-- Error message span -->
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+                        <div class="modal-footer justify-content-center">
+                            <input type="hidden" name="captcha" id="captchaInputRegister" data-captcha-register="true" />
+                            <button type="submit" class="btn btn-success btn-wd mb-4">הרשמה</button>
+                        </div>
+<input name="__RequestVerificationToken" type="hidden" value="CfDJ8PhdAR4BIOJNutCsGDRSrnovxK3aJ71B1WjtW0Wt3UKeHC5SSBJ5F4mvFLgMafjRzXOnZlsRnK5kK-vDseLVRtLX11FqceP15YxzcY137lLnW6DVIZEDID6g21Z_tt4CBRks8QQo9My3bxlH2SsuW0g" /><input name="ufprt" type="hidden" value="CfDJ8PhdAR4BIOJNutCsGDRSrnrc9ilEAcPO9MXxTEulvlmPlYaCOE5-uLvuras-J448SnIsuWt227Kh2ZFSIoyNFrL7geWllMGSSjzsn7Ru1Q-3BSj4Tr9omFI1xRhxJ_U2dEtUUWun_5LhSXlSO7e62oNV0dbLbtFZcC-U3KVZQ9EDqJMLB2Slrc5Kqb4MWiNE5_cHmEJZzE7VHf44aDaOkJB7NKaAw_mTUtwx2ZCQzZACscVoReTi1cyAUaUGxGHjqQ" /></form>            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+                });
+</script>
+<div id="registerSubscribeModal" tabindex="-1" role="dialog" class="modal fade" aria-hidden="true">
+    <!-- Enforce a max width of ~800px on desktop -->
+    <div class="modal-dialog modal-login" role="document" style="max-width: 800px;">
+        <div class="modal-content">
+            <div class="card card-signup card-plain">
+                <div class="modal-header">
+                    <div class="card-header card-header-success text-center">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                            <i class="material-icons">clear</i>
+                        </button>
+                        <h3 class="text-center">הרשמה ורכישת מנוי</h3>
+                        <p class="text-center">הרשמו לאתר ורכשו מנוי בטופס אחד</p>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="card-body">
+<form action="/%D7%9E%D7%90%D7%9E%D7%A8%D7%99%D7%9D/%D7%A7%D7%95%D7%90%D7%A6%D7%99%D7%A0%D7%92-%D7%A2%D7%A6%D7%9E%D7%99/%D7%9E%D7%9C%D7%9B%D7%95%D7%93%D7%AA-%D7%94%D7%AA%D7%A2%D7%A0%D7%95%D7%92-%D7%9E%D7%A9%D7%94-%D7%A9%D7%A8%D7%95%D7%9F/" enctype="multipart/form-data" id="form198eb44675314441b8de58d9466fa306" method="post">                            <div class="row">
+
+
+                                <div class="col-md-6">
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="material-icons">badge</i>
+                                                </span>
+                                            </div>
+                                            <label class="bmd-label-floating login-field">שם מלא</label>
+                                            <input class="form-control form-control-success" type="text" data-val="true" data-val-regex="&#x5E0;&#x5D3;&#x5E8;&#x5E9; &#x5E9;&#x5DD; &#x5DE;&#x5DC;&#x5D0; - &#x5E9;&#x5DD; &#x5D5;&#x5E9;&#x5DD; &#x5DE;&#x5E9;&#x5E4;&#x5D7;&#x5D4;" data-val-regex-pattern="^\s*\S&#x2B;(\s&#x2B;\S&#x2B;)&#x2B;\s*$" data-val-required="&#x5E0;&#x5D3;&#x5E8;&#x5E9; &#x5E9;&#x5DD;" id="Name" name="Name" value="" />
+                                            <span class="login-error field-validation-valid" data-valmsg-for="Name" data-valmsg-replace="true"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="material-icons">email</i>
+                                                </span>
+                                            </div>
+                                            <label class="bmd-label-floating login-field">אימייל</label>
+                                            <input class="form-control form-control-success" type="email" data-val="true" data-val-email="&#x5DB;&#x5EA;&#x5D5;&#x5D1;&#x5EA; &#x5D4;&#x5D0;&#x5D9;&#x5DE;&#x5D9;&#x5D9;&#x5DC; &#x5D0;&#x5D9;&#x5E0;&#x5D4; &#x5D7;&#x5D5;&#x5E7;&#x5D9;&#x5EA;" data-val-required="&#x5E0;&#x5D3;&#x5E8;&#x5E9;&#x5EA; &#x5DB;&#x5EA;&#x5D5;&#x5D1;&#x5EA; &#x5D0;&#x5D9;&#x5DE;&#x5D9;&#x5D9;&#x5DC;" id="Email" name="Email" value="" />
+                                            <span class="login-error field-validation-valid" data-valmsg-for="Email" data-valmsg-replace="true"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="material-icons">email</i>
+                                                </span>
+                                            </div>
+                                            <label class="bmd-label-floating login-field">אימות אימייל</label>
+                                            <input class="form-control form-control-success" type="text" data-val="true" data-val-equalto="&#x5DB;&#x5EA;&#x5D5;&#x5D1;&#x5D5;&#x5EA; &#x5D4;&#x5D0;&#x5D9;&#x5DE;&#x5D9;&#x5D9;&#x5DC; &#x5D0;&#x5D9;&#x5E0;&#x5DF; &#x5EA;&#x5D5;&#x5D0;&#x5DE;&#x5D5;&#x5EA;" data-val-equalto-other="*.Email" data-val-required="&#x5E0;&#x5D3;&#x5E8;&#x5E9; &#x5D0;&#x5D9;&#x5DE;&#x5D5;&#x5EA; &#x5DC;&#x5DB;&#x5EA;&#x5D5;&#x5D1;&#x5EA; &#x5D0;&#x5D9;&#x5DE;&#x5D9;&#x5D9;&#x5DC;" id="EmailConfirmation" name="EmailConfirmation" value="" />
+                                            <span class="login-error field-validation-valid" data-valmsg-for="EmailConfirmation" data-valmsg-replace="true"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="material-icons">password</i>
+                                                </span>
+                                            </div>
+                                            <label class="bmd-label-floating login-field">סיסמא</label>
+                                            <input type="password" class="form-control form-control-success" data-val="true" data-val-minlength="&#x5E2;&#x5DC; &#x5D4;&#x5E1;&#x5D9;&#x5E1;&#x5DE;&#x5D0; &#x5DC;&#x5D4;&#x5D9;&#x5D5;&#x5EA; &#x5D1;&#x5D0;&#x5D5;&#x5E8;&#x5DA; &#x5E2;&#x5E9;&#x5E8;&#x5D4; &#x5EA;&#x5D5;&#x5D5;&#x5D9;&#x5DD; &#x5DC;&#x5E4;&#x5D7;&#x5D5;&#x5EA;" data-val-minlength-min="10" data-val-required="&#x5E0;&#x5D3;&#x5E8;&#x5E9;&#x5EA; &#x5E1;&#x5D9;&#x5E1;&#x5DE;&#x5D0;" id="Password" name="Password" />
+                                            <span class="login-error field-validation-valid" data-valmsg-for="Password" data-valmsg-replace="true"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="material-icons">done_all</i>
+                                                </span>
+                                            </div>
+                                            <label class="bmd-label-floating login-field">אימות סיסמא</label>
+                                            <input type="password" class="form-control form-control-success" data-val="true" data-val-equalto="&#x5D4;&#x5E1;&#x5D9;&#x5E1;&#x5DE;&#x5D0;&#x5D5;&#x5EA; &#x5D0;&#x5D9;&#x5E0;&#x5DF; &#x5EA;&#x5D5;&#x5D0;&#x5DE;&#x5D5;&#x5EA;" data-val-equalto-other="*.Password" data-val-required="&#x5E0;&#x5D3;&#x5E8;&#x5E9;&#x5EA; &#x5E1;&#x5D9;&#x5E1;&#x5DE;&#x5D0; &#x5DC;&#x5D0;&#x5D9;&#x5DE;&#x5D5;&#x5EA;" id="ConfirmPassword" name="ConfirmPassword" />
+                                            <span class="login-error field-validation-valid" data-valmsg-for="ConfirmPassword" data-valmsg-replace="true"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="material-icons">phone</i>
+                                                </span>
+                                            </div>
+                                            <label class="bmd-label-floating login-field">מספר טלפון</label>
+                                            <input type="tel" class="form-control form-control-success" data-val="true" data-val-regex="&#x5DE;&#x5E1;&#x5E4;&#x5E8; &#x5D4;&#x5D8;&#x5DC;&#x5E4;&#x5D5;&#x5DF; &#x5D0;&#x5D9;&#x5E0;&#x5D5; &#x5EA;&#x5E7;&#x5D9;&#x5DF;" data-val-regex-pattern="^0\d{8,9}$" data-val-required="&#x5E0;&#x5D3;&#x5E8;&#x5E9; &#x5DE;&#x5E1;&#x5E4;&#x5E8; &#x5D8;&#x5DC;&#x5E4;&#x5D5;&#x5DF;" id="PhoneNumber" name="PhoneNumber" value="" />
+                                            <span class="login-error field-validation-valid" data-valmsg-for="PhoneNumber" data-valmsg-replace="true"></span>
+                                        </div>
+                                    </div>
+
+
+                                </div> <!-- end col-md-6 -->
+
+                                <div class="col-md-6 mt-lg-4">
+                                    <div class="mt-4 mb-3">
+                                        <!-- Existing nested row for the two subscription options -->
+                                        <div class="row justify-content-center">
+                                            <div class="col-md-5 col-sm-12">
+                                                <div class="card card-pricing card-plain" style="margin:0px;">
+                                                    <div class="card-body text-center">
+                                                        <h6 class="card-category text-info">מנוי חודשי</h6>
+                                                        <h2 class="card-title">
+                                                            <small>₪</small>67
+                                                            <small style="font-size: 30%;">/חודש</small>
+                                                        </h2>
+                                                        <ul class="text-right pr-0" style="list-style-type: none;">
+                                                            <li>גישה מלאה לכל התכנים</li>
+                                                            <li>תשלום של ₪67 מדי חודש</li>
+                                                            <li>ביטול באתר בכל עת</li>
+                                                        </ul>
+                                                        <div class="form-check form-check-radio">
+                                                            <label class="form-check-label" for="MonthlySubscription">
+                                                                <input class="form-check-input" type="radio" value="true" id="MonthlySubscription" checked data-val="true" data-val-required="The Monthly field is required." name="Monthly" />
+                                                                בחירה במנוי חודשי
+                                                                <span class="circle">
+                                                                    <span class="check"></span>
+                                                                </span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-5 col-sm-12">
+                                                <div class="card card-pricing card-plain" style="margin:0px;">
+                                                    <div class="card-body text-center">
+                                                        <h6 class="card-category text-info">מנוי שנתי</h6>
+                                                        <h2 class="card-title">
+                                                            <small>₪</small>47
+                                                            <small style="font-size: 30%;">/חודש</small>
+                                                        </h2>
+                                                        <ul class="text-right pr-0" style="list-style-type: none;">
+                                                            <li>גישה מלאה לכל התכנים</li>
+                                                            <li>תשלום חד פעמי של ₪564 לשנה</li>
+                                                            <li>לא מתחדש באופן אוטומטי</li>
+                                                        </ul>
+                                                        <div class="form-check form-check-radio">
+                                                            <label class="form-check-label" for="YearlySubscription">
+                                                                <input class="form-check-input" type="radio" value="false" id="YearlySubscription" name="Monthly" />
+                                                                בחירה במנוי שנתי
+                                                                <span class="circle">
+                                                                    <span class="check"></span>
+                                                                </span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div> <!-- end row -->
+                            <div class="form-group bmd-form-group">
+                                <div class="input-group justify-content-center">
+                                    <input type="checkbox" class="mx-2" id="AcceptTermsCheckbox" data-val="true" data-val-required="&#x5E0;&#x5D3;&#x5E8;&#x5E9;&#x5EA; &#x5D4;&#x5E1;&#x5DB;&#x5DE;&#x5D4; &#x5DC;&#x5EA;&#x5E7;&#x5E0;&#x5D5;&#x5DF;" name="AcceptTerms" value="true" />
+                                    <label class="form-check-label" for="AcceptTermsCheckbox">
+                                        קראתי ואני מסכים
+                                        <a class="text-success" href="/תקנון" target="_blank">לתקנון</a> האתר
+                                    </label>
+                                </div>
+                                <span class="login-error d-block text-center field-validation-valid" data-valmsg-for="AcceptTerms" data-valmsg-replace="true"></span>
+                            </div>
+                            <div class="form-group">
+                                <div class="text-center">
+                                    <input type="hidden" name="captcha" id="captchaInputRegisterSubscribe" data-captcha-register="true" />
+                                    <button type="submit" class="btn btn-success btn-wd">
+                                        הרשמה ותשלום
+                                    </button>
+                                </div>
+                            </div>
+<input name="__RequestVerificationToken" type="hidden" value="CfDJ8PhdAR4BIOJNutCsGDRSrnovxK3aJ71B1WjtW0Wt3UKeHC5SSBJ5F4mvFLgMafjRzXOnZlsRnK5kK-vDseLVRtLX11FqceP15YxzcY137lLnW6DVIZEDID6g21Z_tt4CBRks8QQo9My3bxlH2SsuW0g" /><input name="ufprt" type="hidden" value="CfDJ8PhdAR4BIOJNutCsGDRSrnpQSyhX1zBCCt-Q1mTmFVSUC3jg-li3bCmiA0i4XXGwb7T_NeHjNoT9lgOCWkktgglFK3hQjcf74FCVZ7bzYR3bm2a7PBWAdSfwz_6V5OB_n-dahMPP5ORNQ3Tgn8YU731lzLNzcdKOiB2rdo75N2OM" /><input name="AcceptTerms" type="hidden" value="false" /></form>                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        // Load reCAPTCHA if enabled
+        if (typeof loadRecaptcha === 'function') {
+            loadRecaptcha();
+        }
+    });
+</script>
+
+
+    <div id="appInstallModal" tabindex="-1" role="dialog" class="modal fade" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog modal-login" role="document">
+            <div class="modal-content">
+                <div class="card card-signup card-plain">
+                    <div class="modal-header">
+                        <div class="card-header card-header-primary text-center">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="material-icons">clear</i></button>
+                            <!-- שלב 1: שכנוע עם מסר חזק -->
+                            <h3 class="mb-2 card-title">האפליקציה שלנו</h3>
+                        </div>
+                    </div>
+                    <div id="main-app">
+                        <div class="card-body px-4 py-4 text-center">
+                            <p class="card-description">
+                                התקינו את האפליקציה שלנו!
+                            </p>
+                            <div class="text-center text-primary mb-4">
+                                <img src="/images/icon-app.webp" class="mt-2" alt="Logo" style="width:60px; height:60px;">
+                            </div>
+                            <!-- שלב 2: הסבר על התועלות -->
+                            <p class="card-description">
+                                קבלו גישה מהירה ונוחה לכל התוכן, והורידו שיעורים לצפייה גם כשאין חיבור אינטרנט.
+                            </p>
+                        </div>
+
+                        <div class="px-4 pb-4">
+                            <!-- שלב 3: כפתור פעולה אמין שתואם לדפדפן -->
+                            <button id="install-pwa-btn" class="btn btn-primary btn-lg w-100 m-0">
+                                הוספה למסך הבית
+                            </button>
+                        </div>
+
+                        <div class="text-center mb-4">
+                            <a href="#" data-dismiss="modal" class="text-gray">אולי בפעם אחרת</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+
+
+</html>

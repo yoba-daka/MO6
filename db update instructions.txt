@@ -1,0 +1,4 @@
+dotnet ef migrations add AddTokenTable --context DB
+and edit the migrations file, to include only what's needed
+
+dotnet ef database update --context DB

@@ -1,0 +1,88 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Article>
+@{
+    Layout = "master.cshtml";
+    dynamic parent = Model.Parent;
+}
+@functions 
+{
+
+    Tuple<string, int> GenerateBreadcrumb(dynamic currentItem)
+    {
+        if (currentItem == null) return new Tuple<string, int>(string.Empty, 0);
+
+        // Assuming IPublishedContent has a Url property, but we might need to cast to access it
+        string url = (currentItem as IPublishedContent).Url();
+        string name = currentItem.Name;
+
+        if (currentItem.Parent != null && currentItem.Parent.Parent != null)
+        {
+            // Recursion to get the parent breadcrumb trail
+            var parentBreadcrumb = GenerateBreadcrumb(currentItem.Parent);
+            int position = parentBreadcrumb.Item2 + 1;
+            string breadcrumbItem = $"<span itemprop='itemListElement' itemscope itemtype='https://schema.org/ListItem'><a class='title text-primary' itemprop='item' href='{url}'><span itemprop='name'>{name}</span></a><meta itemprop='position' content='{position}' /></span>";
+            return new Tuple<string, int>($"{parentBreadcrumb.Item1} &nbsp>&nbsp {breadcrumbItem}", position);
+        }
+        else
+        {
+            // Base case: the item directly beneath the root (no grandparent)
+            int position = 1;
+            string breadcrumbItem = $"<span itemprop='itemListElement' itemscope itemtype='https://schema.org/ListItem'><a class='title text-primary' itemprop='item' href='{url}'><span itemprop='name'>{name}</span></a><meta itemprop='position' content='{position}' /></span>";
+            return new Tuple<string, int>(breadcrumbItem, position);
+        }
+    }
+}
+
+<style>
+    p
+    {
+        font-size:16px;
+    }
+</style>
+
+<div class="sec-page-header page-header header-filter clear-filter" style="margin-top:0em;background-image: url('@Url.GetCropUrl(((Articles)Model.AncestorOrSelf("Articles")).Image, "full")');">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="text-center">
+                    <h1>@parent.Title</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="container my-5">
+    <div class="my-5">
+        @{
+            var breadcrumbData = GenerateBreadcrumb(parent);
+            int currentPosition = breadcrumbData.Item2 + 1;
+        }
+
+        @Html.Raw(breadcrumbData.Item1)
+        &nbsp>&nbsp
+        <span itemprop='itemListElement' itemscope itemtype='https://schema.org/ListItem'>
+            <a class="title text-primary" itemprop="item" href="@Model.Url()">
+                <span itemprop="name">@Model.Name</span>
+            </a>
+            <meta itemprop="position" content="@currentPosition" />
+        </span>
+</div>
+    <div class="row article p-md-3">
+        <div class="col-lg-12 p-md-5 p-4 mt-md-0 mt-4">
+
+            <h3 class="text-center mt-0"><strong>@Model.Title</strong></h3>
+            @if (!string.IsNullOrEmpty(Model.Subtitle))
+            {
+                <h4 class="text-center">@Model.Subtitle</h4>
+            } 
+            <div class="mt-5 text-justify">
+            @Model.FullDescription
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Partial("~/Views/Partials/Share.cshtml")
+@Html.Partial("~/Views/Partials/Comments.cshtml")

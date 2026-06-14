@@ -1,0 +1,47 @@
+@model MyProject12.ViewModels.PaginatedTransactionsResult
+
+<link rel="stylesheet" href="/css/memberships-admin.css" />
+
+<div id="transactionsApp"
+     class="memberships-admin"
+     dir="rtl"
+     data-load-url="@Url.Action("LoadTransactions")"
+     data-refund-url="@Url.Action("Refund")"
+     data-current-page="@Model.CurrentPage"
+     data-total-pages="@Model.TotalPages"
+     data-search="@Model.Search"
+     data-status-filter="@Model.StatusFilter"
+     data-sort-by="@Model.SortBy"
+     data-sort-order="@Model.SortOrder">
+
+    <div id="transactionsStatus" class="status-banner" aria-live="polite"></div>
+
+    <section class="manage-panel">
+        <div class="toolbar sticky-toolbar">
+            <div class="toolbar-filters">
+                <input type="text" id="searchInput" placeholder="חיפוש לפי שם, אימייל, אסמכתא, אסימונים..." value="@Model.Search" aria-label="חיפוש עסקאות" />
+                <select id="statusFilter" aria-label="סינון לפי סטטוס עסקה">
+                    <option value="all">כל הסטטוסים</option>
+                    <option value="success">שולם</option>
+                    <option value="refunded">בוטל/זוכה</option>
+                    <option value="failed">נכשל/אחר</option>
+                </select>
+            </div>
+
+            <div class="toolbar-actions">
+                <span id="resultsSummary" class="results-pill">תוצאות: @Model.TotalItems</span>
+            </div>
+        </div>
+
+        <div id="tableContainer">
+            @Html.Partial("Transactions", Model)
+        </div>
+
+        <nav class="paging-container" aria-label="דפדוף עמודי עסקאות">
+            <ul class="paging" id="paginationContainer"></ul>
+        </nav>
+    </section>
+</div>
+
+<script src="/js/core/jquery.min.js"></script>
+<script src="/js/transactions-admin.js"></script>

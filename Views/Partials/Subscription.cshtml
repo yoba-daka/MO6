@@ -1,0 +1,93 @@
+﻿@using MyProject12.Controllers;
+@using MyProject12.ViewModels;
+@model Subscription
+
+<div class="modal fade" id="subscription" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            @if (TempData.ContainsKey("SuccessMessagePayment"))
+            {
+                <div class="col-sm-12 text-center">
+                    <h2 class="text-success text-center m-2">@TempData["SuccessMessagePayment"]</h2>
+                </div>
+            }
+            else if (TempData.ContainsKey("FailureMessagePayment"))
+            {
+                <div class="col-sm-12 text-center">
+                    <h2 class="text-success text-center m-2">@TempData["FailureMessagePayment"]</h2>
+                </div>
+            }
+            else
+            {
+                @using (Html.BeginUmbracoForm<MeshulamController>("Subscribe", null, new { aria_label = "טופס המשך לתשלום מנוי" }))
+                {
+                    <div class="modal-header">
+                        <button type="button" class="close" style="position:fixed;z-index:10;" data-dismiss="modal" aria-label="סגור"><i class="material-icons" aria-hidden="true" lang="en" translate="no">clear</i></button>
+
+                        <div class="col-sm-12 text-center">
+                            <h4 class="modal-title text-primary">רכישת מנוי</h4>
+                            <p class="m-2" id="subscriptionTitle"></p>
+                        </div>
+                    </div>
+                    <div class="modal-body mx-4">
+                        <div class="form-group  bmd-form-group">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                        <i class="material-icons" aria-hidden="true" lang="en" translate="no">badge</i>
+                                    </span>
+                                </div>
+                                <label asp-for="FullName" class="bmd-label-floating login-field" style="z-index:10;">שם מלא</label>
+                                <input asp-for="FullName" class="form-control" style="background-color:white;cursor:default" aria-describedby="FullName-error" aria-invalid="false" readonly />
+                                <span asp-validation-for="FullName" id="FullName-error" class="login-error" role="alert" aria-live="polite"></span>
+
+                            </div>
+                        </div>
+                        <div class="form-group   bmd-form-group">
+                            <div class="input-group">
+
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                        <i class="material-icons" aria-hidden="true" lang="en" translate="no">email</i>
+                                    </span>
+                                </div>
+                                <label asp-for="Email" class="bmd-label-floating login-field" style="z-index:10;">אימייל</label>
+                                <input asp-for="Email" type="email" class="form-control" style="background-color:white;cursor:default" aria-describedby="Email-error" aria-invalid="false" readonly />
+                                <span asp-validation-for="Email" id="Email-error" class="login-error" role="alert" aria-live="polite"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group   bmd-form-group">
+                            <div class="input-group">
+
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                        <i class="material-icons" aria-hidden="true" lang="en" translate="no">phone</i>
+                                    </span>
+                                </div>
+                                <label asp-for="PhoneNumber" class="bmd-label-floating login-field">מספר פלאפון</label>
+                                <input asp-for="PhoneNumber" type="tel" class="form-control" autocomplete="tel" aria-describedby="PhoneNumber-error" aria-invalid="false" />
+                                <span asp-validation-for="PhoneNumber" id="PhoneNumber-error" class="login-error" role="alert" aria-live="polite"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        @if (ViewData.ModelState.ContainsKey("Subscribe"))
+                        {
+                            <div class="form-group bmd-form-group">
+                                <div style="text-align:center">
+                                    @foreach (var error in ViewData.ModelState["Subscribe"].Errors)
+                                    {
+                                        <div class="text-danger mb-2">@error.ErrorMessage </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        <input asp-for="Monthly" type="hidden" class="form-control" />
+                        <button type="submit" class="btn btn-primary btn-link btn-wd btn-lg">המשך לתשלום</button>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,239 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<MO6.ViewModels.RegisterAndSubscribeViewModel>
+
+@{
+    dynamic account = Umbraco.Content(3738);
+}
+<script>
+    $(document).ready(function () {
+    @if (ViewData.ModelState.ContainsKey("registerSubscribeModel"))
+            {
+            <text>
+            $('#registerSubscribeModal').modal();
+        </text>
+        }
+                });
+</script>
+<div id="registerSubscribeModal" tabindex="-1" role="dialog" class="modal fade" aria-hidden="true">
+    <!-- Enforce a max width of ~800px on desktop -->
+    <div class="modal-dialog modal-login" role="document" style="max-width: 800px;">
+        <div class="modal-content">
+            <div class="card card-signup card-plain">
+                <div class="modal-header">
+                    <div class="card-header card-header-success text-center">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="סגור">
+                            <i class="material-icons" aria-hidden="true" lang="en" translate="no">clear</i>
+                        </button>
+                        <h3 class="text-center">הרשמה ורכישת מנוי</h3>
+                        <p class="text-center">הרשמו לאתר ורכשו מנוי בטופס אחד</p>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="card-body">
+                @if (!account.RegistrationAllowed)//revert
+                {
+                    <div class="text-center">
+                        @* This message will show if registerModel.RedirectUrl is not defined (default) *@
+                        <h4 class="text-success m3">@account.NoRegistrationMessage</h4>
+                    </div>
+                }
+                else
+                {
+                        @using (Html.BeginUmbracoForm<MyProject12.Controllers.MeshulamController>("RegisterAndSubscribe", null, new { aria_label = "טופס הרשמה והמשך לתשלום" }))
+                        {
+                            <div class="row">
+
+
+                                <div class="col-md-6">
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="material-icons" aria-hidden="true" lang="en" translate="no">badge</i>
+                                                </span>
+                                            </div>
+                                            <label asp-for="Name" class="bmd-label-floating login-field">שם מלא</label>
+                                            <input asp-for="Name" class="form-control form-control-success" autocomplete="name" aria-describedby="Name-error" aria-invalid="false" />
+                                            <span asp-validation-for="Name" id="Name-error" class="login-error" role="alert" aria-live="polite"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="material-icons" aria-hidden="true" lang="en" translate="no">email</i>
+                                                </span>
+                                            </div>
+                                            <label asp-for="Email" class="bmd-label-floating login-field">אימייל</label>
+                                            <input asp-for="Email" type="email" class="form-control form-control-success" autocomplete="username" aria-describedby="Email-error" aria-invalid="false" />
+                                            <span asp-validation-for="Email" id="Email-error" class="login-error" role="alert" aria-live="polite"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="material-icons" aria-hidden="true" lang="en" translate="no">email</i>
+                                                </span>
+                                            </div>
+                                            <label asp-for="EmailConfirmation" class="bmd-label-floating login-field">אימות אימייל</label>
+                                            <input asp-for="EmailConfirmation" type="email" class="form-control form-control-success" autocomplete="email" aria-describedby="EmailConfirmation-error" aria-invalid="false" />
+                                            <span asp-validation-for="EmailConfirmation" id="EmailConfirmation-error" class="login-error" role="alert" aria-live="polite"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="material-icons" aria-hidden="true" lang="en" translate="no">password</i>
+                                                </span>
+                                            </div>
+                                            <label asp-for="Password" class="bmd-label-floating login-field">סיסמא</label>
+                                            <input asp-for="Password" type="password" class="form-control form-control-success" autocomplete="new-password" aria-describedby="Password-error" aria-invalid="false" />
+                                            <span asp-validation-for="Password" id="Password-error" class="login-error" role="alert" aria-live="polite"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="material-icons" aria-hidden="true" lang="en" translate="no">done_all</i>
+                                                </span>
+                                            </div>
+                                            <label asp-for="ConfirmPassword" class="bmd-label-floating login-field">אימות סיסמא</label>
+                                            <input asp-for="ConfirmPassword" type="password" class="form-control form-control-success" autocomplete="new-password" aria-describedby="ConfirmPassword-error" aria-invalid="false" />
+                                            <span asp-validation-for="ConfirmPassword" id="ConfirmPassword-error" class="login-error" role="alert" aria-live="polite"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="material-icons" aria-hidden="true" lang="en" translate="no">phone</i>
+                                                </span>
+                                            </div>
+                                            <label asp-for="PhoneNumber" class="bmd-label-floating login-field">מספר טלפון</label>
+                                            <input asp-for="PhoneNumber" type="tel" class="form-control form-control-success" autocomplete="tel" aria-describedby="PhoneNumber-error" aria-invalid="false" />
+                                            <span asp-validation-for="PhoneNumber" id="PhoneNumber-error" class="login-error" role="alert" aria-live="polite"></span>
+                                        </div>
+                                    </div>
+
+
+                                </div> <!-- end col-md-6 -->
+
+                                <div class="col-md-6 mt-lg-4">
+                                    <div class="mt-4 mb-3">
+                                        <!-- Existing nested row for the two subscription options -->
+                                        <div class="row justify-content-center">
+                                            <div class="col-md-5 col-sm-12">
+                                                <div class="card card-pricing card-plain" style="margin:0px;">
+                                                    <div class="card-body text-center">
+                                                        <h6 class="card-category text-info">מנוי חודשי</h6>
+                                                        <h2 class="card-title">
+                                                            <small>₪</small>@account.SubscriptionDirectDebitPrice
+                                                            <small style="font-size: 30%;">/חודש</small>
+                                                        </h2>
+                                                        <ul class="text-right pr-0" style="list-style-type: none;">
+                                                            <li>גישה מלאה לכל התכנים</li>
+                                                            <li>תשלום של ₪@account.SubscriptionDirectDebitPrice מדי חודש</li>
+                                                            <li>ביטול באתר בכל עת</li>
+                                                        </ul>
+                                                        <div class="form-check form-check-radio">
+                                                            <label class="form-check-label" for="MonthlySubscription">
+                                                                <input class="form-check-input" type="radio" asp-for="Monthly" value="true" id="MonthlySubscription" checked />
+                                                                בחירה במנוי חודשי
+                                                                <span class="circle">
+                                                                    <span class="check"></span>
+                                                                </span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-5 col-sm-12">
+                                                <div class="card card-pricing card-plain" style="margin:0px;">
+                                                    <div class="card-body text-center">
+                                                        <h6 class="card-category text-info">מנוי שנתי</h6>
+                                                        <h2 class="card-title">
+                                                            <small>₪</small>@account.SubscriptionYearlyMonthlyPrice
+                                                            <small style="font-size: 30%;">/חודש</small>
+                                                        </h2>
+                                                        <ul class="text-right pr-0" style="list-style-type: none;">
+                                                            <li>גישה מלאה לכל התכנים</li>
+                                                            <li>תשלום חד פעמי של ₪@(account.SubscriptionYearlyMonthlyPrice * 12) לשנה</li>
+                                                            <li>לא מתחדש באופן אוטומטי</li>
+                                                        </ul>
+                                                        <div class="form-check form-check-radio">
+                                                            <label class="form-check-label" for="YearlySubscription">
+                                                                <input class="form-check-input" type="radio" asp-for="Monthly" value="false" id="YearlySubscription" />
+                                                                בחירה במנוי שנתי
+                                                                <span class="circle">
+                                                                    <span class="check"></span>
+                                                                </span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div> <!-- end row -->
+                            <div class="form-group bmd-form-group">
+                                <div class="input-group justify-content-center">
+                                    <input type="checkbox" asp-for="AcceptTerms" class="mx-2" id="AcceptTermsCheckbox" />
+                                    <label class="form-check-label" for="AcceptTermsCheckbox">
+                                        קראתי ואני מסכים
+                                        <a class="text-success" href="/תקנון" target="_blank" rel="noopener">ל<strong>תקנון</strong></a> האתר
+                                    </label>
+                                </div>
+                                <span asp-validation-for="AcceptTerms" id="AcceptTerms-error" class="login-error d-block text-center" role="alert" aria-live="polite"></span>
+                            </div>
+
+                            @if (ViewData.ModelState.ContainsKey("registerSubscribeModel"))
+                            {
+                                <div class="form-group bmd-form-group">
+                                    <div class="text-center">
+                                        @foreach (var error in ViewData.ModelState["registerSubscribeModel"].Errors)
+                                        {
+                                            <div class="text-danger mb-2">@error.ErrorMessage</div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+
+                            <div class="form-group">
+                                <div class="text-center">
+                                    <input type="hidden" name="captcha" id="captchaInputRegisterSubscribe" data-captcha-register="true" />
+                                    <button type="submit" class="btn btn-success btn-wd">
+                                        הרשמה והמשך לתשלום
+                                    </button>
+                                </div>
+                            </div>
+                        }
+
+                        
+@* 
+                        <h3 class="text-primary text-center">האפשרות אינה זמינה כעת</h3>
+                        <h4 class="text-center">ניתן כרגע לבצע הרשמה  באמצעות כפתור ההרשמה הירוק, לאחר מכן ניתן לקנות מנוי בעמוד החשבון</h4> *@
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        // Load reCAPTCHA if enabled
+        if (typeof loadRecaptcha === 'function') {
+            loadRecaptcha();
+        }
+    });
+</script>

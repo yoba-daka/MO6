@@ -1,0 +1,77 @@
+﻿@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+
+<script>
+
+    function loadRecaptcha() {
+        // Check if the reCAPTCHA script is already loaded
+        if (!window.grecaptcha) {
+            var script = document.createElement('script');
+            script.src = 'https://www.google.com/recaptcha/api.js?render=@Configuration["googleReCaptcha:SiteKey"]&onload=onRecaptchaLoad';
+            document.body.appendChild(script);
+        }
+    }
+    $(document).ready(function () {
+
+        document.addEventListener("submit", function (event) {
+            var formName = event.target.getAttribute('name');
+
+            if (formName === "loginForm") {
+                handleFormSubmission("loginForm", "login", '[data-captcha-login=true]');
+            }
+            else if (formName === "registerForm") {
+                handleFormSubmission("registerForm", "register", '[data-captcha-register=true]');
+            }
+            @*
+             else if (formName === "commentForm") {
+                 handleFormSubmission("commentForm", "comment", '[data-captcha-comment=true]');
+             }*@
+        });
+
+
+        @* window.onRecaptchaLoad = function () {
+             grecaptcha.ready(function () {
+                 loadRecaptchaToken();
+             });
+         }*@
+
+
+        loadRecaptcha();
+    });
+
+    //called by ajax
+    async function handleCommentSubmission(continueSubmission) {
+        return new Promise((resolve, reject) => {
+            grecaptcha.execute("@Configuration["googleReCaptcha:SiteKey"]", { action: 'comment' })
+                .then(function (token) {
+                    $("[data-captcha-comment=true]").val(token); // Add token to the hidden input field
+                    console.log(typeof continueSubmission);
+                    resolve(); // Resolve the Promise when the operation is completed
+                })
+                .catch(function (error) {
+                    reject(error); // Reject the Promise if an error occurs
+                });
+        });
+    }
+
+    function handleFormSubmission(formName, actionType, tokenFieldSelector) {
+
+        event.preventDefault();
+
+        grecaptcha.execute("@Configuration["googleReCaptcha:SiteKey"]", { action: actionType }).then(function (token) {
+            $(tokenFieldSelector).val(token); // Add token to the hidden input field
+            $('form[name="' + formName + '"]').submit();
+        });
+    }
+    @* 
+    function loadRecaptchaToken() {
+        grecaptcha.execute("@Configuration["googleReCaptcha:SiteKey"]", { action: 'login' }).then(function (token) {
+            $('[data-captcha-login=true]').val(token);
+        });
+        grecaptcha.execute("@Configuration["googleReCaptcha:SiteKey"]", { action: 'register' }).then(function (token) {
+            $('[data-captcha-register=true]').val(token);
+        });
+        grecaptcha.execute("@Configuration["googleReCaptcha:SiteKey"]", { action: 'comment' }).then(function (token) {
+            $('[data-captcha-comment=true]').val(token);
+        });
+    }*@
+</script>

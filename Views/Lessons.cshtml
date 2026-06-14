@@ -1,0 +1,240 @@
+﻿@using MyProject12;
+@using Umbraco.Cms.Core.Security;
+@using Umbraco.Cms.Web.Common.PublishedModels;
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+@inject IMemberManager _memberManager
+@inject LessonBlobService BlobService
+
+@inject DB db
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Lessons>
+@using MosheSharon;
+@{
+    Layout = "master.cshtml";
+    bool hasActiveMembership = false;
+    bool memberLogged = _memberManager.IsLoggedIn();
+    if (memberLogged)
+    {
+        var member = await _memberManager.GetCurrentMemberAsync();
+        var membership = db.Memberships.FirstOrDefault(x => x.memberID == member.Id);
+        if (membership != null) hasActiveMembership = !membership.Expired;
+    }
+}
+
+
+<div class="sec-page-header page-header header-filter clear-filter" style="margin-top:0em;background-image: url('@Url.GetCropUrl(Model.Image, "full")');">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="text-center">
+                    <h1>קורסים והרצאות</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<nav id="cd-vertical-nav">
+    <ul class="mb-0 p-3">
+        @if (Model.LessonCategoryList != null)
+        {
+            int c = 1;
+            foreach (LessonCategory lc in Model.LessonCategoryList)
+            {
+                if (lc.LessonList != null)
+                {
+                    <li>
+                        <a href="#@c" data-number="@c">
+                            <span class="cd-dot"></span>
+                            <span class="text-primary cd-label">@lc.Title</span>
+                        </a>
+                    </li>
+                        c++;
+                    }
+                }
+            }
+        </ul>
+</nav>
+<a class="cd-nav-trigger cd-img-replace" aria-label="פתיחת ניווט בעמוד"><span aria-hidden="true"></span></a>
+
+
+
+<div class="d-flex justify-content-center">
+    <div class="books-player" style=" background-color:#fdb88a;border-radius:15px;">
+        <div id="media-player" class="video">
+
+            <div id="player-wrapper">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var player;
+    var source;
+    var video;
+
+    var initVideo = function () {
+
+        source = "";
+
+
+
+        $('#player-wrapper').html('<video poster="" id="player"></video>');
+        video = document.querySelector('#player');
+
+
+        var plyr_controls = ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen', 'rewind', 'fast-forward'];
+        var plyr_settings = ['captions', 'quality', 'loop', 'speed'];
+        var quality = function (q) {
+            switch (q) {
+                case -1:
+                    hls.currentLevel = -1;
+                    break;
+            }
+        };
+
+        source = '@(Model.LessonsVideo)';
+        player = new Plyr(video, { type: 'video', title: @Html.Raw(System.Text.Json.JsonSerializer.Serialize("נגן וידאו - קורסים והרצאות")) });
+        player.source = {
+            type: 'video',
+            sources: [
+                {
+                    src: '@(Model.LessonsVideo)',
+                    provider: 'youtube', // or 'vimeo', etc., based on the external link type
+                },
+            ],
+        };
+
+    }
+
+
+    $(document).ready(function () {
+        setTimeout(() => {
+            initVideo();
+        }, 150);
+    });
+
+</script>
+<div class="container pt-0">
+
+
+
+    @if (Model.LessonCategoryList != null)
+    {
+        int c = 0;
+        foreach (LessonCategory lc in Model.LessonCategoryList)
+        {
+            if (lc.LessonList != null)
+            {
+                c++;
+
+                <div class="sec" id="@c"></div>
+                <a href="@lc.Url()">
+                    <h2 class="title text-primary">@lc.Title</h2>
+                </a>
+                <div class="row  pl-3" style="text-align:center;">
+
+                    @foreach (dynamic lesson in lc.LessonList)
+                    {
+                        if (lesson.ContentType.Alias == "lesson")
+                        {
+                            try
+                            {
+                                BlobService.setDuration(lesson);
+                                <div class="col-lg-3 col-md-4 col-6 pl-0 " style="overflow:hidden">
+                                    <a href="@(((Lesson)lesson).Url())">
+
+                                        @if (lesson.New)
+                                        {
+                                            <div class="new">
+                                                <div class="new-text">חדש</div>
+                                            </div>
+                                        }
+                                        <div class="image-container" style=" position: relative; display: flex; align-items: center; justify-content: center;">
+
+                                            <span class="badge badge-pill badge-primary time">@lesson.Duration</span>
+                                            @if (lesson.MembersOnly && !hasActiveMembership)
+                                            {
+                                                <i class="material-icons lock" aria-hidden="true" lang="en" translate="no">lock</i>
+                                            }
+                                            else
+                                            {
+                                                <i class="material-icons play" aria-hidden="true" lang="en" translate="no">play_circle_filled</i>
+                                            }
+                                            <div>
+                                            <img src="@Url.GetCropUrl(((Lesson)lesson).Image, "small")" alt="@lesson.ImageAlt" class="rounded img-fluid">
+                                        </div>
+                                    </div>
+
+                                    <h5 style="line-height: 22px;" class="title m-2" class="title m-2">@lesson.Title</h5>
+                                </a>
+                                </div>
+                            }
+                            catch
+                            {
+
+                            }
+                        }
+                        else
+                        {
+                            try
+                            {
+                                if (((LessonGroup)lesson).Children.Count() > 0 )
+                                {
+                                <div class="col-lg-3 col-md-4 col-6 pl-0 " style="overflow:hidden">
+                                    <a href="@(((LessonGroup)lesson).Children.First().Url())">
+                                        @if (lesson.New)
+                                        {
+                                            <div class="new">
+                                                <div class="new-text">חדש</div>
+                                            </div>
+                                        }
+                                        <div class="image-container" style=" position: relative; display: flex; align-items: center; justify-content: center;">
+                                            <span class="badge badge-pill badge-primary time">@(((LessonGroup)lesson).Children.Count()) שיעורים</span>
+
+                                            @if (lesson.MembersOnly && !hasActiveMembership)
+                                            {
+                                                <i class="material-icons lock" aria-hidden="true" lang="en" translate="no">lock</i>
+                                            }
+                                            else
+                                            {
+                                                <i class="material-icons play" aria-hidden="true" lang="en" translate="no">play_circle_filled</i>
+                                            }
+                                            <img src="@Url.GetCropUrl(((LessonGroup)lesson).Image, "small")" alt="@lesson.ImageAlt" class="rounded img-fluid">
+                                    </div>
+                                    <h5 style="line-height: 22px;" class="title m-2">@lesson.Title</h5>
+                                </a>
+                                </div>
+                                }
+                            }
+                            catch
+                            {
+                                
+                            }
+                        }
+                    }
+                </div>
+                <hr />
+
+                }
+            }
+
+        }
+
+    </div>
+
+<script>
+function offsetAnchor() {
+  if (location.hash.length !== 0) {
+    window.scrollTo(window.scrollX, window.scrollY - 100);
+  }
+}
+$(document).on('click', 'a[href^="#"]', function(event) {
+
+  window.setTimeout(function() {
+    offsetAnchor();
+  }, 0);
+});
+window.setTimeout(offsetAnchor, 0);
+</script>
+<script src="/js/vertical-nav.js"></script>

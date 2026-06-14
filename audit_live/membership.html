@@ -1,0 +1,499 @@
+
+
+
+
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>האוצר - מנוי לאוצר השיעורים של משה שרון</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+    <link rel="stylesheet" href="/css/accessibility.css">
+    <style>
+        :root {
+            --primary-color: #f88435;
+            --dark-bg: #38393a;
+        }
+
+        .bg-dark {
+            background-color: var(--dark-bg);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .scroll-animate {
+            opacity: 0;
+        }
+
+        .scroll-animate.visible {
+            animation: fadeIn 0.8s ease forwards;
+        }
+
+        .cta-button {
+            background-color: var(--primary-color);
+            transition: all 0.3s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(248, 132, 53, 0.3);
+        }
+
+        .feature-card {
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .quote-box {
+            border-right: 4px solid var(--primary-color);
+        }
+
+        .section-white {
+            background-color: #ffffff;
+            color: var(--dark-bg);
+        }
+
+        .section-dark {
+            background-color: var(--dark-bg);
+            color: #ffffff;
+        }
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+            max-width: 100%;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .pricing-circle {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background-color: var(--primary-color); /* Using the same dark background color */
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transform: translate(-50%, -50%) rotate(-12deg); /* Changed from 50% to -50% for left positioning */
+            left: 80px; /* Changed from right to left */
+            top: 80px;
+            z-index: 1000;
+            text-align: center;
+            padding: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1); /* Adding subtle border */
+        }
+
+        .pricing-card {
+            position: relative;
+            overflow: visible !important;
+        }
+
+        /* Extra Animations*/
+
+        .pricing-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 30px rgba(248, 132, 53, 0.2);
+        }
+
+        .price-row {
+            transition: all 0.2s ease;
+            cursor: default;
+        }
+        @media screen and (min-width: 780px) {
+            .open-accessibility-expand-button {
+                cursor: pointer;
+                position: absolute;
+                line-height: 80px;
+                width: 80px;
+                height: 80px;
+                text-align: -webkit-center;
+            }
+        }
+
+        @media screen and (max-width: 780px) {
+            .open-accessibility-expand-button {
+                cursor: pointer;
+                position: absolute;
+                line-height: 80px;
+                width: 50px;
+                height: 80px;
+                text-align: -webkit-center;
+            }
+        }
+    </style>
+    <script src="/sb/js-bundle.js.v666ee3e1671d80ee6cd9f5e0b2c825f6b3220e2a"></script>
+</head>
+<body>
+
+    <script>
+        $(document).ready(function () {
+
+            $(function () {
+                $('body').openAccessibility({
+                    textSelector: 'h1,h2,h3,h4,h5,h6,a,span,p,button,i',
+                    isMobileEnabled: true
+                });
+                if ($('#cd-vertical-nav').length) {
+                    // Move it to the beginning of the body tag
+                    $('body').prepend($('#cd-vertical-nav'));
+                }
+                if ($('.cd-nav-trigger').length) {
+                    // Move them to the beginning of the body tag
+                    $('.cd-nav-trigger').each(function () {
+                        $('body').prepend($(this));
+                    });
+                }
+            })
+        });
+    </script>
+
+<div class="section-dark py-16">
+<div class="container mx-auto px-4">
+<div class="p-6 mb-12 scroll-animate text-white xl visible text-center">
+<p style="font-size: 20px;" class="text-xl" data-open-accessibility-text-original="20px">" כל עוד שלא נגביה את מטרתנו מתוך החיים הגשמיים, לא תהיה לנו תקומה... כי אנו בני האידאה "</p>
+<p style="font-size: 18px;" class="text-lg mt-2" data-open-accessibility-text-original="18px">הרב אשלג</p>
+</div>
+<!-- Logo Section -->
+<div class="flex justify-center mb-8 scroll-animate"><img class="w-32 h-32" src="/media/p1jjpzgn/logo.png" alt="לוגו האוצר"> <!-- 128x128px square --></div>
+<!-- Main Title -->
+<div class="text-center mb-12">
+<p class="text-4xl font-bold text-white mb-4 scroll-animate">משה שרון</p>
+<h1 class="text-5xl font-bold mb-4 scroll-animate">מנוי לאוצר השיעורים</h1>
+<h2 class="text-2xl scroll-animate" style="color: var(--primary-color);">הנשמה שלך תודה לך</h2>
+<h4 class="text-2xl mt-4 scroll-animate text-white" style="font-size: 25px;">עכשיו בחווית אפליקציה חדשנית עם אפשרות להורדת תכנים!</h4>
+</div>
+</div>
+</div>
+<!-- Initial Content - White -->
+<div class="section-white py-16">
+<div class="container mx-auto px-4">
+<div class="max-w-3xl mx-auto space-y-6">
+<div class="scroll-animate">
+<p class="text-lg">אומרים שבדור שלנו לא חסרות עוד הנאות הגוף, אנחנו מאכילים ומפנקים אותו יופי יופי.</p>
+<p class="text-lg mt-4">אומרים שאנחנו מפציצים את התודעה שלנו באינפורמציה אינסופית, רובה מיותרת, שאנחנו מרצדים את עצמנו ברשתות, בטלוויזיה ובאינטרנט.</p>
+</div>
+<div class="scroll-animate">
+<p class="text-lg">אומרים שרמות הסטרס והדכאון עולות ורמת האושר יורדת.</p>
+<p class="text-lg mt-4">אומרים שזה הולך להחמיר, אלא אם נקום ונושיע את עצמנו. נעצור את הלופ.</p>
+</div>
+<div class="scroll-animate">
+<p style="color: var(--primary-color);" class="text-xl font-bold">אבל איך?</p>
+<p class="text-lg mt-4">גדולי ישראל טוענים שבשביל לעצור את הלופ עלינו להגביה את התודעה שלנו, לחיות חיים גשמיים ודאי, אנחנו הרי חיים בגוף, אבל - בתודעה גבוהה.</p>
+</div>
+</div>
+<!-- Video Section -->
+<div class="mt-12 max-w-4xl mx-auto scroll-animate">
+<div class="relative" style="padding-bottom: 56.25%;"><iframe class="absolute top-0 left-0 w-full h-full rounded-lg" src="https://www.youtube.com/embed/5XXAjk7k-Po" title="Video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="allowfullscreen">
+            </iframe></div>
+<div class="text-center mt-12"><a href="/#register-monthly" class="cta-button text-white px-8 py-3 rounded-lg text-lg scroll-animate"> כן, רוצה להתנסות במנוי </a></div>
+</div>
+</div>
+</div>
+<div class="section-dark py-16">
+<div class="container mx-auto px-4">
+<div class="text-center mb-12">
+<h2 class="text-3xl font-bold mb-8 scroll-animate">רוצה להאזין או לצפות בתכנים שמעניינים אותך?</h2>
+<p class="text-xl mb-4 scroll-animate">מתוך 400 הרצאות, בתוכם כעשרים קורסים, חלק באודיו וחלק בוידאו</p>
+<p class="text-lg mb-8 scroll-animate">אלפי אנשים צופים בהם ומעידים - "החיים שלי השתדרגו" ו"אני לא אותו אדם".</p>
+</div>
+<!-- Video Section -->
+<div class="max-w-4xl mx-auto mb-12 scroll-animate">
+<div class="relative" style="padding-bottom: 56.25%;"><iframe class="absolute top-0 left-0 w-full h-full rounded-lg" src="https://www.youtube.com/embed/54TN0es-U74" title="Sample Video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="allowfullscreen">
+                </iframe></div>
+<p class="text-center mt-4 text-sm text-gray-300">טעימה קצרה מתוך אחד השיעורים</p>
+</div>
+<div class="grid md:grid-cols-3 gap-8">
+<div class="feature-card bg-white bg-opacity-5 p-6 rounded-lg scroll-animate">
+<h3 class="text-xl mb-4" style="color: var(--primary-color);">✓ אפליקציה אישית והורדות</h3>
+<p>הוסיפו את האתר למסך הבית לחווית אפליקציה נוחה, והורידו שיעורים לצפייה והאזנה בכל מקום, גם ללא חיבור לאינטרנט.</p>
+</div>
+<div class="feature-card bg-white bg-opacity-5 p-6 rounded-lg scroll-animate">
+<h3 class="text-xl mb-4" style="color: var(--primary-color);">✓ נגישות מלאה</h3>
+<p>צפייה נוחה דרך מחשב, טאבלט, טלוויזיה חכמה או סמארטפון – בכל זמן ומכל מקום שתבחרו.</p>
+</div>
+<div class="feature-card bg-white bg-opacity-5 p-6 rounded-lg scroll-animate">
+<h3 class="text-xl mb-4" style="color: var(--primary-color);">✓ שיעור ראשון חינם</h3>
+<p>פתחנו את השיעור הראשון בכל קורס כדי לאפשר לכם להחליט אם הנושא מעניין אתכם, עוד לפני ההצטרפות.</p>
+</div>
+</div>
+<div class="text-center mt-12"><a href="/#register-monthly" class="cta-button text-white px-8 py-3 rounded-lg text-lg scroll-animate"> כן, אני רוצה לעלות מעלה מעלה </a></div>
+</div>
+</div>
+<!-- Testimonials - White -->
+<div class="section-white py-16">
+<div class="container mx-auto px-4">
+<h2 class="text-3xl font-bold mb-12 text-center scroll-animate">מנויים מספרים</h2>
+<div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto"><!-- WhatsApp Testimonials -->
+<div class="scroll-animate">
+<div class="grid grid-cols-2 gap-4">
+<div class="flex items-start justify-center"><img class="rounded-lg shadow-lg" src="/media/c4ebmol5/rec1.jpg" alt="המלצה 1"></div>
+<div class="flex items-start justify-center"><img class="rounded-lg shadow-lg" src="/media/fkkb0orq/rec4.jpg" alt="המלצה 2"></div>
+<div class="flex items-end justify-center"><img class="rounded-lg shadow-lg" src="/media/lddlbmlk/rec2.jpg" alt="המלצה 3"></div>
+<div class="flex items-end justify-center"><img class="rounded-lg shadow-lg" src="/media/fadhjydn/rec3.jpg" alt="המלצה 4"></div>
+</div>
+</div>
+<!-- Video Testimonial -->
+<div class="scroll-animate visible">
+<div class="relative" style="padding-bottom: 100%;"><iframe class="absolute top-0 left-1/2 transform -translate-x-1/2 h-full rounded-lg" src="https://www.youtube.com/embed/S1wYfbHOehA" title="סיפור של נועה - עדות אישית" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="allowfullscreen">
+                    </iframe></div>
+<p style="font-size: 14px;" class="text-center mt-4 text-sm text-gray-600" data-open-accessibility-text-original="14px">הסיפור של נועה - איך המנוי שינה את חייה</p>
+</div>
+</div>
+<div class="text-center mt-12"><a href="/#register-monthly" class="cta-button text-white px-8 py-3 rounded-lg text-lg scroll-animate"> כן, בטח שאני רוצה להתנסות במנוי </a></div>
+</div>
+</div>
+<!-- Benefits Section - Dark -->
+<div class="section-dark py-16">
+<div class="container mx-auto px-4">
+<h2 class="text-3xl font-bold mb-12 text-center scroll-animate">מה מנוי לאוצר השיעורים של משה שרון יכול לתרום לי?</h2>
+<div class="grid md:grid-cols-2 gap-8">
+<div class="feature-card bg-white bg-opacity-5 p-6 rounded-lg scroll-animate">
+<h3 class="text-xl font-bold mb-3" style="color: var(--primary-color);">1. חוסן נפשי</h3>
+<p>להקשיב לשיעורי תורה ונפש לאורך זמן, מחזק מאוד את החוסן הנפשי ואת היכולת להתמודד עם מורכבויות החיים.</p>
+</div>
+<div class="feature-card bg-white bg-opacity-5 p-6 rounded-lg scroll-animate">
+<h3 class="text-xl font-bold mb-3" style="color: var(--primary-color);">2. זוגיות טובה</h3>
+<p>המנוי מאפשר לכם גישה לסדרות נפלאות שנותנות כלים ליצירת זוגיות לרווקים ורווקות ושדרוג זוגיות קיימת לזוגיים לפני ואחרי חתונה.</p>
+</div>
+<div class="feature-card bg-white bg-opacity-5 p-6 rounded-lg scroll-animate">
+<h3 class="text-xl font-bold mb-3" style="color: var(--primary-color);">3. תחושת שליחות</h3>
+<p>המנוי מאפשר לכם גישה לסדרה שנותנת כלים לברר מה השליחות שלי בעולם, לפי רב המכר של "משה שרון".</p>
+</div>
+<div class="feature-card bg-white bg-opacity-5 p-6 rounded-lg scroll-animate">
+<h3 class="text-xl font-bold mb-3" style="color: var(--primary-color);">4. קילוף קליפות</h3>
+<p>הסדרה "קליפות הנפש" עוזרת לייצר מערכת יחסים חדשה מול הלופים והמקומות שתוקעים אותנו בחיים.</p>
+</div>
+<div class="feature-card bg-white bg-opacity-5 p-6 rounded-lg scroll-animate">
+<h3 class="text-xl font-bold mb-3" style="color: var(--primary-color);">5. אימון עצמי</h3>
+<p>הסדרה "קואצ'ינג עצמי" עוסקת בשיפור מעשי של הרגלי החיים שלי: כעס, חוסר סבלנות, מדע הכסף ועוד.</p>
+</div>
+<div class="feature-card bg-white bg-opacity-5 p-6 rounded-lg scroll-animate">
+<h3 class="text-xl font-bold mb-3" style="color: var(--primary-color);">6. איזון רגשי</h3>
+<p>הסדרה "מדע הרגש" עוסקת במגוון הרגשות: שמחה, פחד, ריקנות, אהבה, כעס ועוד ועוזרת לעבוד נכון עם הרגשות שלנו.</p>
+</div>
+<div class="feature-card bg-white bg-opacity-5 p-6 rounded-lg scroll-animate">
+<h3 class="text-xl font-bold mb-3" style="color: var(--primary-color);">7. ידע מקיף ואינטגרטיבי</h3>
+<p>הסדרה "כשיהדות פוגשת חוכמות אחרות" מפגישה תחומי מחקר וידע שונים ומגוונים – מה היה קורה עם דארווין והרב קוק היו נפגשים? פרויד והבעל שם טוב? בודהה ורבי שמעון בר יוחאי?</p>
+</div>
+<div class="feature-card bg-white bg-opacity-5 p-6 rounded-lg scroll-animate">
+<h3 class="text-xl font-bold mb-3" style="color: var(--primary-color);">8. מפגש מרתק עם ספרי קודש</h3>
+<p>המנוי מאפשר לימוד עמוק של ספרי חובה בכל בית יהודי: מסילת ישרים, תומר דבורה, אורות התשובה, נפש החיים, שמעתי, מתן תורה, ספר ההקדמות ועוד.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Pricing Section - White -->
+<div class="section-white py-16">
+<div class="container mx-auto px-4">
+<div class="max-w-3xl mx-auto">
+<h2 class="text-3xl font-bold mb-8 text-center scroll-animate">סידרנו לך מחיר שווה באמת, נוח לכל כיס ולא מכביד</h2>
+<div class="grid md:grid-cols-2 gap-8 mt-12">
+<div class="bg-dark text-white p-8 rounded-lg scroll-animate relative pricing-card">
+<div class="pricing-circle">
+<p class="text-sm leading-tight">ללא</p>
+<p class="text-sm leading-tight">התחייבות</p>
+</div>
+<h3 class="text-2xl font-bold mb-4">מנוי חודשי</h3>
+<p style="color: var(--primary-color);" class="text-4xl font-bold mb-2">₪67</p>
+<p class="text-lg mb-6">מתחדש</p>
+<ul class="space-y-3 mb-8">
+<li>✓ גישה מיידית לכל התכנים</li>
+<li>✓ צפייה והאזנה בכל המכשירים</li>
+<li>✓ הורדת שיעורים לצפייה אופליין</li>
+<li>✓ תכנים חדשים שעולים כל שבוע</li>
+</ul>
+<a href="/#register-monthly"> <button class="cta-button text-white px-8 py-3 rounded-lg w-full"> להצטרפות עכשיו </button> </a></div>
+<div class="bg-dark text-white p-8 rounded-lg scroll-animate relative pricing-card">
+<h3 class="text-2xl font-bold mb-4">מנוי שנתי</h3>
+<p style="color: var(--primary-color);" class="text-4xl font-bold mb-2">₪47</p>
+<p class="text-lg mb-6">לשנה מראש</p>
+<div class="pricing-circle">
+<p class="text-sm leading-tight">חיסכון של</p>
+<p class="text-sm leading-tight">240₪</p>
+<p class="text-sm leading-tight">בשנה</p>
+</div>
+<ul class="space-y-3 mb-8">
+<li>✓ כל היתרונות של המנוי החודשי</li>
+<li>✓ חיסכון משמעותי של 240₪ בשנה</li>
+<li>✓ התחייבות למחיר הנמוך למשך שנה</li>
+<li>✓ תשלום אחד וראש שקט לשנה שלמה</li>
+</ul>
+<a href="/#register-yearly"> <button class="cta-button text-white px-8 py-3 rounded-lg w-full"> להצטרפות עכשיו </button> </a></div>
+</div>
+</div>
+<!-- Price Illustration -->
+<div class="mt-12 scroll-animate bg-dark text-white p-6 rounded-lg max-w-3xl mx-auto">
+<h3 class="text-xl font-bold mb-4 text-center" style="color: var(--primary-color);">בואו נערוך חשבון פשוט - אפשר לשלם על כל קורס בנפרד:</h3>
+<div class="space-y-2 text-base">
+<div class="flex justify-between items-center border-b border-opacity-20 border-white pb-1"><span>זוגיות לפי הקבלה</span> <span class="font-bold">1280 ש"ח</span></div>
+<div class="flex justify-between items-center border-b border-opacity-20 border-white pb-1"><span>מדע הרגש</span> <span class="font-bold">360 ש"ח</span></div>
+<div class="flex justify-between items-center border-b border-opacity-20 border-white pb-1"><span>סוד האותיות</span> <span class="font-bold">310 ש"ח</span></div>
+<div class="flex justify-between items-center border-b border-opacity-20 border-white pb-1"><span>קואצ'ינג עצמי</span> <span class="font-bold">360 ש"ח</span></div>
+<div class="flex justify-between items-center border-b border-opacity-20 border-white pb-1"><span>העולם לא יכול להתקיים בלעדיך</span> <span class="font-bold">200 ש"ח</span></div>
+<div class="flex justify-between items-center border-b border-opacity-20 border-white pb-1"><span>כשיהדות פוגשת חוכמות אחרות</span> <span class="font-bold">480 ש"ח</span></div>
+<div class="flex justify-between items-center border-b border-opacity-20 border-white pb-1"><span>קליפות הנפש</span> <span class="font-bold">480 ש"ח</span></div>
+<div class="flex justify-between items-center border-b border-opacity-20 border-white pb-1"><span>זוגיות עכשיו</span> <span class="font-bold">650 ש"ח</span></div>
+<div class="flex justify-between items-center border-b border-opacity-20 border-white pb-1"><span>תומר דבורה ומסילת ישרים</span> <span class="font-bold">690 ש"ח</span></div>
+<div class="flex justify-between items-center border-b border-opacity-20 border-white pb-1"><span>ועוד תכנים נוספים שעולים באופן קבוע...</span> <span class="font-bold" style="color: var(--primary-color);">שווי נוסף!</span></div>
+</div>
+<div class="mt-4 text-center">
+<p style="color: var(--primary-color);" class="text-lg font-bold">שווי כולל - יותר מ: 4,810 ש"ח</p>
+<p class="text-base mt-1">במנוי שנתי תקבלו הכל ב-47 ש"ח לחודש בלבד!</p>
+</div>
+</div>
+</div>
+</div>
+<!-- About Section - Dark -->
+<div class="section-dark py-16">
+<div class="container mx-auto px-4">
+<h2 class="text-3xl font-bold mb-12 text-center scroll-animate">אודות משה שרון</h2>
+<div class="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
+<div class="space-y-4 scroll-animate">
+<p class="text-lg">משה שרון, בן 47, נשוי לנעמי ואב לארבע בנות. מרצה, מטפל וסופר.</p>
+<p class="text-lg">תלמידו של הרב מרדכי שיינברגר ומרצה בכיר בתנועת "האומה"</p>
+<p class="text-lg">הוציא לאור עד כה 9 ספרים ורב מכר עולמי לאור.</p>
+<p class="text-lg">מכשיר מאמנים ומטפלים אישים וזוגיים בתכנית "טוב ומיטיב"</p>
+<p class="text-lg">מלמד קבלה, חסידות, אימון ופסיכולוגיה יהודית ב-25 השנים האחרונות.</p>
+<div class="flex gap-4 mt-6"><a style="color: var(--primary-color);" href="https://he.wikipedia.org/wiki/משה_שרון_(סופר)" class="hover:underline">ויקיפדיה</a> <a style="color: var(--primary-color);" href="/אודות#3" class="hover:underline">ראיונות בתקשורת</a></div>
+</div>
+<!-- Moshe Sharon Image -->
+<div class="scroll-animate"><img class="rounded-lg shadow-lg mx-auto" src="/media/ssydrfkm/moshe-lecturing.jpg" alt="משה שרון מרצה"></div>
+</div>
+<!-- Video Lecture Preview -->
+<div class="max-w-4xl mx-auto mt-16 scroll-animate">
+<h3 class="text-2xl font-bold mb-6 text-center">צפו בהרצאה לדוגמא</h3>
+<div class="relative" style="padding-bottom: 56.25%;"><iframe class="absolute top-0 left-0 w-full h-full rounded-lg" src="https://www.youtube.com/embed/jTPDyPzWfHo" title="Sample Video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="allowfullscreen">
+                </iframe></div>
+</div>
+</div>
+</div>
+<!-- FAQ Section - White -->
+<div class="section-white py-16">
+<div class="container mx-auto px-4">
+<h2 class="text-3xl font-bold mb-12 text-center scroll-animate">שאלות נפוצות</h2>
+<div class="max-w-3xl mx-auto space-y-6">
+<div class="bg-dark text-white p-6 rounded-lg scroll-animate">
+<h3 class="text-xl font-bold mb-3" style="color: var(--primary-color);">מה בעצם התכנים שכלולים במנוי?</h3>
+<div class="space-y-2">
+<p>• קורס זוגיות לפי הקבלה</p>
+<p>• סוד האותיות והשמות</p>
+<p>• איך אדם ידע מה השליחות שלו בעולם?</p>
+<p>• כשיהדות פוגשת חוכמות אחרות</p>
+<p>• מדע הרגש</p>
+<p>• קליפות הנפש</p>
+<p>• זוגיות עכשיו לרווקים ורווקות</p>
+<p>• ספרי קודש: מסילת ישרים, נפש החיים, תומר דבורה, מתן תורה, שמעתי, ספר ההקדמות, אורות התשובה</p>
+</div>
+</div>
+<div class="bg-dark text-white p-6 rounded-lg scroll-animate">
+<h3 class="text-xl font-bold mb-3" style="color: var(--primary-color);">למה לא פשוט לצפות ביוטיוב?</h3>
+<p>התכנים באתר מתחלקים לשניים: תכנים חינמיים, כמו פרשות השבוע, שיעורים על החגים ופודקאסטים - אותם ניתן למצוא גם ביוטיוב, ותכנים למנויים בלבד כמו קורסים בנושא זוגיות לפי הקבלה, סוד האותיות ועוד, אותם לא ניתן למצוא ביוטיוב.</p>
+</div>
+<div class="bg-dark text-white p-6 rounded-lg scroll-animate">
+<h3 class="text-xl font-bold mb-3" style="color: var(--primary-color);">מה זו האפליקציה ואיך מתקינים אותה?</h3>
+<p>זו גרסה מיוחדת ומהירה של האתר שמתנהגת כאפליקציה לכל דבר, גם בנייד וגם במחשב. היא מאפשרת גישה ישירה, חוויה נקייה מהסחות דעת, ואפשרות להוריד שיעורים לצפייה <strong>גם ללא חיבור לאינטרנט</strong>.</p>
+<p class="mt-4"><strong>תהליך ההתקנה פשוט מאוד:</strong></p>
+<ol class="list-decimal list-inside pr-4 mt-2 space-y-2">
+<li>לחצו על כפתור <strong>'האפליקציה שלנו'</strong> באתר.</li>
+<li>בחלון שייפתח, לחצו על הכפתור המרכזי <strong>"הוספה למסך הבית"</strong>.</li>
+<li>זהו! התהליך הסתיים.
+<ul class="list-disc list-inside pr-4 mt-2">
+<li><strong>בנייד:</strong> יתווסף אייקון חדש למסך הבית שלכם באופן אוטומטי.</li>
+<li><strong>במחשב:</strong> האפליקציה תותקן, ובסיום תוכלו לבחור אם ליצור עבורה קיצור דרך על שולחן העבודה, בשורת המשימות או בתפריט 'התחל' לגישה נוחה.</li>
+</ul>
+</li>
+</ol>
+</div>
+<div class="bg-dark text-white p-6 rounded-lg scroll-animate">
+<h3 class="text-xl font-bold mb-3" style="color: var(--primary-color);">האם ניתן לטעום ולהתנסות לפני שמשלמים?</h3>
+<p>כן, בטח. פתחנו את השיעור הראשון בקורסים הסגורים למנויים כדי שתוכלו להחליט אם הוא מעניין אתכם</p>
+</div>
+<div class="bg-dark text-white p-6 rounded-lg scroll-animate">
+<h3 class="text-xl font-bold mb-3" style="color: var(--primary-color);">אילו תכנים עוד עתידים לעלות במנוי?</h3>
+<p>הרחבנו לאחרונה את הסדרה לרווקים ורווקות "זוגיות עכשיו", אנחנו מתכננים סדרה על ליקוטי מוהר"ן, קורס חדש על "העולם לא יכול להתקיים בלעדיך", עבודת המידות ועוד.</p>
+</div>
+<div class="bg-dark text-white p-6 rounded-lg scroll-animate">
+<h3 class="text-xl font-bold mb-3" style="color: var(--primary-color);">כיצד מצטרפים?</h3>
+<p>נרשמים לאתר עם מייל וסיסמא ומיד לאחר מכן בוחרים מנוי חודשי מתחדש במחיר 67 ש"ח לחודש או מנוי שנתי במחיר 47 ₪ לחודש</p>
+</div>
+<div class="bg-dark text-white p-6 rounded-lg scroll-animate">
+<h3 class="text-xl font-bold mb-3" style="color: var(--primary-color);">האם ניתן לבקש החזר כספי?</h3>
+<p>כן. במידה ולא תתחברו תוכלו לפנות אלינו, לנעמי משירות הלקוחות בטלפון 055-5572195 וכספכם יוחזר לכם.</p>
+</div>
+<div class="bg-dark text-white p-6 rounded-lg scroll-animate">
+<h3 class="text-xl font-bold mb-3" style="color: var(--primary-color);">האם הקורס "טוב ומיטיב" והקורס הדיגיטלי "ירח דבש" כלולים במנוי?</h3>
+<p>לצערנו לא. טוב ומיטיב זו תכנית להכשרת מאמנים דו שנתית שעלותה כמה עשרות אלפי שקלים והיא כוללת תרגולים, הדגמות ובסיומה מקבלים תעודת מאמן-מטפל ואת היכולת להיות מאמנים-מטפלים. התכנים במנוי הם להעשרה ולא להכשרה.</p>
+<p class="mt-4">הסדרה "ירח דבש" בנויה כקורס דיגיטלי ומיועדת לזוגות שמעוניינים לשדרג את הזוגיות שלהם תוך חודש אחד ואינה כלולה במנוי. פנו אלינו ותקבלו קופון הנחה שיוזיל לכם בחצי את הקורס ירח דבש.</p>
+</div>
+<div class="bg-dark text-white p-6 rounded-lg scroll-animate">
+<h3 class="text-xl font-bold mb-3" style="color: var(--primary-color);">יש לי בעיה בהצטרפות – מה עושים?</h3>
+<p>דברו איתנו ונשמח לעזור בווטסאפ לנעמי ב-055-5572195</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Final CTA Section - Dark -->
+<div class="section-dark py-16">
+<div class="container mx-auto px-4 text-center">
+<h2 class="text-3xl font-bold mb-8 scroll-animate">מתחילים עכשיו!</h2>
+<p class="text-xl mb-12 scroll-animate">מיד עם השלמת ההרשמה, ישלח אליכם מייל לאישור, עם רכישת מנוי כל התכנים באתר יפתחו עבורכם</p>
+<div class="max-w-4xl mx-auto scroll-animate">
+<h3 class="text-2xl mb-6">רוצים להכיר יותר את משה שרון? רוצים ללמוד יותר על המנוי והתכנים?</h3>
+<div class="video-container"><iframe width="860" height="485" src="https://www.youtube.com/embed/ywVeIx_BqkI" title="הכירו את משה שרון והתכנים" frameborder="0" class="w-full rounded-lg mx-auto" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="allowfullscreen">
+                </iframe></div>
+</div>
+<a href="/#register-monthly"> <button class="cta-button text-white px-12 py-4 rounded-lg text-xl mt-12 scroll-animate"> כן, אני רוצה להתנסות במנוי </button> </a></div>
+</div>
+<!-- Footer -->
+<div class="bg-black py-8">
+<div class="container mx-auto px-4 text-center text-white">
+<p>ליצירת קשר: 055-5572195</p>
+<p class="mt-2">© 2025 כל הזכויות שמורות למשה שרון.</p>
+</div>
+</div>
+
+
+    <script>
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+
+        document.querySelectorAll('.scroll-animate').forEach((element) => {
+            observer.observe(element);
+        });
+    </script>
+</body>
+</html>
+

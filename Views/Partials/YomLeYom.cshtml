@@ -1,0 +1,136 @@
+﻿@using Microsoft.Extensions.Caching.Memory;
+@using System.Net;
+@using Umbraco.Cms.Core.Security;
+@using Umbraco.Cms.Web.Common.PublishedModels;
+@using Microsoft.AspNetCore.Hosting
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+@using System.Globalization;
+@inject IMemoryCache Cache
+@inject IWebHostEnvironment Env
+@{
+
+    string cacheItemKey = "yomleyom";
+    string ex = "";
+    string[] ylys = new string[] { };
+    if (!Cache.TryGetValue(cacheItemKey, out string yomleyom))
+    {
+        try
+        {
+            int counter = 0;
+
+            string[] yl = System.IO.File.ReadAllText(Env.ContentRootPath + @"/PrivateFiles/yomleyom.txt").Split('@');
+            string[,] array = new string[12, 30];
+            for (int i = 0; i < 12; i++)
+            {
+                for (int j = 0; j < 30; j++)
+                {
+                    if ((i == 3 || i == 5 || i == 7 || i == 9 || i == 11) && j == 29) { break; }
+                    array[i, j] = yl[counter];
+                    counter++;
+                }
+            }
+            array[5, 29] = "וְהִנֵּה בֶּאֱמֶת, בִּשְׁעַת בִּיטּוּל שֶׁנִּתְבַּטֵּל אֶל הַתַּכְלִית שֶׁהוּא כֻּלּוֹ טוֹב כֻּלּוֹ אֶחָד אֲזַי בֶּאֱמֶת נִתְבַּטְּלִין הַיִּסּוּרִים כַּנַּ\"ל אַך אִי אֶפְשָׁר לִהְיוֹת תָּמִיד קָבוּעַ בִּבְחִינוֹת הַבִּיטּוּל כִּי אִם כֵּן יֵצֵא מִגֶּדֶר אֱנוֹשִׁי וְעַל כֵּן מֻכְרָח שֶׁיִּהְיֶה הַבִּיטּוּל בִּבְחִינוֹת רָצוֹא וָשׁוֹב#\n" +
+                    "רבי נחמן מברסלב | ליקוטי מוהר\"ן ס\"ה";
+
+
+            DateTime today = DateTime.Now;
+            Calendar HebCal = new HebrewCalendar();
+            CultureInfo culture = CultureInfo.CreateSpecificCulture("he-IL");
+            culture.DateTimeFormat.Calendar = HebCal;
+
+            var xg = HebCal.GetMonth(today);
+            xg = (HebCal.IsLeapYear(HebCal.GetYear(today)) && (xg > 6)) ? xg - 1 : xg;
+            int D = HebCal.GetDayOfMonth(today);
+            yomleyom = today.ToString("d MMMM yyyyy", culture) + "#" + array[xg - 1, HebCal.GetDayOfMonth(today) - 1];
+
+            ylys = yomleyom.Split('#');
+
+        }
+        catch (Exception e)
+        {
+            yomleyom = "####";
+
+            Console.WriteLine(e.Message);
+            Console.WriteLine(e.InnerException?.Message);
+
+        }
+        var cacheEntryOptions = new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(60)
+                };
+        Cache.Set(cacheItemKey, yomleyom, cacheEntryOptions);
+    }
+
+    else ylys = yomleyom.Split('#');
+
+
+}
+
+<div style="background-color:#9bb8d6;">
+
+<div class="container pt-5 pb-2">
+
+        <a style="color: inherit;" href="/ספרים/יום-ליום/"><h2 class="mb-5 mt-0 text-center"><strong>הציטוט היומי - מתוך הספר יום ליום</strong></h2></a>
+    <div class="row mb-5">
+        <div class="col-md-12">
+                <div class="card p-0 m-0" style="background-color:#d1e4f8">
+                    <div class="text-center">
+                        <h4 class="px-5 pt-4">
+                        <strong>  @ylys[0]</strong>
+                        </h4>
+                    </div>
+                    <h4 class="px-5 py-3 text-center">
+                        @ylys[1]
+                        @ex
+                    </h4>
+                    <div class="text-center">
+                        <h4 class="px-5 pb-4 ">
+                        <strong>    @ylys[2]</strong>
+                        </h4>
+                    </div>
+
+
+                @*      <div class="col-md-3">
+                <div class="customer-image  text-center">
+                <div class="text-center">
+                <h4 class="px-5 pt-4">
+                מתוך הספר
+                </h4>
+                </div>
+                <div>
+                <a>
+                <img src="/media/yly.jpg" style="height:200px;" class="rounded" />
+                </a>
+                </div>
+                </div>
+                </div>*@
+            </div>
+                
+            @{
+                    string encodedQuote = WebUtility.UrlEncode(@ylys[1]);
+                    string encodedAuthor = WebUtility.UrlEncode(@ylys[2]);
+                    string encodedDate = WebUtility.UrlEncode(@ylys[0]);
+             }
+
+
+                <div class="mt-5 text-center">
+@*                     <a href="https://www.facebook.com/sharer.php?u=https://mo6.co.il">
+                        <button class="btn btn-just-icon btn-round btn-facebook">
+                            <i class="mdi mdi-facebook"> </i>
+                        </button>
+                    </a> *@
+                    <a href="mailto:?subject=ציטוט היום&body=@(encodedQuote) %0A @(encodedAuthor) %0A @(encodedDate)" class="btn btn-just-icon btn-round btn-google" aria-label="שיתוף הציטוט באימייל">
+                        <i class="mdi mdi-line-inherit mdi-email" aria-hidden="true"> </i>
+                    </a>
+                    <a href="https://twitter.com/share?url=https://mo6.co.il&text=@(encodedDate) - @(encodedQuote) - @(encodedAuthor)" class="btn btn-just-icon btn-round btn-twitter" aria-label="שיתוף הציטוט בטוויטר">
+                        <i class="mdi mdi-line-inherit mdi-twitter" aria-hidden="true"></i>
+                    </a>
+                    <a href="whatsapp://send?text=@(encodedDate) %0A @(encodedQuote) %0A @(encodedAuthor)" data-action="share/whatsapp/share" class="btn btn-just-icon btn-round btn-whatsapp" aria-label="שיתוף הציטוט בוואטסאפ">
+                        <i class="mdi mdi-line-inherit mdi-whatsapp" aria-hidden="true"> </i>
+                    </a>
+                </div>
+        </div>
+
+    </div>
+</div>
+</div>

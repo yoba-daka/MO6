@@ -1,0 +1,258 @@
+﻿<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>אתה לא מחובר</title>
+    <link rel="stylesheet" href="/css/material-kit.css?v=2.0.6">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" />
+    <link href="https://fonts.googleapis.com/css?family=Heebo:400,500,700|Material+Icons" rel="stylesheet" />
+    <style>
+        body {
+            background-color: #f4f4f4;
+        }
+
+        .offline-header {
+            padding: 40px 15px;
+            background-color: #3c4858;
+            color: white;
+            text-align: center;
+            transition: background-color 0.5s ease;
+        }
+
+            .offline-header.is-online {
+                background-color: #4caf50;
+            }
+
+            .offline-header .material-icons {
+                font-size: 4rem;
+            }
+
+        .lesson-card {
+            display: block;
+            text-decoration: none;
+            color: #3C4858;
+            margin-bottom: 20px;
+        }
+
+            .lesson-card:hover, .lesson-card:focus {
+                text-decoration: none;
+            }
+
+            .lesson-card .image-container {
+                position: relative;
+                overflow: hidden;
+                border-radius: 6px;
+                box-shadow: 0 5px 15px -8px rgba(0, 0, 0, 0.24), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+                .lesson-card .image-container img {
+                    transition: transform 0.3s ease;
+                }
+
+            .lesson-card:hover .image-container img {
+                transform: scale(1.05);
+            }
+
+            .lesson-card .overlay-content {
+                position: absolute;
+                z-index: 2;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                pointer-events: none;
+            }
+
+            .lesson-card .play-button {
+                width: 64px;
+                height: 64px;
+                background-color: #f88435;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                transition: transform 0.2s ease, background-color 0.3s ease;
+            }
+
+            .lesson-card:hover .play-button {
+                transform: scale(1.1);
+            }
+
+            .lesson-card .play-button .material-icons {
+                font-size: 40px !important;
+                color: white;
+                padding-left: 4px;
+            }
+
+            .lesson-card .time-badge {
+                margin-top: 12px;
+                background-color: #f88435;
+                color: white;
+                padding: 4px 16px;
+                border-radius: 16px;
+                font-size: 14px;
+                font-weight: 500;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.25);
+            }
+
+            .lesson-card h5.title {
+                color: #3C4858;
+                transition: color 0.3s ease;
+            }
+
+            .lesson-card:hover h5.title {
+                color: #00bcd4;
+            }
+
+            /* --- NEW STYLES FOR LOCKED CARDS --- */
+            .lesson-card.locked .image-container::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(50, 50, 50, 0.6); /* Dark overlay */
+                border-radius: 6px;
+                z-index: 3; /* Sit on top of the image but below the button */
+            }
+
+            .lesson-card.locked .overlay-content {
+                z-index: 4; /* Ensure button is on top of the overlay */
+            }
+
+            .lesson-card.locked .play-button {
+                background-color: #6c757d; /* Grey button color */
+            }
+
+                .lesson-card.locked .play-button .material-icons {
+                    font-family: 'Material Icons'; /* Ensure icon font is used */
+                    content: 'lock'; /* Replace play arrow with the word 'lock' */
+                    padding-left: 0;
+                    font-size: 36px !important;
+                }
+
+            .lesson-card.locked:hover .image-container img {
+                transform: none; /* Disable zoom on hover for locked items */
+            }
+
+            .lesson-card.locked:hover .play-button {
+                transform: none; /* Disable zoom on hover for locked items */
+            }
+    </style>
+</head>
+<body>
+    <div class="offline-header">
+        <i class="material-icons">cloud_off</i>
+        <h1>האינטרנט לא זמין</h1>
+        <p class="lead">האפליקציה המלאה אינה זמינה במצב לא מקוון, אך באפשרותך לצפות בשיעורים שהורדת.</p>
+    </div>
+
+    <div class="container" style="margin-top: 30px;">
+        <div id="offline-section">
+            <h2 class="title text-primary text-center">שיעורים שהורדו</h2>
+            <div id="offline-lessons-container">
+                <p class="text-center">טוען רשימת שיעורים...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/db-helper.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (typeof offlineVideoDB !== 'undefined') {
+                loadOfflineLessons();
+            } else {
+                console.error("DB Helper not found on offline fallback page.");
+                document.getElementById('offline-lessons-container').innerHTML = '<p class="text-danger text-center">שגיאה בטעינת מסד הנתונים.</p>';
+            }
+
+            window.addEventListener('online', () => {
+                const header = document.querySelector('.offline-header');
+                if (header) {
+                    header.classList.add('is-online');
+                    header.innerHTML = `
+                            <i class="material-icons">cloud_queue</i>
+                            <h1>חזרת לאינטרנט!</h1>
+                            <p class="lead">מעביר אותך בחזרה לאתר המלא...</p>
+                        `;
+                }
+                setTimeout(() => { window.location.href = '/'; }, 2500);
+            });
+        });
+
+        async function loadOfflineLessons() {
+            const container = document.getElementById('offline-lessons-container');
+            if (!container) return;
+
+            try {
+                // 1. Fetch membership status and lessons in parallel for efficiency
+                const [settings, lessons] = await Promise.all([
+                    offlineVideoDB.getMembershipStatus(),
+                    offlineVideoDB.getAllLessons()
+                ]);
+
+                // 2. Determine if membership is expired
+                const expirationDate = settings ? new Date(settings.expiration) : null;
+                const isMembershipExpired = expirationDate ? new Date() > expirationDate : true; // Default to expired if no data
+
+                // Display a status message if membership is expired
+                if (isMembershipExpired && expirationDate) {
+                    const statusContainer = document.querySelector('.offline-header');
+                    const warning = document.createElement('p');
+                    warning.className = 'lead text-warning';
+                    warning.textContent = 'המנוי שלך פג תוקף. חלק מהשיעורים עשויים להיות נעולים.';
+                    statusContainer.appendChild(warning);
+                }
+
+                const downloadedLessons = lessons.filter(l => l.videoStatus === 'completed' || l.audioStatus === 'completed');
+
+                if (downloadedLessons.length === 0) {
+                    container.innerHTML = '<h4 class="text-center">לא הורדו שיעורים למכשיר זה.</h4>';
+                    return;
+                }
+
+                let html = '<div class="row justify-content-center">';
+                for (const lesson of downloadedLessons) {
+                    // 3. The Access Check for each lesson
+                    const isLocked = lesson.requiresMembership && isMembershipExpired;
+
+                    // Prepare variables based on the lock status
+                    const offlineUrl = isLocked ? '#' : `/offline-lesson.html?contentName=${lesson.contentName}`;
+                    const lockedClass = isLocked ? 'locked' : '';
+                    const clickAction = isLocked ? `onclick="alert('לא זוהה מנוי בתוקף. יש להתחבר לאינטרנט כדי לחדש.'); return false;"` : '';
+                    const playIcon = isLocked ? 'lock' : 'play_arrow';
+                    const durationBadge = lesson.duration ? `<span class="time-badge">${lesson.duration}</span>` : '';
+
+                    // 4. Build the HTML for the card with the lock logic applied
+                    html += `
+                            <div class="col-lg-3 col-md-4 col-sm-6 m-3">
+                                <a href="${offlineUrl}" class="lesson-card ${lockedClass}" ${clickAction}>
+                                    <div class="image-container">
+                                        <img src="${lesson.imageUrl}" alt="${lesson.title}" class="rounded img-fluid">
+                                        <div class="overlay-content">
+                                            <div class="play-button">
+                                                <i class="material-icons">${playIcon}</i>
+                                            </div>
+                                            ${durationBadge}
+                                        </div>
+                                    </div>
+                                    <h5 style="line-height: 22px;" class="title m-2 text-center">${lesson.title}</h5>
+                                </a>
+                            </div>`;
+                }
+                html += '</div>';
+                container.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error loading offline lessons:', error);
+                container.innerHTML = '<p class="text-danger text-center">אירעה שגיאה בטעינת השיעורים.</p>';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+@model MyProject12.ViewModels.PaginatedContactResult
+
+<link rel="stylesheet" href="/css/memberships-admin.css" />
+
+<div id="contactsApp"
+     class="memberships-admin"
+     dir="rtl"
+     data-load-url="@Url.Action("LoadContacts")"
+     data-delete-url="@Url.Action("Delete")"
+     data-current-page="@Model.CurrentPage"
+     data-total-pages="@Model.TotalPages"
+     data-search="@Model.Search"
+     data-sort-by="@Model.SortBy"
+     data-sort-order="@Model.SortOrder">
+
+    <div id="contactsStatus" class="status-banner" aria-live="polite"></div>
+
+    <section class="manage-panel">
+        <div class="toolbar sticky-toolbar">
+            <div class="toolbar-filters">
+                <input type="text" id="searchInput" placeholder="חיפוש לפי שם, אימייל, טלפון או תוכן..." value="@Model.Search" aria-label="חיפוש הודעות" />
+            </div>
+
+            <div class="toolbar-actions">
+                <span id="resultsSummary" class="results-pill">תוצאות: @Model.TotalItems</span>
+            </div>
+        </div>
+
+        <div id="tableContainer">
+            @Html.Partial("Contacts", Model)
+        </div>
+
+        <nav class="paging-container" aria-label="דפדוף עמודי הודעות">
+            <ul class="paging" id="paginationContainer"></ul>
+        </nav>
+    </section>
+</div>
+
+<script src="/js/core/jquery.min.js"></script>
+<script src="/js/contacts-admin.js"></script>

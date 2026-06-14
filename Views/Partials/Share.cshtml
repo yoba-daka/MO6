@@ -1,0 +1,27 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@{
+    var baseUrl = Configuration["CustomDomain"];
+    var relativeUrl = Model.Url();
+    var absoluteUrl = $"{baseUrl}{relativeUrl}";
+}
+
+<div class="my-5">
+    <h3 class="text-center">שיתוף</h3>
+
+    <div class="text-center">
+        <a href="https://www.facebook.com/sharer.php?u=@absoluteUrl" class="btn btn-just-icon btn-round btn-facebook" aria-label="שיתוף בפייסבוק">
+            <i class="mdi mdi-line-inherit mdi-facebook" aria-hidden="true"> </i>
+        </a>
+        <a href="mailto:?body=@absoluteUrl" class="btn btn-just-icon btn-round btn-google" aria-label="שיתוף באימייל">
+            <i class="mdi mdi-line-inherit mdi-email" aria-hidden="true"> </i>
+        </a>
+        <a href="https://twitter.com/share?url=@absoluteUrl" class="btn btn-just-icon btn-round btn-twitter" aria-label="שיתוף בטוויטר">
+            <i class="mdi mdi-line-inherit mdi-twitter" aria-hidden="true"></i>
+        </a>
+        <a href="whatsapp://send?text=@absoluteUrl" data-action="share/whatsapp/share" class="btn btn-just-icon btn-round btn-whatsapp" aria-label="שיתוף בוואטסאפ">
+            <i class="mdi mdi-line-inherit mdi-whatsapp" aria-hidden="true"> </i>
+        </a>
+    </div>
+</div>

@@ -1,0 +1,70 @@
+﻿@using MyProject12.Controllers;
+@using MyProject12.ViewModels;
+@model FullNameChangeViewModel
+
+<div class="modal fade" id="changeFullNameModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+            @if (TempData.ContainsKey("SuccessMessageName"))
+            {
+                    <div class="col-sm-12 text-center">
+                    <h2 class="text-success text-center m-2">@TempData["SuccessMessageName"]</h2>
+                    </div>
+            }
+            else
+            {
+                @using (Html.BeginUmbracoForm<AccountController>("HandleFullNameChange"))
+                {
+                    <div class="modal-header">
+                        <div class="col-sm-12 text-center">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="סגור"><i class="material-icons" aria-hidden="true" lang="en" translate="no">clear</i></button>
+                            <h4 class="modal-title text-primary">שינוי שם</h4>
+                        </div>
+                    </div>
+                    <div class="modal-body mx-4">
+                        <div class="form-group  bmd-form-group">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                        <i class="material-icons" aria-hidden="true" lang="en" translate="no">badge</i>
+                                    </span>
+                                </div>
+                            <label asp-for="FullName" class="bmd-label-floating login-field">שם מלא</label>
+                            <input asp-for="FullName" class="form-control" autocomplete="name" aria-describedby="FullNameChange_FullName-error" aria-invalid="false" />
+                                <span asp-validation-for="FullName" id="FullNameChange_FullName-error" class="login-error" role="alert" aria-live="polite"></span>
+
+                            </div>
+                        </div>
+                        <div class="form-group   bmd-form-group">
+                            <div class="input-group">
+
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="material-icons" aria-hidden="true" lang="en" translate="no">password</i>
+                                </span>
+                            </div>
+                            <label asp-for="CurrentPassword" class="bmd-label-floating login-field">סיסמא</label>
+                            <input asp-for="CurrentPassword" type="password" autocomplete="current-password" class="form-control" aria-describedby="FullNameChange_CurrentPassword-error" aria-invalid="false" />
+                                <span asp-validation-for="CurrentPassword" id="FullNameChange_CurrentPassword-error" class="login-error" role="alert" aria-live="polite"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        @if (ViewData.ModelState.ContainsKey("FullNameChange"))
+                        {
+                            <div class="form-group bmd-form-group">
+                                <div style="text-align:center">
+                                    @foreach (var error in ViewData.ModelState["FullNameChange"].Errors)
+                                    {
+                                        <div class="text-danger mb-2">@error.ErrorMessage </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        <button type="submit" class="btn btn-primary btn-link btn-wd btn-lg">עדכון</button>
+                    </div>
+                }
+                }
+            </div>
+        </div>
+    </div>

@@ -1,0 +1,78 @@
+﻿@using MyProject12.Models;
+@using Umbraco.Cms.Core.Security;
+@inject IMemberManager _memberManager
+@model Comment
+@{
+    var memberLogged = _memberManager.IsLoggedIn();
+}
+
+@if (Model.time != DateTime.MinValue)
+{
+    <div id="@Model.getIDObf()" class="comment-container mt-2 mx-3 text-right @(Model.parentCommentID != null?"reply":"")" style="background-color:#f6f6f6">
+        <div class="media comment px-3">
+            <div class="media-body hide-comment">
+                <div class="row">
+                    @if (Model.parentCommentID != null)
+                    {
+                        <i class="material-icons mt-3 ml-2 primary" aria-hidden="true" lang="en" translate="no">
+                            subdirectory_arrow_left
+                        </i>
+                    }
+                    <h4 class="comment-title mx-2">
+                        @if (Model.managment)
+                        {
+                            @:<strong>@Model.title</strong>
+                        }
+                        else
+                        {
+                            @Model.title
+                        }
+
+                    </h4>
+                    @if (memberLogged)
+                    {
+                        <button class="btn btn-social btn-link btn-primary btn-reply">
+                            תגובה
+                            <div class="ripple-container"></div>
+                        </button>
+                    }
+                </div>
+
+                <h6 class="comment-name">
+                    @if (Model.managment)
+                    {
+                        @:<strong style="color:#4caf50;">@Model.name · </strong>
+                    }
+                    else if(memberLogged)
+                    {
+                        if (Model.name == "ללא שם")
+                        {
+                            @:<strong style="font-style:italic">@Model.name · </strong>
+
+                        }
+                        else
+                        {
+                            @:@Model.name ·
+
+                        }
+                    }
+                    @Model.time.ToString("dd.MM.yyyy")
+                </h6>
+                <p class="comment-content">@Model.content</p>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="mt-2 px-3 text-right">
+        <div class="media comment px-3">
+            <div class="media-body">
+                <h4>
+
+                    <strong style="color:red;">@Model.content</strong>
+                </h4>
+            </div>
+        </div>
+    </div>
+}

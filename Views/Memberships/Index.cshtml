@@ -1,0 +1,129 @@
+@model MyProject12.ViewModels.PaginatedMembershipResult
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+<link rel="stylesheet" href="/css/memberships-admin.css" />
+
+<div id="membershipsApp"
+     class="memberships-admin"
+     dir="rtl"
+     data-load-url="@Url.Action("LoadMemberships")"
+     data-download-filtered-url="@Url.Action("DownloadFilteredMemberships")"
+     data-download-selected-url="@Url.Action("DownloadSelectedMemberships")"
+     data-download-all-url="@Url.Action("DownloadAllMembers")"
+     data-update-membership-url="@Url.Action("UpdateMembership")"
+     data-quick-action-url="@Url.Action("ApplyQuickAction")"
+     data-cancel-dd-url="@Url.Action("CancelDirectDebit")"
+     data-member-quick-view-url="@Url.Action("GetMemberQuickView")"
+     data-member-history-url="@Url.Action("GetMembershipTransactions")"
+     data-create-url="@Url.Action("Create")"
+     data-current-page="@Model.CurrentPage"
+     data-total-pages="@Model.TotalPages"
+     data-kpi-total="@Model.KpiTotalMemberships"
+     data-kpi-expired="@Model.KpiExpired"
+     data-kpi-monthly-active="@Model.KpiMonthlyActive"
+     data-kpi-annual-active="@Model.KpiAnnualActive"
+     data-search="@Model.Search"
+     data-status-filter="@Model.StatusFilter"
+     data-type-filter="@Model.TypeFilter"
+     data-advanced-filter="@Model.AdvancedFilter"
+     data-sort-by="@Model.SortBy"
+     data-sort-order="@Model.SortOrder">
+
+    <div id="membershipStatus" class="status-banner" aria-live="polite"></div>
+
+    <section class="kpi-strip" aria-label="מדדי מנויים">
+        <button type="button" class="kpi-card" data-kpi-filter="all" aria-label="הצגת כל המנויים">
+            <span class="kpi-label">סה״כ מנויים</span>
+            <span class="kpi-value" id="kpiTotal">@Model.KpiTotalMemberships</span>
+        </button>
+        <button type="button" class="kpi-card" data-kpi-filter="expired" aria-label="סינון מנויים שפג תוקפם">
+            <span class="kpi-label">פגי תוקף</span>
+            <span class="kpi-value" id="kpiExpired">@Model.KpiExpired</span>
+        </button>
+        <button type="button" class="kpi-card" data-kpi-filter="monthlyActive" aria-label="סינון מנויים חודשיים פעילים">
+            <span class="kpi-label">חודשי פעיל</span>
+            <span class="kpi-value" id="kpiMonthlyActive">@Model.KpiMonthlyActive</span>
+        </button>
+        <button type="button" class="kpi-card" data-kpi-filter="annualActive" aria-label="סינון מנויים שנתיים פעילים">
+            <span class="kpi-label">שנתי פעיל</span>
+            <span class="kpi-value" id="kpiAnnualActive">@Model.KpiAnnualActive</span>
+        </button>
+    </section>
+
+    <section class="create-panel">
+        <h2>הוספת מנוי</h2>
+        <p>ניתן להוסיף מנוי רק למשתמש קיים ללא מנוי.</p>
+        <div class="create-form-row">
+            <input id="createEmail" name="email" type="email" placeholder="אימייל משתמש" aria-label="אימייל משתמש להוספת מנוי" />
+            <input id="createExpiration" name="expiration" type="text" placeholder="תוקף (YYYY-MM-DD HH:mm)" aria-label="תוקף מנוי חדש" />
+            <button id="createButton" class="btn-primary" aria-label="הוספת מנוי חדש">הוספה</button>
+        </div>
+    </section>
+
+    <section class="manage-panel">
+        <div class="toolbar sticky-toolbar">
+            <div class="toolbar-filters">
+                <input type="text" id="searchInput" placeholder="חיפוש לפי אימייל, מזהה מנוי, טלפון או עסקאות..." value="@Model.Search" aria-label="חיפוש מנויים" />
+
+                <select id="statusFilter" aria-label="סינון לפי סטטוס מנוי">
+                    <option value="all">כל הסטטוסים</option>
+                    <option value="active">פעיל</option>
+                    <option value="inactive">לא פעיל</option>
+                </select>
+
+                <select id="typeFilter" aria-label="סינון לפי סוג מנוי">
+                    <option value="all">כל הסוגים</option>
+                    <option value="monthly">חודשי</option>
+                    <option value="annual">שנתי</option>
+                </select>
+
+                <select id="advancedFilter" aria-label="סינון מתקדם">
+                    <option value="all">סינון מתקדם</option>
+                    <option value="expired">פגי תוקף</option>
+                    <option value="expiring7">יפוג תוך 7 ימים</option>
+                    <option value="monthlyActive">חודשי פעיל</option>
+                    <option value="monthlyInactive">חודשי לא פעיל</option>
+                    <option value="noTransactions">ללא עסקאות</option>
+                    <option value="missingPhone">ללא טלפון</option>
+                    <option value="annualActive">שנתי פעיל</option>
+                </select>
+            </div>
+
+            <div class="toolbar-actions">
+                <button id="downloadFilteredBtn" class="btn-secondary" aria-label="ייצוא אקסל מסונן">ייצוא מסונן</button>
+                <button id="downloadSelectedBtn" class="btn-secondary" disabled aria-label="ייצוא אקסל למנויים נבחרים">ייצוא נבחרים</button>
+                <a id="downloadAllMembershipsBtn" href="@Url.Action("DownloadAllMemberships")" class="btn-secondary" aria-label="ייצוא כל המנויים לאקסל">ייצוא כל המנויים</a>
+                <a id="downloadAllBtn" href="@Url.Action("DownloadAllMembers")" class="btn-secondary" aria-label="ייצוא כל המשתמשים לאקסל">ייצוא כל המשתמשים</a>
+                <span id="selectedCounter" class="counter-pill">נבחרו: 0</span>
+                <span id="resultsSummary" class="results-pill">תוצאות: @Model.TotalItems</span>
+            </div>
+        </div>
+
+        <div id="tableContainer">
+            @Html.Partial("Memberships", Model)
+        </div>
+
+        <nav class="paging-container" aria-label="דפדוף עמודים">
+            <ul class="paging" id="paginationContainer"></ul>
+        </nav>
+    </section>
+
+    <div id="drawerOverlay" class="drawer-overlay" aria-hidden="true"></div>
+    <aside id="memberDrawer" class="member-drawer" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+        <div class="drawer-header">
+            <h3 id="drawerTitle">פרטי מנוי</h3>
+            <button id="drawerCloseBtn" class="drawer-close" type="button" aria-label="סגירת חלונית פרטי מנוי">סגירה</button>
+        </div>
+        <div class="drawer-tabs" role="tablist" aria-label="לשוניות פרטי מנוי">
+            <button type="button" id="drawerTabSummary" class="drawer-tab active" data-tab="summary" aria-label="מעבר ללשונית סיכום" role="tab" aria-selected="true" aria-controls="drawerSummary">סיכום</button>
+            <button type="button" id="drawerTabHistory" class="drawer-tab" data-tab="history" aria-label="מעבר ללשונית היסטוריית עסקאות" role="tab" aria-selected="false" aria-controls="drawerHistory" tabindex="-1">היסטוריית עסקאות</button>
+        </div>
+        <div class="drawer-body">
+            <div id="drawerSummary" class="drawer-section" role="tabpanel" aria-labelledby="drawerTabSummary"></div>
+            <div id="drawerHistory" class="drawer-section hidden" role="tabpanel" aria-labelledby="drawerTabHistory"></div>
+        </div>
+    </aside>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="/js/memberships-admin.js"></script>

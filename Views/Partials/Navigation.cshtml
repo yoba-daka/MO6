@@ -1,0 +1,146 @@
+﻿@using Umbraco.Cms.Core.Security;
+@using Umbraco.Cms.Web.Website.Controllers;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@inject IMemberManager _memberManager
+
+
+<nav class="navbar bg-info fixed-top  navbar-expand-lg navbar-color-on-scroll navbar-transparent" color-on-scroll="100" id="sectionsNav">
+    <div class="container" style="height:50px">
+        <div class="navbar-translate">
+            <div class="d-flex">
+                <a class="navbar-brand pt-1" href="/">
+                    <img src="/media/sz3hjxoe/icon-moshe-sharon.svg" alt="משה שרון - לדף הבית" class="icon">
+                </a>
+                <a class="navbar-brand" href="/">
+                    משה שרון
+                </a>
+            </div>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="פתיחת תפריט ראשי">
+                <span class="sr-only">פתיחת תפריט ראשי</span>
+                <span class="navbar-toggler-icon"></span>
+                <span class="navbar-toggler-icon"></span>
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+        <div class="collapse navbar-collapse" id="mainNavbar">
+            <ul class="navbar-nav ml-auto">
+                <li class="dropdown nav-item">
+                    <a href="/אודות" class="nav-link">
+                        <i class="mdi mdi-information mdi-line-1" aria-hidden="true"></i>  אודות
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/מאמרים">
+                        <i class="mdi mdi-card-text mdi-line-1" aria-hidden="true"></i>  מאמרים
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/פודקאסטים">
+                        <i class="mdi mdi-headphones mdi-line-1" aria-hidden="true"></i>  פודקאסטים
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/קורסים-והרצאות">
+                        <i class="mdi mdi-library-video mdi-line-1" aria-hidden="true"></i>  קורסים והרצאות
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/אירועים">
+                        <i class="mdi mdi-calendar mdi-line-1" aria-hidden="true"></i>  אירועים
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/ספרים">
+                        <i class="mdi mdi-bookshelf mdi-line-1" aria-hidden="true"></i>  ספרים
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/צור-קשר">
+                        <i class="mdi mdi-contact-mail mdi-line-1" aria-hidden="true"></i>  צור קשר
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/מנוי">
+                        <i class="mdi mdi-crown mdi-line-1" aria-hidden="true"></i>  מנוי
+                    </a>
+                </li>
+
+                <li class="nav-item" style="text-align:center">
+                    @if (_memberManager.IsLoggedIn())
+                    {
+                        <div class="nav-link px-4" style="margin-left:0px; margin-right:0px;">
+                            <button class="btn btn-danger btn-round px-3 py-2 mb-3 mb-sm-0 d-inline-flex align-items-center" data-toggle="modal" data-target="#logoutModal"><i class="mdi-small mdi-line-1-2 mdi-logout-variant" aria-hidden="true"></i> התנתקות</button>
+
+                            <button onclick="location.href='/חשבון'" class="btn btn-success btn-round px-3 py-2 d-inline-flex align-items-center"><i class="mdi-small mdi-line-1-2 mdi-account" aria-hidden="true"></i> חשבון</button>
+                        </div>
+
+
+
+                    }
+                    else
+                    {
+                        <div class="nav-link px-4" style="margin-left:0px; margin-right:0px;">
+                            <button class="btn btn-primary btn-round px-3 py-2 mb-3 mb-sm-0 d-inline-flex align-items-center" data-toggle="modal" data-target="#loginModal"><i class="mdi-small mdi-line-1-2 mdi-login-variant" aria-hidden="true"></i> התחברות</button>
+
+                            <button class="btn btn-success btn-round px-3 py-2 d-inline-flex align-items-center" data-toggle="modal" data-target="#registerModal"><i class="mdi-small mdi-line-1-2 mdi-pencil-box-outline" aria-hidden="true"></i> הרשמה</button>
+
+                        </div>
+
+                    }
+                </li>
+
+
+            </ul>
+        </div>
+
+    </div>
+</nav>
+
+<script>
+    (function () {
+        const nav = document.getElementById('mainNavbar');
+        if (!nav) return;
+
+        const mobileQuery = window.matchMedia('(max-width: 991.98px)');
+        const focusableSelector = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]';
+
+        function setCollapsedFocusState() {
+            const isMobile = mobileQuery.matches;
+            const isOpen = nav.classList.contains('show');
+            const shouldHide = isMobile && !isOpen;
+
+            nav.setAttribute('aria-hidden', shouldHide ? 'true' : 'false');
+            nav.querySelectorAll(focusableSelector).forEach(function (element) {
+                if (shouldHide) {
+                    if (!element.hasAttribute('data-nav-original-tabindex')) {
+                        element.setAttribute('data-nav-original-tabindex', element.getAttribute('tabindex') || '');
+                    }
+                    element.setAttribute('tabindex', '-1');
+                } else if (element.hasAttribute('data-nav-original-tabindex')) {
+                    const original = element.getAttribute('data-nav-original-tabindex');
+                    if (original) {
+                        element.setAttribute('tabindex', original);
+                    } else {
+                        element.removeAttribute('tabindex');
+                    }
+                    element.removeAttribute('data-nav-original-tabindex');
+                }
+            });
+        }
+
+        if (window.jQuery) {
+            window.jQuery(nav)
+                .on('shown.bs.collapse', setCollapsedFocusState)
+                .on('hidden.bs.collapse', setCollapsedFocusState);
+        }
+
+        if (mobileQuery.addEventListener) {
+            mobileQuery.addEventListener('change', setCollapsedFocusState);
+        } else if (mobileQuery.addListener) {
+            mobileQuery.addListener(setCollapsedFocusState);
+        }
+
+        document.addEventListener('DOMContentLoaded', setCollapsedFocusState);
+        setCollapsedFocusState();
+    })();
+</script>

@@ -1,0 +1,491 @@
+﻿@using MyProject12;
+@using MyProject12.Models;
+@using MyProject12.ViewModels;
+@using Umbraco.Cms.Core.Security;
+@using Umbraco.Cms.Core.Services;
+@using Umbraco.Cms.Core;
+@using Umbraco.Cms.Web.Common.PublishedModels;
+@using Umbraco.Extensions;
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+@using MyProject12.Controllers;
+@inject IMemberManager _memberManager
+@inject IPublishedContentQuery _contentQuery
+@inject DB _db
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Account>
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+
+@{
+    Layout = "master.cshtml";
+    var antiforgeryToken = Xsrf.GetAndStoreTokens(Context).RequestToken;
+}
+
+@if (_memberManager.IsLoggedIn())
+{
+    var member = await _memberManager.GetCurrentMemberAsync();
+    dynamic account = Umbraco.Content(3738);
+    Membership membership = _db.Memberships.FirstOrDefault(x => x.memberID == member.Id);
+
+    <div class="sec-page-header page-header header-filter clear-filter" style="margin-top:0em;background-image: url('@Url.GetCropUrl(Model.Image, "full")');">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="text-center">
+                        <h1>שלום @member.Name !</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <h2 class="title text-primary">מנוי</h2>
+        @if (TempData.ContainsKey("FailureMessagePayment"))
+        {
+            <div class="col-sm-12 text-center">
+                <h2 class="text-danger text-center m-2">@TempData["FailureMessagePayment"]</h2>
+            </div>
+        }
+        @if (membership == null && TempData.ContainsKey("SuccessMessagePayment"))
+        {
+            <div class="col-sm-12 text-center">
+                <h2 class="text-success text-center m-2">@TempData["SuccessMessagePayment"]</h2>
+            </div>
+        }
+        <div class="card m-3" style="background-color:white; width:auto">
+            @if (membership == null && !TempData.ContainsKey("SuccessMessagePayment"))
+            {
+                if (!account.MembershipAllowed)
+                {
+                    <div class="pricing-2 p-4">
+                        <div class="text-center">
+                            <h3>@account.NoMembershipMessage</h3>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="pricing-2 p-4">
+                        <div class="text-center">
+                            <h3>הצטרפו אלינו!</h3>
+                        </div>
+                        <div class="row justify-content-md-center">
+                            <div class="col-md-4">
+                                <div class="card card-pricing card-plain">
+                                    <div class="card-body">
+                                        <h6 class="card-category text-info">מנוי חודשי</h6>
+                                        <h1 class="card-title"><small>₪</small>@(Model.SubscriptionDirectDebitPrice)<small>/חודש</small></h1>
+                                        <ul>
+                                            <li>גישה מלאה לכל התכנים</li>
+                                            <li>תשלום של ₪@(Model.SubscriptionDirectDebitPrice) מדי חודש</li>
+                                            <li>ביטול באתר בכל עת - מבוטל מהחיוב הבא</li>
+                                        </ul>
+                                        <button data-toggle="modal" id="monthlyButton" data-target="#subscription" class="btn btn-primary btn-raised btn-round">לרכישה</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card card-pricing card-plain">
+                                    <div class="card-body">
+                                        <h6 class="card-category text-info">מנוי שנתי</h6>
+                                        <h1 class="card-title"><small>₪</small>@(Model.SubscriptionYearlyMonthlyPrice)<small>/חודש</small></h1>
+                                        <ul>
+                                            <li>גישה מלאה לכל התכנים</li>
+                                            <li>תשלום חד פעמי מראש לשנה של ₪@(Model.SubscriptionYearlyMonthlyPrice * 12)</li>
+                                            <li>לא מתחדש באופן אוטומאטי</li>
+                                        </ul>
+                                        <button data-toggle="modal" id="yearlyButton" data-target="#subscription" class="btn btn-primary btn-raised btn-round">לרכישה</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else if (membership != null)
+            {
+                if (!membership.Expired)
+                {
+                    <div class="p-3 text-center">
+                        @if (membership.isMonthly)
+                        {
+                            <h3 class="text font-weight-bold">מנוי חודשי מתחדש</h3>
+                            <h3 class="text-success font-weight-bold">המנוי פעיל</h3>
+                        }
+                        else
+                        {
+                            <h3 class=" font-weight-bold">מנוי שנתי</h3>
+                            <h3 class="text-success font-weight-bold">המנוי פעיל</h3>
+                        }
+                        <hr />
+                        <h3>תוקף המנוי - @membership.expiration.ToString("dd.MM.yyyy")</h3>
+                        @if (membership.isMonthlyActive)
+                        {
+                            <button class="btn btn-danger btn-raised btn-round" data-toggle="modal" data-target="#kevaModal">ביטול הוראת קבע</button>
+                            <div class="modal fade bd-example-modal-sm" id="kevaModal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-sm">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="סגור"><i class="material-icons" aria-hidden="true" lang="en" translate="no">clear</i></button>
+                                        </div>
+                                        <div class="modal-body text-center">
+                                            <h5>לבטל את הוראת הקבע?</h5>
+                                        </div>
+                                        <div class="modal-footer justify-content-center">
+                                            <button type="button" class="btn btn-link" data-dismiss="modal">חזרה</button>
+                                            <button type="submit" class="btn btn-danger btn-link" onclick="cancelKeva();">לביטול</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <form id="hiddenCancelationForm" method="post" data-ajax-success="cancelationSuccess" data-ajax-failure="cancelationFailure" data-ajax="true" data-ajax-method="POST" action="@Url.SurfaceAction("CancelKeva","CustomLogin")" style="display:none;">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="cancel" id="cancel" value="true">
+                            </form>
+                            <script>
+                                function cancelKeva() { $('#hiddenCancelationForm').submit(); }
+                                function cancelationSuccess() { location.reload(); }
+                                function cancelationFailure() { alert("אירעה שגיאה"); }
+                            </script>
+                        }
+                        else
+                        {
+                            if (membership.isMonthly)
+                            {
+                                <h4 class="text-danger">הוראת הקבע בוטלה</h4>
+                                <hr />
+                                <div class="row  justify-content-md-center mt-4">
+                                    <div class="col-4">
+                                        <p>מנוי חודשי בהוראת קבע</p>
+                                        <p><small>₪</small>@(Model.SubscriptionDirectDebitPrice) לחודש</p>
+                                        <button data-toggle="modal" id="monthlyButton" data-target="#subscription" class="btn btn-primary btn-raised btn-round">חידוש המנוי</button>
+                                    </div>
+                                    <div class="col-4">
+                                        <p>מנוי שנתי תשלום חד פעמי</p>
+                                        <p><small>₪</small>@(Model.SubscriptionYearlyMonthlyPrice * 12) לשנה / <small>₪</small>@(Model.SubscriptionYearlyMonthlyPrice) לחודש</p>
+                                        <button data-toggle="modal" id="yearlyButton" data-target="#subscription" class="btn btn-primary btn-raised btn-round">חידוש המנוי</button>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="p-3 text-center">
+                        @if (!membership.isMonthly)
+                        {
+                            <h3 class=" font-weight-bold">מנוי שנתי</h3>
+                            <h3 class="text-danger font-weight-bold">המנוי אינו פעיל</h3>
+                        }
+                        else
+                        {
+                            <h3 class=" font-weight-bold">מנוי חודשי מתחדש</h3>
+                            <h3 class="text-danger font-weight-bold">המנוי אינו פעיל</h3>
+                        }
+                        <hr />
+                        <h3>תוקף המנוי - @membership.expiration.ToString("dd.MM.yyyy")</h3>
+                        <hr />
+                        <div class="row  justify-content-md-center mt-4">
+                            <div class="col-4">
+                                <p>מנוי חודשי בהוראת קבע</p>
+                                <p><small>₪</small>@(Model.SubscriptionDirectDebitPrice) לחודש</p>
+                                <button data-toggle="modal" id="monthlyButton" data-target="#subscription" class="btn btn-primary btn-raised btn-round">חידוש המנוי</button>
+                            </div>
+                            <div class="col-4">
+                                <p>מנוי שנתי תשלום חד פעמי</p>
+                                <p><small>₪</small>@(Model.SubscriptionYearlyMonthlyPrice * 12) לשנה / <small>₪</small>@(Model.SubscriptionYearlyMonthlyPrice) לחודש</p>
+                                <button data-toggle="modal" id="yearlyButton" data-target="#subscription" class="btn btn-primary btn-raised btn-round">חידוש המנוי</button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+        <h2 class="title text-primary">שיעורים אחרונים שנצפו</h2>
+        @{
+            var lessonIds = _db.TimeKeepers.Where(x => x.memberID == member.Id).OrderByDescending(x => x.date).Take(8).Select(x => x.lessonId);
+            var lessons = _contentQuery.Content(lessonIds);
+        }
+        @if (!lessons.Any())
+        {
+            <h4 class="text-center"> טרם נצפו שיעורים</h4>
+        }
+        <div class="row pl-3" style="text-align:center;">
+            @foreach (dynamic lesson in lessons)
+            {
+                <div class="col-lg-3 col-md-4 col-6 pl-0 " style="overflow:hidden">
+                    <a href="@(((ContentModels.Lesson)lesson).Url())">
+                        @if (lesson.New)
+                        {
+                            <div class="new"><div class="new-text">חדש</div></div>
+                        }
+                        <div class="image-container" style=" position: relative; display: flex; align-items: center; justify-content: center;">
+                            <span class="badge badge-pill badge-primary time">@lesson.Duration</span>
+                            <i class="material-icons play" aria-hidden="true" lang="en" translate="no">play_circle_filled</i>
+                            <div><img src="@Url.GetCropUrl(((Lesson)lesson).Image, "small")" alt="@lesson.ImageAlt" class="rounded img-fluid"></div>
+                        </div>
+                        <h5 style="line-height: 22px;" class="title m-2" class="title m-2">@lesson.Title</h5>
+                    </a>
+                </div>
+            }
+        </div>
+
+        <div id="offline-section" style="display:none;">
+            <h2 class="title text-primary">שיעורים שהורדו לצפייה אופליין</h2>
+            <div id="offline-lessons-container">
+                <p class="text-center">טוען רשימת שיעורים...</p>
+            </div>
+        </div>
+
+        <h2 class="title text-primary">הגדרות</h2>
+        <div>
+            <div class="user-details text-center mt-4">
+                <h4><strong>שם מלא: </strong>@member.Name</h4>
+                <h4><strong>אימייל: </strong>@member.Email</h4>
+                @{
+                    var ev = _db.EmailVerifications.FirstOrDefault(x => x.Email.EndsWith(member.Email));
+                }
+                @if (ev != null)
+                {
+                    var emails = ev.Email.Split(";");
+                    <h4 id="newEmailTitle" class="text-rose"><strong>ממתין לאימות אימייל חדש: </strong>@emails[0] </h4>
+                    <button id="resendVerificationLink" class="btn btn-primary btn-link btn-wd btn-lg">לשליחה חוזרת של אימייל לאימות</button>
+                    <script>
+                        $(document).ready(function () {
+                            $('#resendVerificationLink').on('click', function (e) {
+                                e.preventDefault();
+                                sendVerificationEmail();
+                            });
+                        });
+                        function sendVerificationEmail() {
+                            var requestUrl = "@Url.SurfaceAction("sendVerificationEmail", "Account")";
+                            $.ajax({
+                                type: "POST",
+                                data: { __RequestVerificationToken: '@antiforgeryToken', newEmail: '@emails[0]' },
+                                url: requestUrl,
+                                success: function (response) {
+                                    $('#resendVerificationLink').replaceWith('<h4 class="text-success">נשלח לינק לאימות</h4>');
+                                },
+                                error: function (error) {
+                                    $('#resendVerificationLink').replaceWith('<h4 class="text-danger">' + error.responseText + '</h4>');
+                                }
+                            });
+                        }
+                    </script>
+                }
+            </div>
+            <div class="settings-actions text-center mt-4">
+                <button class="btn btn-primary" data-toggle="modal" data-target="#changeFullNameModal">שינוי שם</button>
+                <button class="btn btn-primary" data-toggle="modal" data-target="#changeEmailModal">שינוי אימייל</button>
+                <button class="btn btn-primary" data-toggle="modal" data-target="#changePasswordModal">שינוי סיסמה</button>
+            </div>
+        </div>
+    </div>
+
+    var fullNameModel = new FullNameChangeViewModel();
+    var emailModel = new EmailChangeViewModel();
+    var passwordModel = new PasswordChangeViewModel();
+    var subscriptionModel = new Subscription { Email = member.Email, FullName = member.Name };
+
+    @Html.Partial("~/Views/Partials/EditNameForm.cshtml", fullNameModel)
+    @Html.Partial("~/Views/Partials/EditEmailForm.cshtml", emailModel)
+    @Html.Partial("~/Views/Partials/EditPasswordForm.cshtml", passwordModel)
+    @Html.Partial("~/Views/Partials/Subscription.cshtml", subscriptionModel)
+
+    <div class="mb-5"></div>
+
+    <script>
+            // ===================================================================================
+            // FINAL, COMPLETE SCRIPT FOR ACCOUNT.CSHTML
+            // SIMPLIFIED TO ONLY REACT TO SW MESSAGES. DB LOGIC IS REMOVED.
+            // ===================================================================================
+
+            function initializeOfflineFeatures(retryCount = 0) {
+                const maxRetries = 50;
+                if (retryCount === 0) console.log("[Account PWA] Attempting to initialize...");
+
+                if (typeof isPWA !== 'undefined' && typeof offlineVideoDB !== 'undefined') {
+                    if (isPWA) {
+                        console.log("%c[Account PWA] PWA features ready. Loading offline lessons.", "color: green; font-weight: bold;");
+                        $('#offline-section').show();
+                        setupEventListeners();
+                        loadOfflineLessons();
+                    } else {
+                        console.log("[Account PWA] Not a PWA, offline section will not be shown.");
+                    }
+                    return;
+                }
+
+                if (retryCount >= maxRetries) {
+                    console.error("[Account PWA] PWA features FAILED to initialize. 'isPWA' or 'offlineVideoDB' object was never found.");
+                    return;
+                }
+                setTimeout(() => initializeOfflineFeatures(retryCount + 1), 100);
+            }
+
+            async function loadOfflineLessons() {
+                const container = document.getElementById('offline-lessons-container');
+                if (!container) return;
+                console.log("[Account PWA] Loading and rendering offline lessons list...");
+
+                try {
+                    const lessons = await offlineVideoDB.getAllLessons();
+                    const downloadedLessons = lessons.filter(l => l.videoStatus === 'completed' || l.audioStatus === 'completed' || l.videoStatus === 'downloading' || l.audioStatus === 'downloading');
+
+                    if (downloadedLessons.length === 0) {
+                        container.innerHTML = '<h4 class="text-center">אין שיעורים שהורדו</h4>';
+                        return;
+                    }
+
+                    let html = '<div class="row pl-3" style="text-align:center;">';
+                    for (const lesson of downloadedLessons) {
+                        const isDownloading = lesson.videoStatus === 'downloading' || lesson.audioStatus === 'downloading';
+                        html += `<div class="col-lg-3 col-md-4 col-6 pl-0" style="overflow:hidden; margin-bottom: 20px;">`;
+                        const wrapperTag = isDownloading ? 'div' : `a href="${lesson.url}"`;
+                        html += `<${wrapperTag}>
+                                    <div class="image-container" style="position: relative; display: flex; align-items: center; justify-content: center;">`;
+
+                        if (lesson.videoStatus === 'completed') {
+                            html += `<span class="badge badge-pill badge-primary time"><i class="fa fa-video"></i> וידאו (${lesson.videoResolution})</span>`;
+                        } else if (lesson.audioStatus === 'completed') {
+                            html += `<span class="badge badge-pill badge-info time"><i class="fa fa-volume-up"></i> אודיו</span>`;
+                        }
+
+                        if (isDownloading) {
+                            html += `<div class="progress-overlay" style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 5px; background: rgba(0,0,0,0.5); border-bottom-left-radius: 0.25rem; border-bottom-right-radius: 0.25rem;">`;
+                            if (lesson.videoStatus === 'downloading') {
+                                html += `<div class="progress rounded mb-1" style="height: 15px;"><div id="progress-bar-${lesson.contentName}-video" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" style="width: 0%;">0%</div></div>`;
+                            }
+                            if (lesson.audioStatus === 'downloading') {
+                                html += `<div class="progress rounded" style="height: 15px;"><div id="progress-bar-${lesson.contentName}-audio" class="progress-bar progress-bar-striped progress-bar-animated bg-info" style="width: 0%;">0%</div></div>`;
+                            }
+                            html += `</div>`;
+                        } else {
+                            html += `<i class="material-icons play" aria-hidden="true" lang="en" translate="no">play_circle_filled</i>`;
+                        }
+
+                        html += `   <img src="${lesson.imageUrl}" alt="${lesson.title}" class="rounded img-fluid ${isDownloading ? 'opacity-50' : ''}">
+                                    </div>
+                                    <h5 style="line-height: 22px;" class="title m-2">${lesson.title}</h5>
+                                 </${wrapperTag.split(' ')[0]}>`;
+
+                        html += `<div class="mt-2">`;
+                        if (lesson.videoStatus === 'completed') {
+                            html += `<button class="btn btn-danger btn-sm btn-round delete-offline-btn" data-content-name="${lesson.contentName}" data-media-type="video"><i class="fa fa-trash"></i> מחק וידאו</button> `;
+                        }
+                        if (lesson.audioStatus === 'completed') {
+                            html += `<button class="btn btn-danger btn-sm btn-round delete-offline-btn" data-content-name="${lesson.contentName}" data-media-type="audio"><i class="fa fa-trash"></i> מחק אודיו</button>`;
+                        }
+                        if (lesson.videoStatus === 'downloading') {
+                            html += `<button class="btn btn-warning btn-sm btn-round cancel-offline-btn" data-content-name="${lesson.contentName}"><i class="fa fa-times"></i> בטל וידאו</button> `;
+                        }
+                        if (lesson.audioStatus === 'downloading') {
+                            html += `<button class="btn btn-warning btn-sm btn-round cancel-offline-btn" data-content-name="${lesson.contentName}"><i class="fa fa-times"></i> בטל אודיו</button>`;
+                        }
+                        html += `</div>`;
+                        html += `</div>`;
+                    }
+                    html += '</div>';
+                    container.innerHTML = html;
+
+                    downloadedLessons.forEach(lesson => {
+                        if (navigator.serviceWorker.controller) {
+                            if (lesson.videoStatus === 'downloading') navigator.serviceWorker.controller.postMessage({ type: 'QUERY_DOWNLOAD_STATUS', payload: { contentName: lesson.contentName, mediaType: 'video' } });
+                            if (lesson.audioStatus === 'downloading') navigator.serviceWorker.controller.postMessage({ type: 'QUERY_DOWNLOAD_STATUS', payload: { contentName: lesson.contentName, mediaType: 'audio' } });
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error loading offline lessons:', error);
+                    container.innerHTML = '<p class="text-danger text-center">אירעה שגיאה בטעינת השיעורים.</p>';
+                }
+            }
+
+            function setupEventListeners() {
+                $(document).on('click', '.delete-offline-btn, .cancel-offline-btn', function() {
+                    const btn = $(this);
+                    const contentName = btn.data('content-name');
+
+                    if (btn.hasClass('delete-offline-btn')) {
+                        const mediaType = btn.data('media-type');
+                        const mediaTypeHeb = mediaType === 'video' ? 'וידאו' : 'אודיו';
+                        if (confirm(`האם אתה בטוח שברצונך למחוק את ה${mediaTypeHeb} מהמכשיר?`)) {
+                            navigator.serviceWorker.controller?.postMessage({ type: 'DELETE_MEDIA_CACHE', payload: { contentName, mediaType } });
+                        }
+                    } else if (btn.hasClass('cancel-offline-btn')) {
+                        navigator.serviceWorker.controller?.postMessage({ type: 'CANCEL_DOWNLOAD', payload: { contentName } });
+                    }
+                });
+
+                const broadcast = new BroadcastChannel('download_channel');
+                broadcast.onmessage = (event) => { handleServiceWorkerMessage(event.data); };
+                navigator.serviceWorker.addEventListener('message', (event) => { handleServiceWorkerMessage(event.data); });
+            }
+
+            // SIMPLIFIED: This handler now only reacts to messages and redraws the UI.
+            async function handleServiceWorkerMessage(data) {
+                const { type, payload } = data;
+                console.log(`[Account PWA] SW Event '${type}' received for ${payload.contentName}.`);
+
+                if (type === 'DOWNLOAD_PROGRESS') {
+                    const progressBar = document.getElementById(`progress-bar-${payload.contentName}-${payload.mediaType}`);
+                    if (progressBar) {
+                        progressBar.style.width = payload.progress + '%';
+                        progressBar.textContent = payload.progress + '%';
+                    }
+                } else if (['DOWNLOAD_COMPLETE', 'DOWNLOAD_CANCELLED', 'DOWNLOAD_FAILED', 'DELETE_MEDIA_CACHE_COMPLETE'].includes(type)) {
+                    // The SW has already updated the DB. We just need to redraw.
+                    loadOfflineLessons();
+                }
+            }
+
+            // --- PAGE LOAD HANDLER ---
+            $(document).ready(function() {
+                console.log("✅ Document ready. Running standard page scripts.");
+
+                var openModalId = '@TempData["OpenModal"]';
+                if (openModalId) {
+                    $('#' + openModalId).modal('show');
+                }
+                $('#yearlyButton').click(function () {
+                    $('#Monthly').val('false');
+                    $('#subscriptionTitle').text('תשלום חד פעמי - ' + '@(Model.SubscriptionYearlyMonthlyPrice * 12)' + ' ₪ לשנה');
+                });
+                $('#monthlyButton').click(function () {
+                    $('#Monthly').val('true');
+                    $('#subscriptionTitle').text('הוראת קבע - ' + '@(Model.SubscriptionDirectDebitPrice)' + ' ₪ לחודש');
+                });
+
+                initializeOfflineFeatures();
+            });
+    </script>
+}
+else
+{
+    <div class="sec-page-header page-header header-filter clear-filter" style="margin-top:0em;background-image: url('@Url.GetCropUrl(Model.Image, "full")');">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="text-center">
+                        @if (TempData.ContainsKey("FailureMessagePayment"))
+                        {
+                            <div class="col-sm-12 text-center">
+                                <h2 class="text-danger text-center m-2">@TempData["FailureMessagePayment"]</h2>
+                            </div>
+                        }
+                        else if (TempData.ContainsKey("SuccessMessagePayment"))
+                        {
+                            <div class="col-sm-12 text-center card">
+                                <h2 class="text-success text-center m-2">@TempData["SuccessMessagePayment"]</h2>
+                                <h4 class="mb-3">להפעלת החשבון אנא בדקו את תיבת הדואר האלקטרוני שלכם ולחצו על הקישור לאימות כתובת האימייל. במידה והאימות לא יתבצע תוך 24 שעות החשבון ימחק.</h4>
+                            </div>
+                        }
+                        else
+                        {
+                            <h1>יש להתחבר על מנת לצפות בדף זה</h1>
+                            <button class="btn btn-primary btn-round btn-home p-2" data-toggle="modal" data-target="#loginModal"><i class="mdi mdi-login-variant"></i> התחברות</button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

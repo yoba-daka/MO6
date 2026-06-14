@@ -1,0 +1,105 @@
+﻿@using MyProject12;
+@using Umbraco.Cms.Core.Security;
+@using Umbraco.Cms.Web.Common.PublishedModels;
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
+@inject IMemberManager _memberManager
+@inject LessonBlobService BlobService
+@inject DB db
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.LessonGroup>
+@{
+    Layout = "master.cshtml";
+    dynamic parent = Model.Parent;
+
+    bool hasActiveMembership = Context.User.Identity.IsAuthenticated;
+    bool memberLogged = _memberManager.IsLoggedIn();
+    if (memberLogged)
+    {
+        var member = await _memberManager.GetCurrentMemberAsync();
+        var membership = db.Memberships.FirstOrDefault(x => x.memberID == member.Id);
+        if (membership != null) hasActiveMembership = !membership.Expired;
+    }
+
+    }
+
+
+<div class="sec-page-header page-header header-filter clear-filter" style="margin-top:0em;background-image: url('@Url.GetCropUrl(((Lessons)parent.Parent).Image, "full")');">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="text-center">
+                    <h1>@Model.Title</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<a class="cd-nav-trigger cd-img-replace">Open navigation<span></span></a>
+
+
+<div class="container pt-0">
+    <div class="mt-5 mb-4">
+        <div class="my-5" itemscope itemtype="https://schema.org/BreadcrumbList">
+
+            <span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <a class="title text-primary" itemprop="item" href="@(((Lessons)parent.Parent).Url())">
+                    <span itemprop="name">@parent.Parent.Name</span>
+                </a>
+                <meta itemprop="position" content="1" />
+            </span>
+            &nbsp;&gt;&nbsp;
+
+            <span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <a class="title text-primary" itemprop="item" href="@(((LessonCategory)parent).Url())">
+                    <span itemprop="name">@parent.Name</span>
+                </a>
+                <meta itemprop="position" content="1" />
+            </span>
+            &nbsp;&gt;&nbsp;
+
+            <span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <a class="title text-primary" itemprop="item" href="@Model.Url()">
+                    <span itemprop="name">@Model.Name</span>
+                </a>
+                <meta itemprop="position" content="2" />
+            </span>
+
+        </div>
+    </div>
+
+    <div class="row  pl-3" style="text-align:center;">
+
+@foreach (Lesson lesson in Model.Children)
+{
+
+    <div class="col-lg-3 col-md-4 col-6 pl-0 " style="overflow:hidden">
+        <a href="@lesson.Url()">
+            @if (lesson.New)
+            {
+                <div class="new">
+                    <div class="new-text">חדש</div>
+                </div>
+            }
+            <div>
+                <div class="image-container" style=" position: relative; display: flex; align-items: center; justify-content: center;">
+                    <span class="badge badge-pill badge-primary time">@lesson.Duration</span>
+                    @if (lesson.MembersOnly && !hasActiveMembership)
+                    {
+                        <i class="material-icons lock" aria-hidden="true" lang="en" translate="no">lock</i>
+                    }
+                    else
+                    {
+                        <i class="material-icons play" aria-hidden="true" lang="en" translate="no">play_circle_filled</i>
+                    }
+                    <img src="@Url.GetCropUrl(lesson.Image, "small")" alt="@lesson.ImageAlt" class="rounded img-fluid">
+                </div>
+
+            </div>
+            <h5 style="line-height: 22px;" class="title m-2" class="title m-2">@lesson.Title</h5>
+        </a>
+    </div>
+}
+
+</div>
+<hr />
+    <div class="sec" id="6"></div>

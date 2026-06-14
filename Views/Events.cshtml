@@ -1,0 +1,175 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+@using System.Text.Json
+
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Events>
+@{
+    Layout = "master.cshtml";
+    var jsonOptions = new JsonSerializerOptions { Encoder = System.Text.Encodings.Web.JavaScriptEncoder.Default };
+
+}
+
+
+
+<div class="sec-page-header page-header header-filter clear-filter" style="margin-top:0em;background-image: url('@Url.GetCropUrl(Model.Image, "full")');">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="text-center">
+                    <h1>אירועים</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="text-center">
+    <ul class="nav nav-pills nav-pills-primary mt-5" style="display:inline-flex" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" data-toggle="tab" href="#list" role="tablist" aria-expanded="true">
+                <i class="mdi-big mdi-ballot"></i>
+                רשימה
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#cdr" role="tablist" aria-expanded="false">
+                <i class="mdi-big mdi-calendar-month"></i>
+                יומן
+            </a>
+        </li>
+    </ul>
+</div>
+<div class="tab-content tab-space">
+    <div class="tab-pane active " id="list" aria-expanded="true">
+        @if (Model.EventsList != null)
+        {
+            foreach (Event evt in Model.EventsList)
+            {
+
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-10 ml-md-x">
+                            <a href="@evt.Url()">
+                                <h3 class="events-title text-primary">@evt.Title</h3>
+                            </a>
+                            <div>
+                                @{
+                                    string format = evt.ShowTime ? "HH:mm dd.MM.yyyy" : "dd.MM.yyyy";
+                                }
+                                <span class="text-nowrap">
+                                    <i class="mdi mdi-line-0-7 mdi-calendar"></i>
+                                    @if (!evt.EveryWeek)
+                                    {
+                                        @(evt.EndDate.Year > 1 ? evt.EndDate.ToString(format) + " - " : "")
+
+                                        @evt.Date.ToString(format)
+                                    }
+                                    else
+                                    {
+                                        @("ימי " + MosheSharon.Helpers.hebrewDays[(int)evt.Date.DayOfWeek] + " ") @(evt.ShowTime ? evt.Date.ToString("HH:mm") : "")
+                                    }
+                                </span>
+                                @if (evt.Location != null)
+                                {
+                                    <span class="text-nowrap"> <i class="mdi mdi-line-0-7 mdi-map-marker"></i> @evt.Location </span>
+                                }
+                            </div>
+
+
+                            <div class="row justify-content-md-start justify-content-center">
+                                <div class="col-md-6" style="flex:0;">
+                                    <img class="mt-4 mb-4 rounded img" style="width:300px;height:190px;" src="@Url.GetCropUrl(evt.Image, "small")" alt="@(evt.ImageAlt!=null?evt.ImageAlt:"")">
+                                </div>
+                                <div class="col-md-6 mt-md-5">
+                                    <p>
+                                        @evt.ShortDescription
+                                    </p>
+                                    <a href="@evt.Url()" class="btn btn-primary btn-link float-left">
+                                        <i class="material-icons" aria-hidden="true" lang="en" translate="no"></i> לפרטים >>
+                                        <div class="ripple-container"></div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+
+                </div>
+
+
+            }
+        }
+    </div>
+
+    <div class="tab-pane active" id="cdr" aria-expanded="false">
+        <div class="row justify-content-center m-0">
+            <div class="p-2">
+                <div class="card p-3">
+                    <div class="calendar-container">
+                        <div id='calendar'></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            plugins: ['dayGrid'],
+            defaultView: 'dayGridMonth',
+            locale: 'he',
+            height: 'auto',
+            header: {
+                left: 'next,prev, today',
+                right: 'title'
+            },
+            events: [
+    @if (Model.EventsList != null)
+    {
+        foreach (Event evt in Model.EventsList)
+        {
+                if (!evt.EveryWeek)
+                {
+                        @:{
+                        @:title: @Html.Raw(JsonSerializer.Serialize(evt.Title, jsonOptions)),
+                        @:start: @Html.Raw(JsonSerializer.Serialize(evt.Date.ToString("yyyy-MM-dd") + (evt.ShowTime ? "T" + evt.Date.ToString("HH:mm") : ""), jsonOptions)),
+                        @:    @if (evt.EndDate.Year > 1)
+                        {
+                                @:end: @Html.Raw(JsonSerializer.Serialize(evt.EndDate.ToString("yyyy-MM-dd") + (evt.ShowTime ? "T" + evt.EndDate.ToString("HH:mm") : ""), jsonOptions)),
+                        }
+                        @:url: @Html.Raw(JsonSerializer.Serialize(evt.Url(), jsonOptions)),
+                        @:},
+                }
+                else
+                {
+                        @:{
+                        @:title: @Html.Raw(JsonSerializer.Serialize(evt.Title, jsonOptions)),
+                        @:daysOfWeek: [@((int)evt.Date.DayOfWeek)],
+                        @:    @if (evt.ShowTime)
+                        {
+                                @:startTime: @Html.Raw(JsonSerializer.Serialize(evt.Date.ToString("HH:mm"), jsonOptions)),
+                        }
+                        @:url: @Html.Raw(JsonSerializer.Serialize(evt.Url(), jsonOptions)),
+                        @:color: 'purple',
+                        @:},
+                }
+        }
+    }
+                ]
+            });
+
+
+    calendar.render();
+
+    $(".fc-icon-chevron-left").addClass("mdi").addClass("mdi-chevron-left");
+    $(".fc-icon-chevron-right").addClass("mdi").addClass("mdi-chevron-right");
+    $("#cdr").removeClass("active");
+                            });
+
+</script>

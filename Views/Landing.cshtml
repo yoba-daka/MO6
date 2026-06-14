@@ -1,0 +1,205 @@
+﻿@using MO6.ViewModels
+@using MyProject12;
+@using MyProject12.Models;
+@using Umbraco.Cms.Core.Security;
+@using Umbraco.Cms.Web.Common.PublishedModels;
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+@using Microsoft.AspNetCore.Hosting;
+@using MosheSharon;
+
+
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Landing>
+
+
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>האוצר - מנוי לאוצר השיעורים של משה שרון</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/accessibility.css">
+    <style>
+        :root {
+            --primary-color: #f88435;
+            --dark-bg: #38393a;
+        }
+
+        .bg-dark {
+            background-color: var(--dark-bg);
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .scroll-animate {
+            opacity: 0;
+        }
+
+        .scroll-animate.visible {
+            animation: fadeIn 0.8s ease forwards;
+        }
+
+        .cta-button {
+            background-color: var(--primary-color);
+            transition: all 0.3s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(248, 132, 53, 0.3);
+        }
+
+        .feature-card {
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .quote-box {
+            border-right: 4px solid var(--primary-color);
+        }
+
+        .section-white {
+            background-color: #ffffff;
+            color: var(--dark-bg);
+        }
+
+        .section-dark {
+            background-color: var(--dark-bg);
+            color: #ffffff;
+        }
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+            max-width: 100%;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .pricing-circle {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background-color: var(--primary-color); /* Using the same dark background color */
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transform: translate(-50%, -50%) rotate(-12deg); /* Changed from 50% to -50% for left positioning */
+            left: 80px; /* Changed from right to left */
+            top: 80px;
+            z-index: 1000;
+            text-align: center;
+            padding: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1); /* Adding subtle border */
+        }
+
+        .pricing-card {
+            position: relative;
+            overflow: visible !important;
+        }
+
+        /* Extra Animations*/
+
+        .pricing-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 30px rgba(248, 132, 53, 0.2);
+        }
+
+        .price-row {
+            transition: all 0.2s ease;
+            cursor: default;
+        }
+        @@media screen and (min-width: 780px) {
+            .open-accessibility-expand-button {
+                cursor: pointer;
+                position: absolute;
+                line-height: 80px;
+                width: 80px;
+                height: 80px;
+                text-align: -webkit-center;
+            }
+        }
+
+        @@media screen and (max-width: 780px) {
+            .open-accessibility-expand-button {
+                cursor: pointer;
+                position: absolute;
+                line-height: 80px;
+                width: 50px;
+                height: 80px;
+                text-align: -webkit-center;
+            }
+        }
+    </style>
+    <script src="js-bundle"></script>
+</head>
+<body>
+
+    <script>
+        $(document).ready(function () {
+
+            $(function () {
+                $('body').openAccessibility({
+                    textSelector: 'h1,h2,h3,h4,h5,h6,a,span,p,button,i',
+                    isMobileEnabled: true
+                });
+                if ($('#cd-vertical-nav').length) {
+                    // Move it to the beginning of the body tag
+                    $('body').prepend($('#cd-vertical-nav'));
+                }
+                if ($('.cd-nav-trigger').length) {
+                    // Move them to the beginning of the body tag
+                    $('.cd-nav-trigger').each(function () {
+                        $('body').prepend($(this));
+                    });
+                }
+            })
+        });
+    </script>
+
+@Model.Content
+
+
+    <script>
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+
+        document.querySelectorAll('.scroll-animate').forEach((element) => {
+            observer.observe(element);
+        });
+    </script>
+</body>
+</html>
+

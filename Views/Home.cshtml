@@ -1,0 +1,543 @@
+﻿@using MO6.ViewModels
+@using Microsoft.Extensions.Caching.Memory;
+@using MyProject12
+@using MyProject12.Models
+@using Umbraco.Cms.Core.Security;
+@using Umbraco.Cms.Web.Common.PublishedModels;
+@using Microsoft.AspNetCore.Hosting
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+@using System.Globalization;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Home>
+@inject IMemberManager _memberManager
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+
+
+@{
+    Layout = "master.cshtml";
+    var antiforgeryToken = Xsrf.GetAndStoreTokens(Context).RequestToken;
+
+    dynamic HomeCards = Umbraco.Content(3762);
+}
+
+<div class="page-header clear-filter" style="background-image: url('@Url.GetCropUrl(Model.Image, "high")');">
+    <div class="container">
+        <div class="row justify-content-start">
+            <div class="col-lg-5">
+                <div class="text-center">
+
+                    @if (TempData["verify"] != null)
+                    {
+                        <div class="card">
+
+                            @if (((bool)TempData["verify"]) == true)
+                            {
+                                <h2 class="m-4 text-success">האימות התבצע בהצלחה!</h2>
+
+
+@*                                     <button class="btn btn-success btn-round px-3 py-2 mb-3 mb-sm-0" data-toggle="modal" data-target="#loginModal"><i class="mdi-small mdi-account"></i>לרכישת מנוי</button>
+ *@
+
+                            }
+                            else
+                            {
+                                <h2 class="m-4 text-danger">קוד האימות אינו בתוקף</h2>
+                            }
+                        </div>
+
+                    }
+                    else if (TempData["verifyNewEmail"] != null)
+                    {
+                        <div class="card">
+
+                            @if (((bool)TempData["verifyNewEmail"]) == true)
+                            {
+                                <h2 class="m-5 text-success">האימות התבצע בהצלחה!</h2>
+                            }
+                            else
+                            {
+                                <h2 class="m-5 text-danger">הלינק לאימות אינו בתוקף</h2>
+                            }
+                        </div>
+                    }
+                    else if (TempData["PasswordMessage"] != null)
+                    {
+                        <h2 class="m-5 text-danger">@((string)TempData["PasswordMessage"])</h2>
+
+                    }
+                    else if (TempData["email"] != null)
+                    {
+                        var email = TempData["Email"] as string;
+                        var token = TempData["Token"] as string;
+                        <div class="card" id="passwordResetForm">
+                            <div class="card-body">
+                                <form id="resetPasswordForm">
+                                    <input type="hidden" id="email" value="@email" />
+                                    <input type="hidden" id="token" value="@token" />
+                                    <h2 class="primary text-center">איפוס סיסמא</h2>
+                                    <div class="form-group  bmd-form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                <i class="material-icons" aria-hidden="true" lang="en" translate="no">password</i>
+                                                </span>
+                                            </div>
+                                            <label class="bmd-label-floating login-field" for="newPassword">סיסמא חדשה</label>
+                                            <input type="password" class="form-control" id="newPassword">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group  bmd-form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="material-icons" aria-hidden="true" lang="en" translate="no">password</i>
+                                                </span>
+                                            </div>
+                                            <label class="bmd-label-floating login-field" for="confirmPassword">אימות סיסמא</label>
+                                            <input type="password" class="form-control" id="confirmPassword">
+                                            <span id="passwordMismatchError" class="login-error"></span>
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" class="my-4 btn btn-primary">יצירת סיסמא חדשה</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <script type="text/javascript">
+                            $(document).ready(function () {
+                                $("#resetPasswordForm").submit(function (event) {
+                                    event.preventDefault();
+
+                                    var email = $("#email").val();
+                                    var token = $("#token").val();
+                                    var newPassword = $("#newPassword").val();
+                                    var confirmPassword = $("#confirmPassword").val();
+
+                                    // Clear previous error
+                                    $("#passwordMismatchError").text('');
+
+                                    // Check if passwords match
+                                    if (newPassword !== confirmPassword) {
+                                        $("#passwordMismatchError").text("הסיסמאות אינן תואמות.");
+                                        return;
+                                    }
+
+                                    $.ajax({
+                                        url: '@Url.SurfaceAction("ResetPassword","CustomLogin")',
+                                        type: 'POST',
+                                        data: {
+                                            __RequestVerificationToken: '@antiforgeryToken',
+                                            email: email,
+                                            token: token,
+                                            newPassword: newPassword
+                                        },
+                                        success: function (response) {
+                                            $("#passwordResetForm").html('<h2 class="text-success">' + response.message + '</h2>');
+                                        },
+                                        error: function (xhr) {
+                                            $("#passwordResetForm").html('<h2 class="text-danger">' + xhr.responseJSON.message + '</h2>');
+                                        }
+                                    });
+                                });
+                            });
+                        </script>
+                    }
+                    else
+                    {
+                        <h1>@Model.Title</h1>
+                        @if (Model.Subtitle != null)
+                        {
+                            <h2>@Model.Subtitle</h2>
+                        }
+                        @if (Model.SubSubtitle != null)
+                        {
+                            <h3>@Model.SubSubtitle</h3>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-start">
+            <div class="col-lg-5 text-center">
+                <div>
+                    @if (_memberManager.IsLoggedIn())
+                    {
+                        var member = await _memberManager.GetCurrentMemberAsync();
+                        if(member!=null)
+                        {
+                        <h3>שלום @member.Name !</h3>
+                        <a href="/חשבון" class="btn btn-success btn-round btn-home p-2"><i class="mdi mdi-account" aria-hidden="true"></i> לחשבון</a>
+                        }
+                    }
+                    else
+                    {
+                        <button class="btn btn-primary btn-round btn-home p-2" style="line-height: 1.4;" data-toggle="modal" data-target="#loginModal"><i class="mdi mdi-login-variant" aria-hidden="true"></i> התחברות</button>
+                        <button class="btn btn-success btn-round btn-home p-2" style="line-height: 1.4;" data-toggle="modal" data-target="#registerModal"><i class="mdi mdi-pencil-box-outline" aria-hidden="true"></i> הרשמה</button>
+                    }
+
+                    <button id="our-app" class="btn btn-round btn-home p-2 mt-3" data-toggle="modal" data-target="#appInstallModal" style="display:none;width:210px;background-color:rgb(0 0 0 / 40%);line-height: 1.4;">
+                                                                <i class="mdi mdi-monitor-cellphone" aria-hidden="true"></i> 
+                     האפליקציה שלנו<div class="ripple-container"></div></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@try
+{
+    <div class="container">
+
+        <div class="row justify-content-center">
+            @foreach (dynamic CardOrTitle in HomeCards.CardsList)
+            {
+                if (CardOrTitle is HomeTitle title)
+                {
+                    @:         </div>
+                    <h1 class="text-center text-primary">@title.Title</h1>
+                    @:          <div class="row justify-content-center">
+                }
+                else if (CardOrTitle is HomeCard card)
+                {
+                    bool hasLink = !string.IsNullOrEmpty(card.CardLink);
+                    string subtitle = Convert.ToString(card.Subtitle);
+                    <div class="col-md-4">
+                        <div class="rounded mt-4 px-3 pt-3" style="background-color:white;height:95%;">
+                            <div class="card card-plain mt-0">
+                                @if (hasLink)
+                                {
+                                    <a href="@card.CardLink">
+                                        <img class="rounded" style="width:100%;" src="@Url.GetCropUrl(card.Image, "small")" alt="@card.ImageAlt">
+                                    </a>
+                                }
+                                else
+                                {
+                                    <img class="rounded" style="width:100%;" src="@Url.GetCropUrl(card.Image, "small")" alt="@card.ImageAlt">
+                                }
+                                <div class="card-body text-center">
+                                    @if (!string.IsNullOrWhiteSpace(subtitle))
+                                    {
+                                        if (hasLink)
+                                        {
+                                            <a href="@card.CardLink">
+                                                <h6 class="mt-0 card-category">@subtitle</h6>
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <h6 class="mt-0 card-category">@subtitle</h6>
+                                        }
+                                    }
+                                    @if (hasLink)
+                                    {
+                                        <a href="@card.CardLink">
+                                            <h4 class="card-title" style="margin-bottom:.625rem;">@card.Title</h4>
+                                        </a>
+                                        <a href="@card.CardLink">
+                                            <p class="card-description">
+                                                @card.Content
+                                            </p>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <h4 class="card-title" style="margin-bottom:.625rem;">@card.Title</h4>
+                                        <p class="card-description">
+                                            @card.Content
+                                        </p>
+                                    }
+                                                            <div class="mt-4">
+
+                                        @if(!string.IsNullOrEmpty(card.Button1))
+                                        {
+                                            var link1 = card.Button1Link != null ? (card.Button1Link.Url, card.Button1Link.Target) : ("","");
+                                            <a href="@link1.Item1" target="@link1.Item2" class="btn btn-primary btn-round px-3 py-2"> @card.Button1</a>
+                                        }
+                                        @if(!string.IsNullOrEmpty(card.Button2))
+                                        {
+                                            var link2 = card.Button2Link != null ? (card.Button2Link.Url, card.Button2Link.Target) : ("","");
+                                            <a href="@link2.Item1" target="@link2.Item2" class="btn btn-primary btn-round px-3 py-2"> @card.Button2</a>
+                                        }
+                                        @if(!string.IsNullOrEmpty(card.Button3))
+                                        {
+                                            var link3 = card.Button3Link != null ? (card.Button3Link.Url, card.Button3Link.Target) : ("","");
+                                            <a href="@link3.Item1" target="@link3.Item2" class="btn btn-primary btn-round px-3 py-2"> @card.Button3</a>
+                                        }
+                                        </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }   
+        </div>
+    </div>
+
+    <!-- Place this in a prominent location on your Home Page -->
+}
+catch
+{
+    
+}
+
+<div class="py-sm-5 my-sm-5"> </div>
+<div class="py-sm-3 my-sm-3 py-1 my-2"> </div>
+
+
+
+
+<div class="pb-3 my-0" style="background-color:#fdb88a;"> </div>
+
+<div class="pt-4 pb-2" style="background-color:#fbe5d7;">
+
+
+    <div class="mp-3">
+        <div class="container">
+
+
+
+                                                <div class=" d-flex justify-content-center">
+@*                     <img src="~/subscribe.png" class="subscribe-image" />
+ *@                
+                <div class="home-player mb-4 p-3" style=" background-color:#fdb88a;border-radius:15px;">
+                    <div id="media-player" class="video">
+
+                        <div id="player-wrapper">
+                        </div>
+                    </div>
+</div>
+
+</div>
+
+                <div class="mb-3 mx-sm-5">
+
+
+                    <h2 class="text-center text-primary mt-0" style=""><strong> @Model.SubscribeTitle1 </strong></h2>
+                    <h4 class="text-center text-primary my-0" style=""> @Model.SubscribeTitle2 </h4>
+                    <h3 class="text-center text-primary my-0" style=""><strong> @Model.SubscribeTitle3 </strong></h3>
+                    <h4 class="text-center text-primary my-0" style=""> @Model.SubscribeTitle4 </h4>
+                    <h6 class="text-center text-primary mt-3 mb-4 mx-sm-5"><strong> @Model.SubscribeTitle5</strong></h6>
+                    <div class="text-center mb-0">
+                        @if (_memberManager.IsLoggedIn())
+                        {
+                            <button onclick="location.href='/חשבון'" class="btn btn-primary btn-round px-3 py-2"><i class="mdi-small mdi-account" aria-hidden="true"></i> לרכישת מנוי</button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-primary btn-round px-3 py-2" data-toggle="modal" data-target="#registerSubscribeModal"><i class="mdi-small mdi-pencil-box-outline" aria-hidden="true"></i> הרשמה ורכישת מנוי</button>
+                        }
+                    </div>
+                </div>
+
+
+        </div>
+    </div>
+</div>
+
+<script>
+    var player;
+    var source;
+    var video;
+
+    var initVideo = function () {
+
+        source = "";
+
+
+
+            $('#player-wrapper').html('<video poster="" id="player"></video>');
+        video = document.querySelector('#player');
+
+
+                                                                                var plyr_controls = ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen', 'rewind', 'fast-forward'];
+    var plyr_settings = ['captions', 'quality', 'loop', 'speed'];
+    var quality = function (q) {
+        switch (q) {
+            case -1:
+                hls.currentLevel = -1;
+                break;
+                                                                                        }
+    };
+
+        source = '@(Model.SubscribeVideo)';
+        player = new Plyr(video, { type: 'video', title: @Html.Raw(System.Text.Json.JsonSerializer.Serialize("נגן וידאו - " + Model.Name)) });
+        player.source = {
+        type: 'video',
+        sources: [
+        {
+        src: '@(Model.SubscribeVideo)',
+        provider: 'youtube', // or 'vimeo', etc., based on the external link type
+                },
+            ],
+        };
+
+                                    }
+
+
+        $(document).ready(function () {
+        setTimeout(() =>
+        {
+        initVideo();
+        }, 150);
+        });
+
+</script>
+
+
+<div class="pb-3 my-0" style="background-color:#fdb88a;"> </div>
+
+<div class="team-4 section-image" style="background-image:url('/holidays.jpg');" >
+    <div class="container">
+        @{
+                    var hebrewCalendar = new HebrewCalendar();
+        var culture = new CultureInfo("he-IL") { DateTimeFormat = { Calendar = hebrewCalendar } };
+      string hebrewMonth = culture.DateTimeFormat.GetMonthName(hebrewCalendar.GetMonth(DateTime.Now));
+        }
+        <div class="row">
+            <div class="col-md-8 ml-auto mr-auto text-center">
+                <h2 class="text-center" style="color:white"><strong>@Model.HolidayParashaTitle</strong></h2>
+                <h5 class="description" style="color:white">@Model.HolidayParashaText</h5>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-md-4 my-2 mb-md-2 mb-5">
+                <div class="card card-profile">
+                    <div class="card-header card-avatar">
+                        <div class="d-flex justify-content-center align-items-center" style="background:white; width:130px;height:130px;">
+                            <div>
+                                <p class="text-center text-parasha m-0">@Model.Parasha.Replace(' ','\n')</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h4 class="card-title">פרשת @Model.Parasha</h4>
+                        <h6 class="card-category text-info">@hebrewMonth</h6>
+                        <p class="card-description" style="height:100px; overflow:hidden;">
+                            @Model.ParashaText
+                        </p>
+                    </div>
+                    <div class="card-footer justify-content-center">
+                       @{var PLessonsLink = Model.PLessonsLink != null ? (Model.PLessonsLink.Url, Model.PLessonsLink.Target) : ("","");}
+                       @{var PArticlesLink = Model.PArticlesLink != null ? (Model.PArticlesLink.Url, Model.PArticlesLink.Target) : ("","");}
+                        <a href="@PArticlesLink.Item1" target="@PArticlesLink.Item2" class="btn btn-primary mx-md-2"><i class="mdi mdi-small mdi-card-text" aria-hidden="true"></i> מאמרים</a>
+                        <a href="@PLessonsLink.Item1" target="@PLessonsLink.Item2" class="btn btn-primary mx-md-2"><i class="mdi mdi-small mdi-library-video" aria-hidden="true"></i> שיעורים</a>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 my-2 mt-md-2 mt-5">
+                <div class="card card-profile">
+                    <div class="card-header card-avatar">
+                        <div>
+                            @{
+                                string iconUrl = "/holidays/" + Model.Holiday.Replace("\"", string.Empty) + ".jpg";
+                            }
+                            <img class="img p-3" style="background-color:white;" src="@iconUrl" alt="@Model.Holiday" />
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h4 class="card-title">@Model.Holiday</h4>
+                        <h6 class="card-category text-info">@hebrewMonth</h6>
+                        <p class="card-description" style="height:100px; overflow:hidden;">
+                            @Model.HolidayText
+                        </p>
+                    </div>
+                    <div class="card-footer justify-content-center">
+                        @{var HLessonsLink = Model.HLessonsLink != null ? (Model.HLessonsLink.Url, Model.HLessonsLink.Target) : ("","");}
+                        @{var HArticlesLink = Model.HArticlesLink != null ? (Model.HArticlesLink.Url, Model.HArticlesLink.Target) : ("","");}
+                        <a href="@HArticlesLink.Item1" target="@HArticlesLink.Item2" class="btn btn-primary mx-md-2"><i class="mdi mdi-small mdi-card-text" aria-hidden="true"></i> מאמרים</a>
+                        <a href="@HLessonsLink.Item1" target="@HLessonsLink.Item2" class="btn btn-primary mx-md-2"><i class="mdi mdi-small mdi-library-video" aria-hidden="true"></i> שיעורים</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="pb-3 my-0" style="background-color:#fdb88a;"> </div>
+<div class="py-4" style="background-color:#fbe5d7;">
+    <div class="mp-3 mt-5">
+        <div class="container">
+            <div class="row" dir="ltr">
+                <div class="col-12 col-md-4">
+                    <img src="~/books.jpg" class="rounded img-fluid mb-4" style="margin-right:150px; width:400px;height:250px; margin-top:-40px;border:solid thick;border-color:white" alt="הספרים של משה שרון" />
+                </div>
+                <div class="col-12 col-md-8">
+                    <h2 class="text-center text-primary mt-0" style=""><strong> @Model.BooksTitle1 </strong></h2>
+                    <h4 class="text-center text-primary mt-3 mb-4" style=""><strong>@Model.BooksTitle2</strong></h4>
+                    <div class="text-center mb-4">
+
+                        <a href="/ספרים" class="btn btn-primary btn-round px-3 py-2" dir="rtl"><i class="mdi-small mdi-book" aria-hidden="true"></i> לספרים</a>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="pb-3 my-0" style="background-color:#fdb88a;"> </div>
+
+
+
+@try
+{
+    @Html.Partial("~/Views/Partials/YomLeYom.cshtml")
+
+}
+catch (Exception e)
+{
+}
+@try
+{
+        @if (_memberManager.IsLoggedIn())
+    {
+        <script>
+            const hash = window.location.hash;
+
+            if (hash === "#register-monthly" || hash === "#register-yearly") {
+                window.location.replace('/חשבון');
+            }
+        </script>
+    }
+    else
+    {
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+            const hash = window.location.hash;
+
+            if (hash === "#register-monthly" || hash === "#register-yearly") {
+                // Show modal
+                $('#registerSubscribeModal').modal();
+
+                // After modal is fully shown
+                $('#registerSubscribeModal').on('shown.bs.modal', function () {
+                    if (hash === "#register-monthly") {
+                        $('#MonthlySubscription').prop('checked', true).trigger('change');
+                    } else if (hash === "#register-yearly") {
+                        $('#YearlySubscription').prop('checked', true).trigger('change');
+                    }
+                });
+            }
+        });
+        </script>
+        }
+}
+catch (Exception e)
+{
+}
+
+
+<div class="sec" id="2"></div>
+@*
+    @Html.Partial("~/Views/Partials/Parashot.cshtml")
+
+
+    <hr>
+    <div class="sec" id="2"></div>
+
+    @Html.Partial("~/Views/Partials/Holidays.cshtml")
+    *@

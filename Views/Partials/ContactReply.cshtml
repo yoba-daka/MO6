@@ -1,0 +1,30 @@
+﻿@model bool
+
+@if (@Model)
+{
+    <div class="text-center text-success my-5">
+        <h2>
+            תודה!
+        </h2>
+        <h2>
+            ההודעה נשלחה בהצלחה.
+        </h2>
+        <h2>
+            <i class="mdi-huge mdi-check-bold"></i>
+        </h2>
+    </div>
+}
+else
+{
+    <div class="text-center text-danger my-5">
+        <h2>
+            מצטערים.
+        </h2>
+        <h2>
+            אירעה שגיאה בעת שליחת ההודעה.
+        </h2>
+        <h2>
+            <i class="mdi-huge mdi-close"></i>
+        </h2>
+    </div>
+}

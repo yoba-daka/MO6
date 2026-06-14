@@ -1,0 +1,88 @@
+﻿@using Umbraco.Cms.Core.Security;
+@model MyProject12.ViewModels.CommentView
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@inject IMemberManager _memberManager
+@{
+    bool memberLogged = _memberManager.IsLoggedIn();
+    string memberName = "";
+    if (memberLogged)
+    {
+        var member = await _memberManager.GetCurrentMemberAsync();
+        memberName = member.Name;
+    }
+}
+
+@if (memberLogged)
+{
+    <div id="comment-form" class="card py-3 px-5 hide text-right comment-form">
+    <button type="button" class="btn btn-social btn-link btn-primary btn-x" aria-label="סגירת טופס תגובה">
+        <i class="material-icons" aria-hidden="true" lang="en" translate="no">close</i>
+        <div class="ripple-container"></div>
+    </button>
+    <h3 class="title">תגובה</h3>
+        <form class="form text-right" name="commentForm" method="post" data-ajax="true" data-ajax-method="POST" data-ajax-before="handleCommentSubmission" data-ajax-success="handleAjaxSuccess" data-ajax-failure="handleAjaxSuccess" action="/umbraco/surface/Comments/Create">
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(m => m.parentID)
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <div class="form-group bmd-form-group">
+                        <label class="bmd-label-floating" for="name">שם:</label>
+                        <input class="form-control" style="background:none; cursor:default;user-select: none;" id="name" name="name" type="text" value="@memberName" readonly>
+                        <button type="button" id="anonym" class="btn btn-social btn-link btn-primary btn-reply anonym">
+                            ללא שם
+                            <div class="ripple-container"></div>
+                        </button>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group bmd-form-group">
+                    @Html.LabelFor(m => m.title, new { @class = "bmd-label-floating" })
+                    @Html.TextBoxFor(m => m.title, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.title)
+                </div>
+            </div>
+        </div>
+        <span class="bmd-form-group">
+            @Html.LabelFor(m => m.content, new { @class = "bmd-label-floating", @style = "margin-top:-28px;" })
+            @Html.TextAreaFor(m => m.content, new { @class = "form-control", @rows = "3" })
+            @Html.ValidationMessageFor(m => m.content)
+        </span>
+        <input class="parentCommentID" type="hidden" name="parentCommentID" val="null" />
+
+            <input type="hidden" name="captcha" class="captchaInput" data-captcha-comment="true" />
+
+        <div class="media-footer text-center">
+            <button type="submit" class="btn btn-round btn-primary my-2" required="required">פרסם תגובה<div class="ripple-container"></div></button>
+        </div>
+    </form>
+</div>
+
+
+<script>
+    var hideForm = function () {
+        $("#comment-form").addClass("hide");
+        $("#comment").removeClass("hide");
+        $(".form")[0].reset();
+    }
+
+    $(".btn-x").click(function () {
+        if (this.parentElement.id == "comment-form") {
+            $("#comment").removeClass("hide");
+            $("#comment-form").addClass("hide");
+        }
+        else
+        {
+            $(this).parent().remove();
+        }
+    });
+
+        $("#anonym").click(function () {
+            $("#name").val("ללא שם");
+        });
+
+
+
+
+
+</script>
+}

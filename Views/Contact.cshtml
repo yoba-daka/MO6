@@ -1,0 +1,63 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Contact>
+@{
+    Layout = "master.cshtml";
+}
+<div class="sec-page-header page-header header-filter clear-filter" style="margin-top:0em;background-image: url('@Url.GetCropUrl(Model.Image, "full")');">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="text-center">
+                    <h1>צור קשר</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-4 contact-page-content">
+    <div class="mt-5 mb-3 contact-intro">
+        @Model.FullDescription
+    </div>
+    <div class="row justify-content-center flex-row-reverse">
+
+
+        <div class="col-md-4 m-5 contact-info-list">
+            <div class="info info-horizontal p-1">
+                <div class="icon icon-primary">
+                    <i class="material-icons" aria-hidden="true" lang="en" translate="no">pin_drop</i>
+                </div>
+                <div class="description">
+                    <h4 class="info-title">כתובת</h4>
+                    @Model.Address
+                </div>
+            </div>
+            <div class="info info-horizontal p-1">
+                <div class="icon icon-primary">
+                    <i class="material-icons" aria-hidden="true" lang="en" translate="no">email</i>
+                </div>
+                <div class="description">
+                    <h4 class="info-title">שלחו לנו מייל</h4>
+                    @Model.Email
+                </div>
+            </div>
+            <div class="info info-horizontal p-1">
+                <div class="icon icon-primary">
+                    <i class="material-icons" aria-hidden="true" lang="en" translate="no">phone</i>
+                </div>
+                <div class="description">
+                    <h4 class="info-title">דברו איתנו</h4>
+                    @Model.Phone
+                </div>
+            </div>
+
+        </div>
+        <div class="col-md-6 align-content-center">
+            @Html.Partial("CreateContact", new MyProject12.ViewModels.ContactView())
+
+        </div>
+
+
+    </div>
+</div>

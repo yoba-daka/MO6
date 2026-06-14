@@ -1,0 +1,31 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Takanon>
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+@{
+    Layout = "master.cshtml";
+}
+
+
+
+<div class="sec-page-header page-header header-filter clear-filter">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="text-center">
+                    <h1>@Model.Title</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="container my-5">
+    <div class="row article pb-4">
+        <div class="col-lg-10">
+
+            <h3>@Model.Title</h3>
+            @Model.Content
+        </div>
+    </div>
+</div>

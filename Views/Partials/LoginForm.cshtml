@@ -1,0 +1,151 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+
+
+@using MyProject12.Controllers;
+@using Umbraco.Cms.Web.Common.Models
+@using Umbraco.Cms.Web.Common.Security
+@using Umbraco.Cms.Web.Website.Controllers
+@using Umbraco.Cms.Core.Services
+@using Umbraco.Extensions
+@inject IMemberExternalLoginProviders memberExternalLoginProviders
+@inject ITwoFactorLoginService twoFactorLoginService
+@{
+    var loginModel = new LoginModel();
+    // You can modify this to redirect to a different URL instead of the current one
+    loginModel.RedirectUrl = null;
+}
+
+
+
+
+
+
+<div class="modal fade" id="loginModal" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-login" role="document">
+        <div class="modal-content">
+            <div class="card card-signup card-plain">
+                <div class="modal-header">
+                    <div class="card-header card-header-primary text-center">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="סגור"><i class="material-icons" aria-hidden="true" lang="en" translate="no">clear</i></button>
+                        <h3 class="mb-2 card-title">התחברות מנויים</h3>
+                    </div>
+                </div>
+
+
+                @if (ViewData.TryGetTwoFactorProviderNames(out var providerNames))
+                {
+
+                    foreach (var providerName in providerNames)
+                    {
+                        <div class="2fa-form">
+                            <h4>אימות דו שלבי עם @providerName.</h4>
+                            <div asp-validation-summary="All" class="text-danger"></div>
+                            @using (Html.BeginUmbracoForm<UmbTwoFactorLoginController>(nameof(UmbTwoFactorLoginController.Verify2FACode), null, new { aria_label = "טופס אימות דו שלבי" }))
+                            {
+
+                                <text>
+                                    <input type="hidden" name="provider" value="@providerName" />
+                                    נא להכניס את קוד האבטחה: <input name="code" value="" /><br />
+                                    <button type="submit" class="btn btn-primary">אימות</button>
+                                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                </text>
+                            }
+                        </div>
+                    }
+
+                }
+                else
+                {
+                    <div class="login-form">
+                        @using (Html.BeginUmbracoForm<CustomLoginController>(
+                       "HandleLogin", new { RedirectUrl = loginModel.RedirectUrl }, new { aria_label = "טופס התחברות מנויים" }))
+                        {
+                            <div class="modal-body">
+                                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                                <div class="card-body">
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="material-icons" aria-hidden="true" lang="en" translate="no">mail</i>
+                                                </span>
+                                            </div>
+                                            <label asp-for="@loginModel.Username" class="bmd-label-floating login-field">שם משתמש</label>
+                                            <input asp-for="@loginModel.Username" autocomplete="username" aria-describedby="loginModel_Username-error" aria-invalid="false" data-val-required="נדרש שם משתמש" class="form-control" />
+                                            <span asp-validation-for="@loginModel.Username" id="loginModel_Username-error" class="login-error" role="alert" aria-live="polite"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="material-icons" aria-hidden="true" lang="en" translate="no">lock_outline</i>
+                                                </span>
+                                            </div>
+                                            <label asp-for="@loginModel.Password" class="bmd-label-floating login-field">סיסמא</label>
+                                            <input asp-for="@loginModel.Password" type="password" autocomplete="current-password" aria-describedby="loginModel_Password-error" aria-invalid="false" data-val-required="נדרשת סיסמא" class="form-control" />
+                                            <span asp-validation-for="@loginModel.Password" id="loginModel_Password-error" class="login-error" role="alert" aria-live="polite"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group justify-content-center">
+                                            <div class="input-group-prepend">
+                                            </div>
+                                            <input asp-for="@loginModel.RememberMe" class="mx-2">
+                                            <label asp-for="@loginModel.RememberMe" class="form-check-label">
+                                                זכור אותי
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="login-message"></div>
+
+                            <div class="modal-footer justify-content-center">
+                                <button type="submit" class="btn btn-primary btn-link btn-wd btn-lg">התחברות</button>
+                            </div>
+                        }
+                    </div>
+
+                }
+
+                @{
+                    var loginProviders = await memberExternalLoginProviders.GetMemberProvidersAsync();
+                    var externalSignInError = ViewData.GetExternalSignInProviderErrors();
+
+                    if (loginProviders.Any())
+                    {
+                        <hr />
+                        <h4>או באמצעות ספקים חיצוניים</h4>
+                        if (externalSignInError?.AuthenticationType is null && externalSignInError?.Errors.Any() == true)
+                        {
+                            @Html.DisplayFor(x => externalSignInError.Errors)
+                            ;
+                        }
+
+                        @foreach (var login in await memberExternalLoginProviders.GetMemberProvidersAsync())
+                        {
+
+                            @using (Html.BeginUmbracoForm<UmbExternalLoginController>(nameof(UmbExternalLoginController.ExternalLogin), null, new { aria_label = "טופס התחברות באמצעות ספק חיצוני" }))
+                            {
+                                <button type="submit" name="provider" value="@login.ExternalLoginProvider.AuthenticationType">
+                                    התחברות באמצעות @login.AuthenticationScheme.DisplayName
+                                </button>
+
+                                if (externalSignInError?.AuthenticationType == login.ExternalLoginProvider.AuthenticationType)
+                                {
+                                    @Html.DisplayFor(x => externalSignInError.Errors);
+                                }
+                            }
+                        }
+                    }
+                }
+
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,119 @@
+@model MyProject12.ViewModels.PaginatedMembershipResult
+
+<div id="pagination-data"
+     data-total-pages="@Model.TotalPages"
+     data-total-items="@Model.TotalItems"
+     data-kpi-total="@Model.KpiTotalMemberships"
+     data-kpi-expired="@Model.KpiExpired"
+     data-kpi-monthly-active="@Model.KpiMonthlyActive"
+     data-kpi-annual-active="@Model.KpiAnnualActive"
+     data-current-page="@Model.CurrentPage"
+     style="display:none;"></div>
+
+<div class="table-wrap">
+    <table class="memberships-table" dir="rtl" aria-label="טבלת ניהול מנויים">
+        <thead>
+            <tr>
+                <th class="select-col">
+                    <input type="checkbox" id="selectAllRows" aria-label="בחירת כל השורות בעמוד" />
+                </th>
+                <th class="sortable-header" data-sortby="Name" tabindex="0" role="button" aria-label="מיון לפי שם">שם מלא</th>
+                <th>טלפון</th>
+                <th class="sortable-header" data-sortby="Email" tabindex="0" role="button" aria-label="מיון לפי אימייל">אימייל</th>
+                <th class="sortable-header" data-sortby="Expiration" tabindex="0" role="button" aria-label="מיון לפי תום מנוי">תום המנוי</th>
+                <th class="sortable-header" data-sortby="Status" tabindex="0" role="button" aria-label="מיון לפי מצב מנוי">מצב מנוי</th>
+                <th>סוג</th>
+                <th>חיוב חודשי פעיל</th>
+                <th class="sortable-header" data-sortby="Transactions" tabindex="0" role="button" aria-label="מיון לפי מספר עסקאות">עסקאות</th>
+                <th>פעולות</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Memberships == null || !Model.Memberships.Any())
+            {
+                <tr>
+                    <td colspan="10" class="empty-row">לא נמצאו מנויים לפי הסינון שבחרת.</td>
+                </tr>
+            }
+            else
+            {
+                foreach (var item in Model.Memberships)
+                {
+                    <tr class="membership-row"
+                        data-id="@item.Id"
+                        data-name="@item.Name"
+                        data-email="@item.Email"
+                        data-original-phone="@item.Phone"
+                        data-original-expiration="@item.Expiration.ToString("yyyy-MM-dd HH:mm")"
+                        tabindex="0"
+                        role="button"
+                        aria-label="פתיחת פרטי מנוי עבור @item.Name">
+                        <td class="select-col">
+                            <input type="checkbox" class="row-select" data-id="@item.Id" aria-label="בחירת שורה @item.Name" />
+                        </td>
+                        <td class="member-name">@item.Name</td>
+                        <td>
+                            <input class="phone-edit" type="text" value="@item.Phone" aria-label="טלפון עבור @item.Name" />
+                        </td>
+                        <td>@item.Email</td>
+                        <td>
+                            <input class="expiration-edit"
+                                   type="text"
+                                   value="@item.Expiration.ToString("yyyy-MM-dd HH:mm")"
+                                   data-iso="@item.Expiration.ToString("yyyy-MM-ddTHH:mm:ss")"
+                                   aria-label="תום מנוי עבור @item.Name" />
+                        </td>
+                        <td>
+                            <span class="status-badge status-@item.StatusKey">@item.StatusLabel</span>
+                        </td>
+                        <td>
+                            <span class="type-badge @(item.IsMonthly ? "monthly" : "annual")">@(item.IsMonthly ? "חודשי" : "שנתי")</span>
+                        </td>
+                        <td>
+                            <span class="dd-badge @(item.IsMonthlyActive ? "active" : "inactive")">@(item.IsMonthlyActive ? "כן" : "לא")</span>
+                        </td>
+                        <td>
+                            @{
+                                var freeMonthCount = 0;
+                                if (!string.IsNullOrWhiteSpace(item.Transactions))
+                                {
+                                    var refs = item.Transactions.Split(new[] { ';', ',', '\n', '\r', '\t', '|' }, StringSplitOptions.RemoveEmptyEntries);
+                                    foreach (var txRef in refs)
+                                    {
+                                        var normalized = txRef.Trim().Trim('"', '\'', '[', ']', '(', ')', '{', '}').ToLowerInvariant();
+                                        if (normalized == "חודש-מתנה" || normalized == "gift-month" || normalized == "giftmonth")
+                                        {
+                                            freeMonthCount++;
+                                        }
+                                    }
+                                }
+                            }
+                            <div class="transactions-cell">
+                                <button class="btn-inline btn-history" data-id="@item.Id" aria-label="פתיחת היסטוריית עסקאות עבור @item.Name">@item.TransactionCount עסקאות</button>
+                                @if (freeMonthCount > 0)
+                                {
+                                    <span class="tx-extra-badge tx-extra-badge-gift">@(freeMonthCount == 1 ? "חודש חינם" : $"{freeMonthCount} חודשים חינם")</span>
+                                }
+                            </div>
+                        </td>
+                        <td>
+                            <div class="row-actions">
+                                <button class="btn-inline quick-action-btn" data-action="plusMonth" aria-label="הוספת חודש למנוי @item.Name">+חודש</button>
+                                <button class="btn-inline quick-action-btn" data-action="plusYear" aria-label="הוספת שנה למנוי @item.Name">+שנה</button>
+                                <button class="btn-inline quick-action-btn" data-action="today" aria-label="קביעת תוקף להיום עבור @item.Name">להיום</button>
+                                @if (item.IsMonthly && item.IsMonthlyActive)
+                                {
+                                    <button class="btn-inline btn-danger cancel-dd-btn" aria-label="ביטול חיוב חודשי עבור @item.Name">ביטול חודשי</button>
+                                }
+                                else
+                                {
+                                    <button class="btn-inline btn-warning quick-action-btn" data-action="activateMonthly" aria-label="סימון מנוי חודשי כפעיל עבור @item.Name">סמן חודשי כפעיל</button>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

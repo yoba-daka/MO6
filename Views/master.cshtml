@@ -1,0 +1,519 @@
+﻿﻿@{
+    // Injections and setup
+}
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using Microsoft.Extensions.Options
+@using MyProject12
+@using Umbraco.Cms.Core.Configuration.Models
+@inject IOptions<HostingSettings> hostingSettings
+@using Umbraco.Cms.Core.PropertyEditors.ValueConverters
+@using Umbraco.Cms.Core.Security;
+@using Umbraco.Cms.Core.WebAssets
+@using Microsoft.Extensions.Configuration;
+@using Umbraco.Cms.Web.Common.Security
+@inject IRuntimeMinifier runtimeMinifier
+@inject IMemberManager _memberManager
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@inject IConfiguration _config
+@inject IMemberSignInManager _signInManager
+@inject DB db
+
+
+@{
+    Layout = null;
+    var home = (dynamic)Model.Root();
+    string measurementId = _config.GetValue<string>("GoogleAnalytics:MeasurementID");
+    // var tags = Model.Value<IEnumerable<string>>("tags"); // Replace "tags" with your property alias
+    //var debugMode = hostingSettings.Value.Debug;
+}
+
+<!doctype html>
+<html lang="he">
+
+<head>
+    <link rel="manifest" href="/manifest.json">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f77b26" />
+    @if (Model.HasValue("Description"))
+    {
+        <meta name="description" content="@Model.Value("Description")">
+    }
+    @* Open Graph tags for social sharing *@
+    <meta property="og:title" content="@(Model.HasValue("Title") ? Model.Value("Title") : Model.Name)" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="@Model.Url(mode: UrlMode.Absolute)" />
+
+    @if (Model.HasValue("Description"))
+    {
+        <meta property="og:description" content="@Model.Value("Description")" />
+    }
+
+    @* Image handling with fallback to logo *@
+    @{
+        string ogImage = "";
+        string domain = Configuration["CustomDomain"];
+
+        if (Model.Url() != "/" && (Model.HasValue("Image") && Model.Value("Image") is ImageCropperValue))
+        {
+            // GetCropUrl returns relative URL, so prepend domain
+            var relativeImageUrl = Url.GetCropUrl(Model.Value<ImageCropperValue>("Image"), "small");
+
+            ogImage = domain + relativeImageUrl;
+        }
+        else
+        {
+            // Fallback to logo
+            ogImage = domain + "/images/logo.webp";
+        }
+    }
+
+    <meta property="og:image" content="@ogImage" />
+    @*     @if (tags != null && tags.Any())
+    {
+        var tagsContent = string.Join(", ", tags);
+        <meta name="keywords" content="@tagsContent" />
+    } *@
+
+    <title>@home.HeaderTitle - @Model.Name</title>
+
+
+
+    <link href="https://fonts.googleapis.com/css?family=Heebo:400,500,700|Roboto:300,400,500,700|Roboto+Slab:400,700|Material+Icons" rel="stylesheet" />
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="css-bundle" />
+    <style>
+        .skip-link:not(:focus):not(:focus-visible) {
+            position: fixed;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            clip: rect(0 0 0 0);
+            clip-path: inset(50%);
+            white-space: nowrap;
+        }
+    </style>
+    @* <link rel="stylesheet" href="/css/material-kit.css?v=2.0.6">
+    <link rel="stylesheet" href="/css/mdi.css">
+    <link rel="stylesheet" href="/css/vertical-nav.css">
+    <link rel="stylesheet" href="/css/accessibility.css">
+    <link rel="stylesheet" href="/css/plyr.css">*@
+
+
+
+    @if (Model.Name == "אירועים")
+    {
+        <link rel="stylesheet" href="/css/fullcalendar.css">
+    }
+
+    @*     @if (Model.GetType().ToString().Split('.').Last() == "Lesson")
+    {
+    <link rel="stylesheet" href="/css/plyr.css">
+    } *@
+    @*
+    <script src="/js/core/jquery.min.js"></script>
+    <script src="/js/core/popper.min.js"></script>
+    <script src="/js/core/bootstrap-material-design.min.js"></script>
+    <script src="/js/plugins/moment.min.js"></script>
+    <script src="/js/plugins/bootstrap-datetimepicker.js"></script>
+    <script src="/js/plugins/nouislider.min.js"></script>
+    <script src="/js/material-kit.js?v=2.0.6"></script>
+    <script src="/js/modernizr.js"></script>
+    <script src="/js/jquery.validate.min.js"></script>
+    <script src="/js/jquery.validate.unobtrusive.min.js"></script>
+    <script src="/js/jquery.unobtrusive-ajax.min.js"></script>
+    <script src="/js/accessibility.js"></script>
+    *@
+    <script src="js-bundle"></script>
+
+
+    @if (Model.Name == "אירועים")
+    {
+        <script src="/js/fullCalendar/core.js"></script>
+        <script src="/js/fullCalendar/daygrid.js"></script>
+        <script src="/js/fullCalendar/he.js"></script>
+    }
+
+    @if (Model.GetType().ToString().Split('.').Last() == "Lesson")
+    {
+        @*         <script src="/js/plyr.js"></script>
+    *@
+        <script src="/js/hls.js"></script>
+    }
+    @* <script src="/js/plyr.js"></script>*@
+
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=@(measurementId)"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', '@(measurementId)');
+    </script>
+
+    <!-- Google Tag Manager -->
+    <script>
+        (function (w, d, s, l, i) {
+            w[l] = w[l] || []; w[l].push({
+                'gtm.start':
+                    new Date().getTime(), event: 'gtm.js'
+            }); var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-P8M99BNJ');</script>
+    <!-- End Google Tag Manager -->
+</head>
+
+<body class="index-page sidebar-collapse" dir="rtl">
+    <a href="#main-content" class="skip-link">דלג לתוכן הראשי</a>
+
+    <!-- Google Tag Manager (noscript) -->
+    <noscript>
+        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P8M99BNJ"
+                title="Google Tag Manager"
+                height="0" width="0" style="display:none;visibility:hidden"></iframe>
+    </noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+
+    <script src="/js/db-helper.js"></script>
+    <script>
+        // --- Global PWA Flags and Install Logic ---
+        let deferredPrompt;
+
+        const isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+        let hasPWA = false;
+
+        (async () => {
+          if ('getInstalledRelatedApps' in navigator) {
+            try {
+              const apps = await navigator.getInstalledRelatedApps();
+              hasPWA = apps.some(a => a.platform === 'webapp' && a.id === 'https://mo6.co.il/');
+            } catch {}
+          }
+        })();
+
+        const isPC = (() => {
+          if (navigator.userAgentData && 'mobile' in navigator.userAgentData) {
+            return !navigator.userAgentData.mobile;
+          }
+          return !/Android|iPhone|iPad|iPod|Mobi|Mobile|Windows Phone|BlackBerry|Opera Mini/i.test(navigator.userAgent);
+        })();
+
+        const isIOS = () => {
+          const ua = navigator.userAgent || '';
+          const iDevice = /iPad|iPhone|iPod/.test(ua);
+          const iPadOS = !iDevice && navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+          return iDevice || iPadOS;
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+          const appBtn = document.getElementById('our-app');
+          const mainAppDiv = document.getElementById('main-app'); // The content area of your modal
+
+          if (appBtn) {
+            if (isPWA) {
+              appBtn.style.display = 'none';
+            } else {
+              appBtn.style.display = 'inline-block';
+            }
+          }
+
+          if (isIOS()) {
+            if (mainAppDiv) {
+              renderIOSInstallUI(mainAppDiv);
+            }
+          } else if (isPC) {
+            const installPwaBtn = document.getElementById('install-pwa-btn');
+            if (installPwaBtn) {
+              installPwaBtn.textContent = 'להתקנה במחשב';
+            }
+          }
+        });
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+          e.preventDefault();
+          deferredPrompt = e;
+        });
+
+        let installing = false;
+
+        function dismissInstallModal() {
+          const el = document.getElementById('appInstallModal');
+          if (!el) return;
+
+          if (window.bootstrap && typeof bootstrap.Modal === 'function') {
+            let instance = bootstrap.Modal.getInstance(el);
+            if (!instance) instance = new bootstrap.Modal(el);
+            instance.hide();
+            return;
+          }
+          const $jq = window.jQuery || window.$;
+          if ($jq && typeof $jq.fn?.modal === 'function') {
+            $jq(el).modal('hide');
+            return;
+          }
+          el.classList.remove('show');
+          el.setAttribute('aria-hidden', 'true');
+          el.style.display = 'none';
+          const backdrop = document.querySelector('.modal-backdrop');
+          if (backdrop) backdrop.parentNode.removeChild(backdrop);
+          document.body.classList.remove('modal-open');
+          document.body.style.paddingRight = '';
+        }
+
+        function renderInstallingUI(container) {
+          container.innerHTML = `
+            <div class="text-center" style="max-width:520px;margin:24px auto;padding:0 16px;">
+              <div class="mt-3 mb-2"><i class="mdi-huge mdi-progress-download mdi-xl text-primary"></i></div>
+              <h3 class="mb-3" style="font-size:1.1rem;">מסיים להתקין…</h3>
+            </div>
+          `;
+        }
+
+        function renderPCSuccessUI(container) {
+          container.innerHTML = `
+            <div class="text-center" style="max-width:520px;margin:24px auto;padding:0 16px;">
+              <div class="mt-4 mb-3"><i class="mdi-huge mdi-check mdi-xl text-success"></i></div>
+              <h3 class="text-success font-weight-bold mb-4" style="font-size:1.5rem;">האפליקציה הותקנה בהצלחה</h3>
+            </div>
+          `;
+        }
+
+        function renderSuccessUI(container) {
+          container.innerHTML = `
+            <div class="text-center" style="max-width:520px;margin:24px auto;padding:0 16px;">
+              <div class="mt-4 mb-3"><i class="mdi-huge mdi-check mdi-xl text-success"></i></div>
+              <h3 class="text-success font-weight-bold mb-4" style="font-size:1.5rem;">האפליקציה הותקנה בהצלחה</h3>
+              <div class="text-center text-primary mb-4">
+                <img src="/images/icon-app.webp" class="mt-2" alt="סמל האפליקציה" style="width:60px; height:60px;">
+              </div>
+              <div class="text-muted mb-4" style="font-size:.95rem;">
+                כדי לפתוח את האפליקציה המותקנת<br/>
+                חפשו את הסמל החדש במסך הבית או במגירת האפליקציות.
+              </div>
+              <button id="continue-here-btn" type="button" class="btn btn-primary mb-3">להמשך כאן בדפדפן</button>
+            </div>
+          `;
+        }
+
+        function renderIOSInstallUI(container) {
+          container.innerHTML = `
+            <div class="modal-body text-center p-4">
+              <div class="mb-4">
+                <img src="/images/icon-app.webp" alt="סמל האפליקציה" style="width:60px; height:60px;">
+              </div>
+              <h3 class="modal-title h5 mb-3">התקנת האתר כאפליקציה במכשירך</h3>
+              <div class="text-end px-3">
+                <ol class="list-unstyled text-center" style="max-width:320px; margin: 0 auto;">
+                  <li class="mb-3">לחצו על סמל ה<strong>שיתוף</strong> (ריבוע עם חץ עליון).</li>
+                  <li class="mb-3">גללו ובחרו באפשרות "<strong>הוספה למסך הבית</strong>".</li>
+                  <li class="mb-2">אשרו את הפעולה בלחיצה על "<strong>הוספה</strong>".</li>
+                </ol>
+              </div>
+              <p class="text-muted mt-4 mb-4" style="font-size: .9rem;">
+                שימו לב! באייפון סמל השיתוף נמצא בתחתית המסך, ובאייפד הוא ממוקם בסרגל העליון.
+              </p>
+              <button id="continue-here-btn" type="button" class="btn btn-primary btn-round">הבנתי, תודה!</button>
+            </div>
+          `;
+        }
+
+        document.addEventListener('click', async (event) => {
+          const target = event.target;
+
+          if (target.id === 'continue-here-btn') {
+            dismissInstallModal();
+            return;
+          }
+
+          // This logic now only applies to Android/PC, as iOS users won't see the #install-pwa-btn.
+          if (target.id !== 'install-pwa-btn' || installing) return;
+
+          // The iOS check is no longer needed here because it's handled on page load.
+          if (!deferredPrompt) {
+            return;
+          }
+
+          installing = true;
+          const mainAppDiv = document.getElementById('main-app');
+          deferredPrompt.prompt();
+          const { outcome } = await deferredPrompt.userChoice.catch(() => ({ outcome: 'dismissed' }));
+          deferredPrompt = null;
+
+          if (outcome !== 'accepted') {
+            installing = false;
+            return;
+          }
+
+          const installBtn = document.getElementById('our-app');
+          if (installBtn) installBtn.style.display = 'none';
+
+          if (!mainAppDiv) {
+            installing = false;
+            return;
+          }
+
+          if (isPC) {
+            renderPCSuccessUI(mainAppDiv);
+          } else {
+            renderInstallingUI(mainAppDiv);
+            await new Promise(r => setTimeout(r, 5000));
+            renderSuccessUI(mainAppDiv);
+          }
+
+          installing = false;
+        });
+
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
+            .then(registration => {
+              console.log('Service Worker registered with scope:', registration.scope);
+              registration.update();
+            })
+            .catch(error => console.log('Service Worker registration failed:', error));
+        }
+    </script>
+
+
+    @Html.Partial("~/Views/Partials/RecaptchaScript.cshtml")
+    <script>
+        $(document).ready(function () {
+
+            $(function () {
+                $('body').openAccessibility({
+                    textSelector: 'h1,h2,h3,h4,h5,h6,a,span,p,button,i',
+                    isMobileEnabled: true
+                });
+
+                if ($.validator) {
+                    $.validator.setDefaults({
+                        highlight: function (element) {
+                            $(element).attr('aria-invalid', 'true');
+                        },
+                        unhighlight: function (element) {
+                            $(element).attr('aria-invalid', 'false');
+                        }
+                    });
+                }
+            })
+
+        @*
+                // function loadRecaptcha() {
+                //     // Check if the reCAPTCHA script is already loaded
+                //     if (!window.grecaptcha) {
+                //         var script = document.createElement('script');
+                //         script.src = 'https://www.google.com/recaptcha/api.js?render=@Configuration["googleReCaptcha:SiteKey"]&onload=onRecaptchaLoad';
+                //         document.body.appendChild(script);
+                //     }
+                // }
+
+                // window.onRecaptchaLoad = function () {
+                //     grecaptcha.ready(function () {
+                //         grecaptcha.execute("@Configuration["googleReCaptcha:SiteKey"]", { action: 'comment' }).then(function (token) {
+                //             // Find the captcha input in the current modal and set its value
+                //             console.log("reCAPTCHA Token:", token);  // Log the token
+
+                //             $('[data-captcha-input=true]').val(token);
+                //         });
+                //     });
+                // }
+
+                $('.modal').on('shown.bs.modal', function () {
+                loadRecaptcha();
+                // Don't directly call onRecaptchaLoad here.
+                });*@
+                });
+    </script>
+    <div class="bodyAccessibility">
+
+        <header>
+            @Html.Partial("~/Views/Partials/Navigation.cshtml")
+        </header>
+
+        <main id="main-content" tabindex="-1">
+            @RenderBody()
+        </main>
+    </div>
+
+    @Html.Partial("~/Views/Partials/footer.cshtml")
+    @if (_memberManager.IsLoggedIn())
+    {
+        @Html.Partial("~/Views/Partials/Logout.cshtml")
+
+        var currentMember = await _memberManager.GetCurrentMemberAsync();
+        if (currentMember != null)
+        {
+            var membership = db.Memberships.FirstOrDefault(x => x.memberID == currentMember.Id);
+            var expirationDate = membership?.expiration ?? new DateTime(1970, 1, 1);
+            var expirationDateISO = expirationDate.ToString("o");
+
+            <script>
+                if (navigator.onLine && typeof offlineContentDB !== 'undefined') {
+                    console.log('[Sync] Updating offline membership expiration date.');
+                    offlineContentDB.saveMembershipStatus({ expiration: '@expirationDateISO' })
+                        .then(() => console.log('[Sync] Expiration date saved successfully.'))
+                        .catch(err => console.error('[Sync] Failed to save expiration date:', err));
+                }
+            </script>
+        }
+    }
+    else
+    {
+        @Html.Partial("~/Views/Partials/Login.cshtml")
+        @Html.Partial("~/Views/Partials/Register.cshtml")
+        @Html.Partial("~/Views/Partials/RegisterAndSubscribe.cshtml", new MO6.ViewModels.RegisterAndSubscribeViewModel { Monthly = true })
+    }
+
+
+    @*app modal*@
+    <div id="appInstallModal" tabindex="-1" role="dialog" class="modal fade" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog modal-login" role="document">
+            <div class="modal-content">
+                <div class="card card-signup card-plain">
+                    <div class="modal-header">
+                        <div class="card-header card-header-primary text-center">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="סגור"><i class="material-icons" aria-hidden="true" lang="en" translate="no">clear</i></button>
+                            <!-- שלב 1: שכנוע עם מסר חזק -->
+                            <h3 class="mb-2 card-title">האפליקציה שלנו</h3>
+                        </div>
+                    </div>
+                    <div id="main-app">
+                        <div class="card-body px-4 py-4 text-center">
+                            <p class="card-description">
+                                התקינו את האפליקציה שלנו!
+                            </p>
+                            <div class="text-center text-primary mb-4">
+                <img src="/images/icon-app.webp" class="mt-2" alt="סמל האפליקציה" style="width:60px; height:60px;">
+                            </div>
+                            <!-- שלב 2: הסבר על התועלות -->
+                            <p class="card-description">
+                                קבלו גישה מהירה ונוחה לכל התוכן, והורידו שיעורים לצפייה גם כשאין חיבור אינטרנט.
+                            </p>
+                        </div>
+
+                        <div class="px-4 pb-4">
+                            <!-- שלב 3: כפתור פעולה אמין שתואם לדפדפן -->
+                            <button id="install-pwa-btn" class="btn btn-primary btn-lg w-100 m-0">
+                                הוספה למסך הבית
+                            </button>
+                        </div>
+
+                        <div class="text-center mb-4">
+                            <button type="button" data-dismiss="modal" class="btn btn-link text-gray">אולי בפעם אחרת</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+
+
+</html>

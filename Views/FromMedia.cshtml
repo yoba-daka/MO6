@@ -1,0 +1,39 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.FromMedia>
+@{
+    Layout = "master.cshtml";
+    dynamic parent = Model.Parent;
+}
+
+
+
+
+<div class="sec-page-header page-header header-filter clear-filter" style="margin-top:0em;background-image: url('@Url.GetCropUrl(((About)parent).Image, "full")');">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="text-center">
+                    <h1>@parent.Title</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="container my-5">
+    <div class="my-5">
+        <a class="title text-primary" href="@Model.Parent.Url()">@Model.Parent.Name</a> &nbsp>&nbsp <a class="title text-primary" href="@Model.Url()">מן התקשורת - @Model.Name</a>
+
+    </div>
+    <div class="row  article pb-4">
+        <div class="col-lg-10">
+            <h3>@Model.Title</h3>
+            @Model.Content
+
+        </div>
+    </div>
+</div>
+@Html.Partial("~/Views/Partials/Share.cshtml")
+<!--Html.Partial("~/Views/Partials/Comments.cshtml")-->

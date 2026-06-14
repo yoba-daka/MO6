@@ -1,0 +1,1315 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+
+
+<div class="container text-center">
+
+
+    <h2 class="text-primary text-center"><strong>פרשות השבוע</strong></h2>
+
+    <div class="mb-4">
+    <button class="btn btn-primary" id="bereshit-b"><strong>בראשית</strong></button>
+    <button class="btn btn-primary" id="shmot-b"><strong>שמות</strong></button>
+    <button class="btn btn-primary" id="vaikra-b"><strong>ויקרא</strong></button>
+    <button class="btn btn-primary" id="bamidbar-b"><strong>במדבר</strong></button>
+    <button class="btn btn-primary" id="dvarim-b"><strong>דברים</strong></button>
+    </div>
+    <script>
+        $(document).ready(function () {
+            // Array of button IDs and their corresponding div IDs
+            var pairs = [
+                { button: '#bereshit-b', div: '#bereshit' },
+                { button: '#shmot-b', div: '#shmot' },
+                { button: '#vaikra-b', div: '#vaikra' },
+                { button: '#bamidbar-b', div: '#bamidbar' },
+                { button: '#dvarim-b', div: '#dvarim' }
+            ];
+
+            pairs.forEach(function (pair) {
+                $(pair.button).click(function () {
+                    // Collapse all divs first
+                    pairs.forEach(function (p) {
+                        $(p.div).animate({ height: '0px' });
+                    });
+
+                    // Dynamically calculate the natural height of the clicked div
+                    var targetDiv = $(pair.div);
+                    var originalHeight = targetDiv.css('height');
+                    targetDiv.css('height', 'auto');
+                    var autoHeight = targetDiv.height();
+                    targetDiv.css('height', originalHeight);
+
+                    // Expand the clicked div
+                    targetDiv.animate({ height: autoHeight });
+                });
+            });
+        });
+    </script>
+
+    <div class="row justify-content-center" id="bereshit" style="overflow:hidden;">
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>בראשית</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>נח</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>לך לך</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>וירא</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>חיי שרה</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>תולדות</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>ויצא</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>וישלח</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>וישב</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>מקץ</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>ויגש</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>ויחי</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row justify-content-center" id="shmot" style="height:0px;overflow:hidden;">
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>שמות</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>וארא</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>בא</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>בשלח</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>יתרו</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>משפטים</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>תרומה</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>תצוה</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>כי תשא</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>ויקהל</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>פקודי</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row justify-content-center" id="vaikra" style="height:0px;overflow:hidden;">
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>ויקרא</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>צו</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>שמיני</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>תזריע</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>מצורע</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>אחרי מות</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>קדושים</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>אמור</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>בהר</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>בחוקותי</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center" id="bamidbar" style="height:0px;overflow:hidden;">
+
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>במדבר</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>נשא</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>בהעלותך</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>שלח</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>קורח</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>חוקת</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>בלק</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>פינחס</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>מטות</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>מסעי</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center" id="dvarim" style="height:0px;overflow:hidden;">
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>דברים</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>ואתחנן</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>עקב</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>ראה</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>שופטים</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>כי תצא</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>כי תבוא</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>ניצבים</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>וילך</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>האזינו</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-6 p-2 m-0">
+            <div class="rotating-card-container m-0">
+                <div class="card card-rotate m-0">
+                    <div class="front parchment">
+                        <div class="card-body p-0">
+                            <h4 class="text-center text-parasha"><strong>ברכה</strong></h4>
+                        </div>
+                    </div>
+                    <div class="back text-center parchment">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">מאמרים</a>
+                                </div>
+                                <div class="col-6 p-0">
+                                    <a class="btn-parchment btn btn-primary my-2" href="">שיעורים</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

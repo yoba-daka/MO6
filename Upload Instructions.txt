@@ -1,0 +1,50 @@
+llmdump --ext ".csproj,.cs,.cshtml,.razor,.json,.config" --exclude-tree ".git;.vs;bin;obj;packages;TestResults;artifacts;publish;Release;umbraco" --exclude-content "wwwroot" --out aspnet_llm_dump.txt
+Wrote dump to: aspnet_llm_dump.txt
+
+
+
+To tag your Docker image `mo6:latest` and upload it to Azure Container Registry (ACR) using the command line, you'll need to follow a few steps. Ensure you have Docker installed and running on your machine, and you're logged into Azure CLI and Docker on your terminal.
+
+### Step 1: Log in to Azure Container Registry
+
+Before pushing your image, you need to log in to your Azure Container Registry. You can do this with the Azure CLI command. Replace `moshe` with your actual registry name:
+
+```bash
+az acr login --name moshe
+```
+
+### Step 2: Tag Your Docker Image
+
+Next, tag your local Docker image with the name of your Azure Container Registry. This step does not move your image; it merely adds another tag to the existing image. Use the following command:
+
+```bash
+docker tag mo6:latest moshe.azurecr.io/mo6:latest
+```
+
+Here, `mo6:latest` is your local image (source) and `moshe.azurecr.io/mo6:latest` is the target name in your registry.
+
+### Step 3: Push the Image to ACR
+
+After tagging, push the image to your Azure Container Registry using the Docker push command:
+
+```bash
+docker push moshe.azurecr.io/mo6:latest
+```
+
+This command uploads your image to ACR under the tag you specified.
+
+### Step 4: Verify the Image in ACR
+
+Optionally, you can list the images in your registry to verify that your image was pushed successfully:
+
+```bash
+az acr repository list --name moshe --output table
+```
+
+And to see the tags for a specific repository:
+
+```bash
+az acr repository show-tags --name moshe --repository mo6 --output table
+```
+
+These steps should help you tag and upload your Docker image to Azure Container Registry. If you encounter any errors during the process, make sure you have the correct permissions to access the ACR and that your Docker client is logged in.

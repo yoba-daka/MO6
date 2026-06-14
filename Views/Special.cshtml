@@ -1,0 +1,270 @@
+﻿@using MO6.ViewModels
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Special>
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+
+@{
+    Layout = null; // Standalone page
+    var specialOfferModel = new SpecialOfferRegisterViewModel();
+    var specialOfferLoginModel = new SpecialOfferLoginViewModel();
+    var success = TempData["FormSuccess"] != null;
+    var existingSuccess = TempData["ExistingMemberSuccess"] != null;
+
+    // Read the flag from the controller. This determines the initial state of the page on reload.
+    var loginFormUsedOnLoad = ViewData["LoginFormUsed"] as bool? ?? false;
+}
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@Model.Name | משה שרון</title>
+
+    <!-- Fonts and Icons -->
+    <link href="https://fonts.googleapis.com/css?family=Heebo:400,500,700|Roboto:300,400,500,700|Roboto+Slab:400,700|Material+Icons" rel="stylesheet" />
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet" />
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="/css/material-kit.css?v=2.0.6">
+    <link rel="stylesheet" href="/css/mdi.css">
+    <link rel="stylesheet" href="/css/accessibility.css">
+
+
+    <!-- Custom Styles for this Landing Page -->
+    <style>
+        body {
+            font-family: 'Heebo', sans-serif;
+        }
+
+        :root {
+            --dark-bg: #38393a;
+            --primary-accent: #f88435;
+            --light-text: #ffffff;
+            --dark-text: #38393a;
+        }
+
+        .section-dark {
+            background-color: var(--dark-bg);
+            color: var(--light-text);
+            padding: 70px 0;
+        }
+
+        .section-white {
+            background-color: #ffffff;
+            color: var(--dark-text);
+            padding: 70px 0;
+        }
+
+        .section-dark .title,
+        .section-dark h1, .section-dark h2, .section-dark h3, .section-dark h4, .section-dark p {
+            color: var(--light-text);
+        }
+
+        .text-primary-accent {
+            color: var(--primary-accent) !important;
+        }
+
+        .cta-button {
+            box-shadow: 0 2px 2px 0 rgba(247, 123, 38, 0.14), 0 3px 1px -2px rgba(247, 123, 38, 0.2), 0 1px 5px 0 rgba(247, 123, 38, 0.12);
+        }
+
+        .features-row {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+            .features-row > [class*="col-"] {
+                display: flex;
+                margin-bottom: 30px;
+            }
+
+        .benefit-card {
+            background-color: var(--dark-bg); /* DARK CARD */
+            color: var(--light-text); /* with light text */
+            padding: 30px 20px;
+            border-radius: 6px;
+            box-shadow: 0 16px 24px 2px rgba(0, 0, 0, 0.14), 0 6px 30px 5px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+            .benefit-card .info-title {
+                color: var(--primary-accent); /* Orange title as per example */
+            }
+
+            .benefit-card p {
+                color: rgba(255, 255, 255, 0.8);
+                flex-grow: 1;
+            }
+
+            .benefit-card .icon {
+                color: var(--primary-accent);
+            }
+    </style>
+</head>
+<body class="landing-page sidebar-collapse" dir="rtl">
+    <a href="#main-content" class="skip-link">דלג לתוכן הראשי</a>
+    <main id="main-content" tabindex="-1">
+
+    @if (Model.IsOn)
+    {
+        if (!success && !existingSuccess)
+        {
+            @Model.ContentWhenOn
+        }
+
+        <div id="form-section" class="section-dark">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        @if (success || existingSuccess)
+                        {
+                            <div class="card card-body text-center py-5">
+                                @if (success)
+                                {
+                                    <h2 class="text-success m-3">ההרשמה הושלמה בהצלחה!</h2>
+                                    <h4 class="m-3" style="color:black">יצרנו עבורכם חשבון עם חודש מנוי מתנה. להפעלת החשבון, בדקו את תיבת הדואר האלקטרוני שלכם ולחצו על הקישור לאימות כתובת האימייל.</h4>
+                                }
+                                else if (existingSuccess)
+                                {
+                                    <h2 class="text-success m-3">המנוי נוצר בהצלחה!</h2>
+                                    <h4 class="m-3" style="color:black">הוספנו לחשבונכם חודש מנוי מתנה. ניתן להתחבר לאתר ולהתחיל ליהנות מהתכנים.</h4>
+                                }
+                                <div class="text-center">
+                                    <a href="/" class="btn btn-primary btn-raised btn-lg cta-button mt-4" style="max-width:200px;">לאתר</a>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="card card-signup">
+                                <div class="card-header card-header-primary text-center">
+                                    <h3 class="text-center" id="form-title">@(loginFormUsedOnLoad ? "מלאו פרטים וקבלו חודש מתנה" : "מלאו פרטים וקבלו גישה מיידית")</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-check text-center mb-3">
+                                        <label class="form-check-label">
+                                            <input class="form-check-input" type="checkbox" id="existingMemberCheck" @(loginFormUsedOnLoad ? "checked" : "")>
+                                            אני כבר חבר/ה באתר
+                                            <span class="form-check-sign">
+                                                <span class="check"></span>
+                                            </span>
+                                        </label>
+                                    </div>
+
+                                    <div id="registerFormContainer" style="@(loginFormUsedOnLoad ? "display:none;" : "")">
+                                        @using (Html.BeginUmbracoForm<MyProject12.Controllers.CustomRegisterController>("HandleSpecialOfferRegister", null, new { name = "registerForm", aria_label = "טופס הרשמה להטבה" }))
+                                        {
+                                            <div class="form-group bmd-form-group"><div class="input-group"><div class="input-group-prepend"><span class="input-group-text"><i class="material-icons" aria-hidden="true" lang="en" translate="no">badge</i></span></div><label asp-for="@specialOfferModel.Name" class="bmd-label-floating login-field">שם מלא</label><input asp-for="@specialOfferModel.Name" autocomplete="name" aria-describedby="specialOfferModel_Name-error" aria-invalid="false" class="form-control form-control-primary" /><span asp-validation-for="@specialOfferModel.Name" id="specialOfferModel_Name-error" class="login-error" role="alert" aria-live="polite"></span></div></div>
+                                            <div class="form-group bmd-form-group"><div class="input-group"><div class="input-group-prepend"><span class="input-group-text"><i class="material-icons" aria-hidden="true" lang="en" translate="no">email</i></span></div><label asp-for="@specialOfferModel.Email" class="bmd-label-floating login-field">אימייל</label><input asp-for="@specialOfferModel.Email" type="email" autocomplete="username" aria-describedby="specialOfferModel_Email-error" aria-invalid="false" class="form-control form-control-primary" /><span asp-validation-for="@specialOfferModel.Email" id="specialOfferModel_Email-error" class="login-error" role="alert" aria-live="polite"></span></div></div>
+                                            <div class="form-group bmd-form-group"><div class="input-group"><div class="input-group-prepend"><span class="input-group-text"><i class="material-icons" aria-hidden="true" lang="en" translate="no">email</i></span></div><label asp-for="@specialOfferModel.EmailConfirmation" class="bmd-label-floating login-field">אימות אימייל</label><input asp-for="@specialOfferModel.EmailConfirmation" type="email" autocomplete="email" aria-describedby="specialOfferModel_EmailConfirmation-error" aria-invalid="false" class="form-control form-control-primary" /><span asp-validation-for="@specialOfferModel.EmailConfirmation" id="specialOfferModel_EmailConfirmation-error" class="login-error" role="alert" aria-live="polite"></span></div></div>
+                                            <div class="form-group bmd-form-group"><div class="input-group"><div class="input-group-prepend"><span class="input-group-text"><i class="material-icons" aria-hidden="true" lang="en" translate="no">password</i></span></div><label asp-for="@specialOfferModel.Password" class="bmd-label-floating login-field">סיסמא</label><input asp-for="@specialOfferModel.Password" type="password" autocomplete="new-password" aria-describedby="specialOfferModel_Password-error" aria-invalid="false" class="form-control form-control-primary" /><span asp-validation-for="@specialOfferModel.Password" id="specialOfferModel_Password-error" class="login-error" role="alert" aria-live="polite"></span></div></div>
+                                            <div class="form-group bmd-form-group"><div class="input-group"><div class="input-group-prepend"><span class="input-group-text"><i class="material-icons" aria-hidden="true" lang="en" translate="no">done_all</i></span></div><label asp-for="@specialOfferModel.ConfirmPassword" class="bmd-label-floating login-field">אימות סיסמא</label><input asp-for="@specialOfferModel.ConfirmPassword" type="password" autocomplete="new-password" aria-describedby="specialOfferModel_ConfirmPassword-error" aria-invalid="false" class="form-control form-control-primary" /><span asp-validation-for="@specialOfferModel.ConfirmPassword" id="specialOfferModel_ConfirmPassword-error" class="login-error" role="alert" aria-live="polite"></span></div></div>
+                                            <div class="form-group bmd-form-group"><div class="input-group justify-content-center"><input type="checkbox" name="takanon" class="mx-2" value="true" id="takanonCheckbox"><label class="form-check-label" for="takanonCheckbox">קראתי ומסכים <a class="text-primary" href="/תקנון" target="_blank" rel="noopener">ל<strong>תקנון</strong></a></label></div></div>
+                                            <div class="text-center text-muted small my-3" style="color: #ccc !important;">* ההטבה הינה חד פעמית למנויים חדשים. ללא התחייבות וללא צורך באמצעי תשלום.</div>
+
+                                            if (ViewData.ModelState.ContainsKey("specialOfferModel"))
+                                            {
+                                                <div class="form-group bmd-form-group text-center">
+                                                    @foreach (var error in ViewData.ModelState.SelectMany(m => m.Value.Errors))
+                                                    {
+                                                        <div class="text-danger mb-2">@error.ErrorMessage</div>
+                                                    }
+                                                </div>
+                                            }
+
+                                            <div class="form-group text-center">
+                                                <input type="hidden" name="captcha" data-captcha-register="true" />
+                                                <button type="submit" class="btn btn-primary btn-round btn-lg mt-3">אני רוצה את המתנה!</button>
+                                            </div>
+                                        }
+                                    </div>
+
+                                    <div id="loginFormContainer" style="@(loginFormUsedOnLoad ? "" : "display:none;")">
+                                        @using (Html.BeginUmbracoForm<MyProject12.Controllers.CustomRegisterController>("HandleExistingMemberSpecialOffer", null, new { name = "loginForm", aria_label = "טופס התחברות להטבה" }))
+                                        {
+                                            <div class="form-group bmd-form-group"><div class="input-group"><div class="input-group-prepend"><span class="input-group-text"><i class="material-icons" aria-hidden="true" lang="en" translate="no">email</i></span></div><label asp-for="@specialOfferLoginModel.Email" class="bmd-label-floating login-field">אימייל</label><input asp-for="@specialOfferLoginModel.Email" type="email" autocomplete="username" aria-describedby="specialOfferLoginModel_Email-error" aria-invalid="false" class="form-control form-control-primary" /><span asp-validation-for="@specialOfferLoginModel.Email" id="specialOfferLoginModel_Email-error" class="login-error" role="alert" aria-live="polite"></span></div></div>
+                                            <div class="form-group bmd-form-group"><div class="input-group"><div class="input-group-prepend"><span class="input-group-text"><i class="material-icons" aria-hidden="true" lang="en" translate="no">password</i></span></div><label asp-for="@specialOfferLoginModel.Password" class="bmd-label-floating login-field">סיסמא</label><input asp-for="@specialOfferLoginModel.Password" type="password" autocomplete="current-password" aria-describedby="specialOfferLoginModel_Password-error" aria-invalid="false" class="form-control form-control-primary" /><span asp-validation-for="@specialOfferLoginModel.Password" id="specialOfferLoginModel_Password-error" class="login-error" role="alert" aria-live="polite"></span></div></div>
+                                            <div class="text-center text-muted small my-3" style="color: #ccc !important;">* ההטבה הינה חד פעמית למנויים חדשים. ללא התחייבות וללא צורך באמצעי תשלום.</div>
+
+                                            if (ViewData.ModelState.ContainsKey("specialOfferLoginModel"))
+                                            {
+                                                <div class="form-group bmd-form-group text-center">
+                                                    @foreach (var error in ViewData.ModelState.SelectMany(m => m.Value.Errors))
+                                                    {
+                                                        <div class="text-danger mb-2">@error.ErrorMessage</div>
+                                                    }
+                                                </div>
+                                            }
+
+                                            <div class="form-group text-center">
+                                                <input type="hidden" name="captcha" data-captcha-login="true" />
+                                                <button type="submit" class="btn btn-primary btn-round btn-lg mt-3">אני רוצה את המתנה!</button>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        @Model.ContentWhenOff
+    }
+    </main>
+
+    <footer class="footer footer-default">
+        <div class="container text-center">
+            <div class="copyright">
+                &copy; @DateTime.Now.Year - כל הזכויות שמורות למשה שרון.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Core JS Files -->
+    <script src="/js/core/jquery.min.js"></script>
+    <script src="/js/core/popper.min.js"></script>
+    <script src="/js/core/bootstrap-material-design.min.js"></script>
+    <script src="/js/material-kit.js?v=2.0.6"></script>
+
+    <!-- Validation & reCAPTCHA -->
+    <script src="/js/jquery.validate.min.js"></script>
+    <script src="/js/jquery.validate.unobtrusive.min.js"></script>
+
+    <script src="/js/accessibility.js"></script>
+
+    @Html.Partial("~/Views/Partials/RecaptchaScript.cshtml")
+
+    <script>
+        $(document).ready(function () {
+            $('#existingMemberCheck').on('change', function () {
+                if ($(this).is(':checked')) {
+                    $('#registerFormContainer').hide();
+                    $('#loginFormContainer').show();
+                    $('#form-title').text('מלאו פרטים וקבלו חודש מתנה');
+                } else {
+                    $('#registerFormContainer').show();
+                    $('#loginFormContainer').hide();
+                    $('#form-title').text('מלאו פרטים וקבלו גישה מיידית');
+                }
+            });
+
+
+            $(function () {
+                $('body').openAccessibility({
+                    textSelector: 'h1,h2,h3,h4,h5,h6,a,span,p,button,i',
+                    isMobileEnabled: true
+                });
+            })
+        });
+    </script>
+
+</body>
+</html>

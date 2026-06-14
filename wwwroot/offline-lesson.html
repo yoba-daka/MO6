@@ -1,0 +1,399 @@
+﻿<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>טוען שיעור...</title>
+    <link rel="stylesheet" href="/css/material-kit.css?v=2.0.6">
+    <link rel="stylesheet" href="/css/plyr.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" />
+    <link href="https://fonts.googleapis.com/css?family=Heebo:400,500,700|Material+Icons" rel="stylesheet" />
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            background-color: #f0f3f5;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .player-card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 2rem;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            color: #555;
+            text-decoration: none;
+        }
+
+            .back-button i {
+                margin-left: 8px;
+            }
+
+        .error-message {
+            padding: 20px;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body style="padding:0px;">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="player-card">
+                    <a href="/offline.html" class="back-button"><i class="material-icons">arrow_forward</i> חזרה לרשימת השיעורים</a>
+                    <div class="text-center">
+                        <h3 class="m-0 mt-2" id="lessonTitle">טוען שיעור...</h3>
+                    </div>
+                    <div class="text-center my-4">
+                        <ul class="nav nav-pills nav-pills-primary" style="display:inline-flex" role="tablist">
+                            <li class="nav-item" id="videoTab" style="display: none;"><a id="videoB" class="nav-link" data-toggle="tab" href="#" role="tab"><i class="material-icons" style="vertical-align: middle; margin-left: 5px;">videocam</i> וידאו</a></li>
+                            <li class="nav-item" id="audioTab" style="display: none;"><a id="audioB" class="nav-link" data-toggle="tab" href="#" role="tab"><i class="material-icons" style="vertical-align: middle; margin-left: 5px;">volume_up</i> שמע</a></li>
+                        </ul>
+                    </div>
+                    <div id="media-player" class="video my-3" style="margin:-1rem;"><div id="player-wrapper"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/core/jquery.min.js"></script>
+    <script src="/js/core/popper.min.js"></script>
+    <script src="/js/core/bootstrap-material-design.min.js"></script>
+    <script src="/js/plyr.js"></script>
+    <script src="/js/hls.js"></script>
+    <script src="/js/db-helper.js"></script>
+    <script>
+        let player;
+        let currentLessonData;
+        let timeUpdater;
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const contentName = urlParams.get('contentName');
+
+            if (!contentName) {
+                // Use the new showError to replace the entire player container.
+                return showError('שגיאה: לא זוהה שיעור בכתובת.');
+            }
+
+            try {
+                // 1. Fetch both the lesson data and the user settings in parallel.
+                const [lessonData, settings] = await Promise.all([
+                    offlineContentDB.getLesson(contentName),
+                    offlineContentDB.getMembershipStatus()
+                ]);
+
+                currentLessonData = lessonData;
+
+                if (!currentLessonData) {
+                    return showError('שגיאה: לא נמצאו נתונים עבור שיעור זה במכשיר.');
+                }
+
+                // Set the page title and lesson title immediately.
+                document.title = currentLessonData.title;
+                document.getElementById('lessonTitle').textContent = currentLessonData.title;
+
+                // 2. Perform the critical access check.
+                const expirationDate = settings ? new Date(settings.expiration) : null;
+                const isMembershipExpired = expirationDate ? new Date() > expirationDate : true;
+
+                if (currentLessonData.requiresMembership && isMembershipExpired) {
+                    console.log(`[Access Denied] Lesson requires membership, but offline membership is expired (Expiration: ${expirationDate}).`);
+                    // Show a specific, clear error message for expired membership.
+                    return showError('המנוי שלך פג תוקף ולכן שיעור זה אינו זמין. יש להתחבר לאינטרנט ולחדש את המנוי כדי לקבל גישה.');
+                }
+
+                // 3. If the check passes, proceed with loading the player.
+                console.log('[Access Granted] User has permission to view this offline lesson.');
+                setupTabsAndPlayer();
+
+            } catch (error) {
+                console.error("Error loading lesson:", error);
+                showError('שגיאה קריטית בטעינת השיעור.');
+            }
+        });
+
+        function setupTabsAndPlayer() {
+            const videoAvailable = currentLessonData.videoStatus === 'completed';
+            const audioAvailable = currentLessonData.audioStatus === 'completed';
+
+            if (!videoAvailable && !audioAvailable) {
+                return showError('הקבצים עבור שיעור זה לא הורדו למכשיר במלואם.');
+            }
+
+            if (videoAvailable) $('#videoTab').show();
+            if (audioAvailable) $('#audioTab').show();
+
+            const lastPlayedIsVideo = currentLessonData.lastPlayed ? currentLessonData.lastPlayed.isVideo : true;
+            let initialPlayerIsVideo = (lastPlayedIsVideo && videoAvailable) || (!audioAvailable);
+
+            if (initialPlayerIsVideo) {
+                $('#videoB').addClass('active');
+                initOfflineVideoPlayer();
+            } else {
+                $('#audioB').addClass('active');
+                initOfflineAudioPlayer();
+            }
+
+            $('#videoB').on('click', function (e) {
+                e.preventDefault();
+                if ($(this).hasClass('active')) return;
+                $('#audioB').removeClass('active');
+                $(this).addClass('active');
+                clearPlayer();
+                initOfflineVideoPlayer();
+            });
+
+            $('#audioB').on('click', function (e) {
+                e.preventDefault();
+                if ($(this).hasClass('active')) return;
+                $('#videoB').removeClass('active');
+                $(this).addClass('active');
+                clearPlayer();
+                initOfflineAudioPlayer();
+            });
+        }
+
+        function showError(message) {
+            // This function now replaces the *entire* player container,
+            // including tabs, with the error message for a cleaner result.
+            const playerContainer = document.querySelector('.player-card');
+            if (playerContainer) {
+                playerContainer.innerHTML = `
+                        <a href="/offline.html" class="back-button"><i class="material-icons">arrow_forward</i> חזרה לרשימת השיעורים</a>
+                        <h3 class="m-0 mt-2 text-center" id="lessonTitle">${currentLessonData ? currentLessonData.title : 'שגיאה'}</h3>
+                        <div class="error-message text-center" style="margin-top: 2rem;">${message}</div>
+                     `;
+            }
+        }
+
+        // --- All other functions (clearPlayer, initOfflineVideoPlayer, initOfflineAudioPlayer, seek logic, etc.)
+        // remain the same as your original, no changes needed below this line. ---
+
+        let audioRecoveryCleanup = null;
+
+        function attachAudioRecovery(audioElement, getSourceUrl) {
+            if (!audioElement) return null;
+
+            let waitingTimer = null;
+            let watchdogTimer = null;
+            let lastTime = 0;
+            let stagnantChecks = 0;
+            let recovering = false;
+            let retries = 0;
+            let retryWindowStartedAt = Date.now();
+
+            const clearWaitingTimer = () => {
+                if (waitingTimer) {
+                    clearTimeout(waitingTimer);
+                    waitingTimer = null;
+                }
+            };
+
+            const resetProgressState = () => {
+                clearWaitingTimer();
+                stagnantChecks = 0;
+                lastTime = audioElement.currentTime || 0;
+            };
+
+            const attemptRecovery = async reason => {
+                if (recovering || audioElement.ended) return;
+
+                const now = Date.now();
+                if (now - retryWindowStartedAt > 30000) {
+                    retries = 0;
+                    retryWindowStartedAt = now;
+                }
+
+                if (retries >= 3) {
+                    console.warn(`[OfflineAudio] Recovery limit reached. reason=${reason}`);
+                    return;
+                }
+
+                recovering = true;
+                retries += 1;
+                clearWaitingTimer();
+
+                const resumeTime = audioElement.currentTime || 0;
+                const shouldResume = !audioElement.paused && !audioElement.ended;
+                const sourceUrl = (getSourceUrl && getSourceUrl()) || audioElement.currentSrc || audioElement.src;
+
+                try {
+                    if (!sourceUrl) return;
+
+                    audioElement.pause();
+                    audioElement.src = sourceUrl;
+                    const sourceNode = audioElement.querySelector('source');
+                    if (sourceNode) sourceNode.src = sourceUrl;
+                    audioElement.load();
+
+                    const restorePlayback = async () => {
+                        audioElement.removeEventListener('canplay', restorePlayback);
+                        audioElement.currentTime = resumeTime;
+                        if (shouldResume) {
+                            try {
+                                await audioElement.play();
+                            } catch (playError) {
+                                console.warn('[OfflineAudio] Recovery play() failed.', playError);
+                            }
+                        }
+                        resetProgressState();
+                        recovering = false;
+                    };
+
+                    audioElement.addEventListener('canplay', restorePlayback, { once: true });
+                } catch (error) {
+                    console.error('[OfflineAudio] Recovery failed.', error);
+                    recovering = false;
+                }
+            };
+
+            const handleWaiting = () => {
+                clearWaitingTimer();
+                waitingTimer = setTimeout(() => {
+                    if (!audioElement.paused && !audioElement.ended) {
+                        attemptRecovery('waiting-timeout');
+                    }
+                }, 4000);
+            };
+
+            const handleStalled = () => attemptRecovery('stalled-event');
+            const handleError = () => attemptRecovery('error-event');
+            const handleTimeUpdate = () => {
+                lastTime = audioElement.currentTime || 0;
+                stagnantChecks = 0;
+                clearWaitingTimer();
+            };
+
+            const handleWatchdog = () => {
+                if (audioElement.paused || audioElement.ended || recovering || audioElement.seeking) {
+                    stagnantChecks = 0;
+                    lastTime = audioElement.currentTime || 0;
+                    return;
+                }
+
+                const currentTime = audioElement.currentTime || 0;
+                if (Math.abs(currentTime - lastTime) < 0.05) {
+                    stagnantChecks += 1;
+                    if (stagnantChecks >= 3) {
+                        attemptRecovery('watchdog-stalled');
+                    }
+                } else {
+                    stagnantChecks = 0;
+                    lastTime = currentTime;
+                }
+            };
+
+            audioElement.addEventListener('waiting', handleWaiting);
+            audioElement.addEventListener('stalled', handleStalled);
+            audioElement.addEventListener('suspend', handleWaiting);
+            audioElement.addEventListener('error', handleError);
+            audioElement.addEventListener('canplay', resetProgressState);
+            audioElement.addEventListener('playing', resetProgressState);
+            audioElement.addEventListener('seeked', resetProgressState);
+            audioElement.addEventListener('timeupdate', handleTimeUpdate);
+
+            watchdogTimer = setInterval(handleWatchdog, 3000);
+            resetProgressState();
+
+            return () => {
+                clearWaitingTimer();
+                if (watchdogTimer) clearInterval(watchdogTimer);
+                audioElement.removeEventListener('waiting', handleWaiting);
+                audioElement.removeEventListener('stalled', handleStalled);
+                audioElement.removeEventListener('suspend', handleWaiting);
+                audioElement.removeEventListener('error', handleError);
+                audioElement.removeEventListener('canplay', resetProgressState);
+                audioElement.removeEventListener('playing', resetProgressState);
+                audioElement.removeEventListener('seeked', resetProgressState);
+                audioElement.removeEventListener('timeupdate', handleTimeUpdate);
+            };
+        }
+
+        function clearPlayer() {
+            if (audioRecoveryCleanup) { audioRecoveryCleanup(); audioRecoveryCleanup = null; }
+            if (player) { player.destroy(); player = null; }
+            if (timeUpdater) { clearInterval(timeUpdater); }
+            $('#player-wrapper').empty();
+        }
+
+        function initOfflineVideoPlayer() {
+            const playerWrapper = document.getElementById('player-wrapper');
+            const qualityPlaylistUrl = currentLessonData.hlsQualityPlaylistUrl;
+            if (!qualityPlaylistUrl) { return showError('שגיאה: כתובת הוידאו לא נשמרה כראוי.'); }
+            const playlistUrlWithoutSAS = qualityPlaylistUrl.split('?')[0];
+            playerWrapper.innerHTML = `<video poster="${currentLessonData.imageUrl || ''}" id="player" playsinline controls></video>`;
+            const video = document.querySelector('#player');
+            const hls = new Hls({ debug: false });
+            hls.on(Hls.Events.ERROR, (event, data) => { if (data.fatal) { showError('שגיאה בטעינת הוידאו.'); } });
+            hls.loadSource(playlistUrlWithoutSAS); hls.attachMedia(video);
+            player = new Plyr(video, { controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'pip', 'fullscreen', 'settings'], settings: ['speed'], keyboard: { focused: true, global: true } });
+            player.once('ready', () => seekToLastKnownTime());
+            startSavingTimestamp();
+        }
+
+        function initOfflineAudioPlayer() {
+            const playerWrapper = document.getElementById('player-wrapper');
+            const audioUrl = currentLessonData.audioUrl;
+            if (!audioUrl) { return showError('שגיאה: כתובת השמע לא נשמרה כראוי.'); }
+            const audioUrlWithoutSAS = audioUrl.split('?')[0];
+            playerWrapper.innerHTML = `<audio id="playerA" controls><source src="${audioUrlWithoutSAS}" type="audio/mp3"></audio>`;
+            const audioElement = document.querySelector('#playerA');
+            player = new Plyr(audioElement, { controls: ['play', 'progress', 'current-time', 'mute', 'volume', 'settings'], keyboard: { focused: true, global: true } });
+            audioRecoveryCleanup = attachAudioRecovery(audioElement, () => audioUrlWithoutSAS);
+            player.once('ready', () => seekToLastKnownTime());
+            startSavingTimestamp();
+        }
+
+        function seekPlayerTo(time) {
+            if (!player || !time) return;
+            player.once('canplay', () => setTimeout(() => { player.currentTime = time; }, 50));
+            if (player.ready) player.currentTime = time;
+        }
+
+        function seekToLastKnownTime() {
+            if (player && currentLessonData.lastPlayed && currentLessonData.lastPlayed.time) {
+                seekPlayerTo(currentLessonData.lastPlayed.time);
+            }
+        }
+
+        function startSavingTimestamp() {
+            if (timeUpdater) clearInterval(timeUpdater);
+            timeUpdater = setInterval(() => {
+                if (player && player.currentTime > 0) {
+                    const isVideo = $('#videoB').hasClass('active');
+                    offlineContentDB.saveTimestamp(currentLessonData.contentName, player.currentTime, isVideo);
+                }
+            }, 5000);
+        }
+
+        window.addEventListener('beforeunload', () => {
+            if (timeUpdater) clearInterval(timeUpdater);
+            if (player && player.currentTime > 0) {
+                const isVideo = $('#videoB').hasClass('active');
+                offlineContentDB.saveTimestamp(currentLessonData.contentName, player.currentTime, isVideo);
+            }
+        });
+    </script>
+</body>
+</html>

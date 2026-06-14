@@ -1,0 +1,754 @@
+﻿@using MyProject12;
+@using MyProject12.Models;
+@using Umbraco.Cms.Core.Security;
+@using Umbraco.Cms.Web.Common.PublishedModels;
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
+@using Microsoft.AspNetCore.Hosting
+@inject IWebHostEnvironment WebHostEnvironment
+@inject LessonBlobService BlobService
+@inject IMemberManager _memberManager
+@inject DB db
+
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Lesson>
+@using MosheSharon;
+@{
+    TimeKeeper timeKeeper = null;
+    bool memberLogged = _memberManager.IsLoggedIn();
+    bool hasActiveMembership = false;
+    string sasToken = "";
+    var MembersOnly = Model.MembersOnly;
+    string memberEmail = "";
+    string memberID = "";
+
+    if (memberLogged)
+    {
+        var member = await _memberManager.GetCurrentMemberAsync();
+        memberEmail = member.Email;
+        memberID = member.Id;
+        var membership = db.Memberships.FirstOrDefault(x => x.memberID == memberID);
+        if (membership != null) hasActiveMembership = !membership.Expired;
+    }
+    if (memberLogged)
+    {
+        timeKeeper = db.getTimeKeeper(memberID, Model.Id);
+    }
+    if (hasActiveMembership || !MembersOnly)
+    {
+        if (MembersOnly)
+        {
+            if (!string.IsNullOrEmpty(memberEmail))
+            {
+                sasToken = BlobService.GenerateMemberContainerSas(Model.ContentName, memberEmail);
+            }
+        }
+        else
+        {
+            sasToken = BlobService.GenerateUnlimitedSas(Model.ContentName, "*");
+        }
+    }
+
+    Layout = "master.cshtml";
+
+    dynamic parent = Model.Parent.ContentType.Alias == "lessonGroup" ? Model.Parent.Parent : Model.Parent;
+    BlobService.setDuration(Model);
+
+    // Prepare variables for the script block
+    bool hasExternalVideo = !string.IsNullOrEmpty(Model.Youtube);
+    string externalLink = Model.Youtube ?? "";
+    bool hasVideo = hasExternalVideo ? false : BlobService.BlobExists(Model.ContentName, "index.m3u8");
+    bool hasAudio = BlobService.BlobExists(Model.ContentName, "audio.mp3");
+    bool hasAnyVideo = hasVideo || hasExternalVideo;
+    bool videoSelected = hasAnyVideo == false ? false : hasActiveMembership == true ? true : MembersOnly ? false : true;
+    videoSelected = timeKeeper != null ? timeKeeper.isVideo : videoSelected;
+
+    bool h240 = hasVideo ? BlobService.BlobExists(Model.ContentName, "240p.m3u8") : false;
+    bool h360 = hasVideo ? BlobService.BlobExists(Model.ContentName, "360p.m3u8") : false;
+    bool h480 = hasVideo ? BlobService.BlobExists(Model.ContentName, "480p.m3u8") : false;
+    bool h720 = hasVideo ? BlobService.BlobExists(Model.ContentName, "720p.m3u8") : false;
+    bool h1080 = hasVideo ? BlobService.BlobExists(Model.ContentName, "1080p.m3u8") : false;
+
+    int q240 = 0;
+    int q360 = h240 ? 1 : 0;
+    int q480 = h240 ? h360 ? 2 : 1 : 0;
+    int q720 = h240 ? h360 ? h480 ? 3 : 2 : 1 : 0;
+    int q1080 = h240 ? h360 ? h480 ? h720 ? 4 : 3 : 2 : 1 : 0;
+}
+
+<style>
+    @@media (min-width: 768px) {
+        .plyr__video-wrapper
+
+    {
+        min-height: 40vh !important;
+    }
+
+    }
+
+    @@media (max-width: 768px) {
+        .plyr__video-wrapper
+
+    {
+        min-height: 20vh !important;
+    }
+
+    }
+</style>
+
+<div class="sec-page-header page-header header-filter clear-filter" style="margin-top:0em;background-image: url('@Url.GetCropUrl(((Lessons)parent.Parent).Image, "full")');">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="text-center">
+                    <h1>@parent.Title</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-12">
+            @if (Model.Parent.ContentType.Alias == "lessonGroup")
+            {
+                <div class="my-5" itemscope itemtype="https://schema.org/BreadcrumbList">
+                    <span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"><a class="title text-primary" itemprop="item" href="@Model.Parent.Parent.Parent.Url()"><span itemprop="name">@Model.Parent.Parent.Parent.Name</span></a><meta itemprop="position" content="1" /></span> > 
+                    <span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"><a class="title text-primary" itemprop="item" href="@Model.Parent.Parent.Url()"><span itemprop="name">@Model.Parent.Parent.Name</span></a><meta itemprop="position" content="2" /></span> > 
+                    <span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"><a class="title text-primary" itemprop="item" href="@Model.Parent.Url()"><span itemprop="name">@Model.Parent.Name</span></a><meta itemprop="position" content="3" /></span> > 
+                    <span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"><a class="title text-primary" itemprop="item" href="@Model.Url()"><span itemprop="name">@Model.Name</span></a><meta itemprop="position" content="3" /></span>
+                </div>
+            }
+            else
+            {
+                <div class="my-5" itemscope itemtype="https://schema.org/BreadcrumbList">
+                    <span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"><a class="title text-primary" itemprop="item" href="@Model.Parent.Parent.Url()"><span itemprop="name">@Model.Parent.Parent.Name</span></a><meta itemprop="position" content="1" /></span> > 
+                    <span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"><a class="title text-primary" itemprop="item" href="@Model.Parent.Url()"><span itemprop="name">@Model.Parent.Name</span></a><meta itemprop="position" content="2" /></span> > 
+                    <span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"><a class="title text-primary" itemprop="item" href="@Model.Url()"><span itemprop="name">@Model.Name</span></a><meta itemprop="position" content="3" /></span>
+                </div>
+            }
+            <div class="text-center">
+                <h3 class="m-0 mt-2">@Model.Title</h3>
+                @if (!string.IsNullOrEmpty(Model.Subtitle))
+                {
+                    <h4 class="m-0">@Model.Subtitle</h4>
+                }
+
+                <div class="text-center my-3">
+                    <ul class="nav nav-pills nav-pills-primary " style="display:inline-flex" role="tablist">
+                        <li class="nav-item">
+                            <a id="videoB" class="nav-link @if(videoSelected){
+                            <text>active</text>
+                                                        }
+ @if (!hasAnyVideo)
+{
+                                <text>disabled</text>
+                            }
+" data-toggle="tab" href="#video-pane" role="tab" aria-expanded="true">
+                                <i class="mdi-big @(hasAnyVideo ? "mdi-video" : "mdi-video-off")" aria-hidden="true"></i> וידאו
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a id="audioB" class="nav-link @if(!videoSelected){
+                            <text>active</text>
+                                                        }
+ @if (!hasAudio)
+{
+                                <text>disabled</text>
+                            }
+" data-toggle="tab" href="#audio-pane" role="tab" aria-expanded="false">
+                                <i class="mdi-big @(hasAudio ? "mdi-volume-source" : "mdi-volume-variant-off")" aria-hidden="true"></i> שמע
+                            </a>
+                        </li>
+                    </ul>
+
+                    @if (!hasActiveMembership && MembersOnly)
+                    {
+                        <h5><i class="material-icons" style="vertical-align: text-bottom;" aria-hidden="true" lang="en" translate="no">lock</i> השיעור המלא זמין למנויים בלבד. ניתן להאזין ל-10 דקות מהשיעור בלי מנוי. <i class="material-icons" style="vertical-align: text-bottom;" aria-hidden="true" lang="en" translate="no">lock</i></h5>
+                        if (memberLogged)
+                        {
+
+                            <a href="/חשבון" class="btn btn-success btn-round px-3 py-2 d-inline-flex align-items-center" style="gap:0.4rem;"><i class="mdi mdi-account" style="font-size:1.1rem;line-height:1;" aria-hidden="true"></i>לרכישת מנוי</a>
+                        }
+                        else
+                        {
+
+                            <div class="text-center">
+                                <button class="btn btn-primary btn-round px-3 py-2 d-inline-flex align-items-center" style="gap:0.4rem;" data-toggle="modal" data-target="#loginModal">
+                                    <i class="mdi  mdi-login-variant" style="font-size:1.1rem;line-height:1;" aria-hidden="true"></i>להתחברות
+                                </button>
+
+                                <button class="btn btn-success btn-round px-3 py-2 d-inline-flex align-items-center" style="gap:0.4rem;" data-toggle="modal" data-target="#registerSubscribeModal">
+                                    <i class="mdi mdi-pencil-box-outline" style="font-size:1.1rem;line-height:1;" aria-hidden="true"></i>להרשמה ורכישת מנוי
+                                </button>
+                            </div>
+                        }
+                    }
+                    <div style="position:relative;">
+                        <div id="media-player" class="video my-3">
+                            <div id="player-wrapper"></div>
+                        </div>
+                        <div id="download-container" class="my-3 text-center"></div>
+                        <div id="download-status" style="display:none; margin-top:10px;" class="text-center"></div>
+
+                        @if (hasAnyVideo && !hasActiveMembership && MembersOnly)
+                        {
+                            <div id="vidBanner" class=" videoNoM card card-body invisible" style="display: flex !important;">
+                                <i class="material-icons" style="vertical-align: text-bottom; font-size: 3rem !important;" aria-hidden="true" lang="en" translate="no">lock</i>
+                                <h5> הוידאו זמין למנויים בלבד. </h5>
+                            </div>
+                        }
+                    </div>
+                    <div style="text-align:right;">
+                        @Model.FullDescription
+                    </div>
+                    @Html.Partial("~/Views/Partials/Share.cshtml")
+
+                    @if (Model.Parent.ContentType.Alias == "lessonGroup")
+                    {
+                        <hr />
+                        <div class="row pl-3">
+                            @foreach (Lesson lesson in Model.Parent.Children)
+                            {
+                                <div class="col-lg-3 col-md-4 col-6 pl-0 " style="overflow:hidden">
+                                    <a href="@lesson.Url()">
+                                        @if (lesson.New)
+                                        {
+                                            <div class="new"><div class="new-text">חדש</div></div>
+                                        }
+                                        <div>
+                                            <div class="image-container" style=" position: relative; display: flex; align-items: center; justify-content: center;">
+                                                <span class="badge badge-pill badge-primary time">@lesson.Duration</span>
+                                                @if (lesson.MembersOnly && !hasActiveMembership)
+                                                {
+                                                    <i class="material-icons lock" aria-hidden="true" lang="en" translate="no">lock</i>
+                                                }
+                                                else
+                                                {
+
+                                                    <i class="material-icons play" aria-hidden="true" lang="en" translate="no">play_circle_filled</i>
+                                                }
+                                                <img src="@Url.GetCropUrl(lesson.Image, "small")" alt="@lesson.ImageAlt" class="rounded img-fluid @if(Model.Id == lesson.Id){
+                                                <text>chosen-border</text>
+                                            }
+    ">
+                                        </div>
+                                    </div>
+                                    <h5 style="line-height: 22px;" class="title m-2" class="title m-2">@lesson.Title</h5>
+                                </a>
+                            </div>
+                        }
+                    </div>
+                                        }
+                    @Html.Partial("~/Views/Partials/Comments.cshtml")
+                </div>
+            </div>
+        </div>
+    </div>
+@if (memberLogged)
+{
+        <form id="hiddenTimeForm" method="post" data-ajax="true" data-ajax-method="POST" action="@Url.SurfaceAction("Set","TimeKeeper")" style="display:none;">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="time" id="hiddenTime">
+            <input type="hidden" name="isVideo" id="hiddenIsVideo">
+            <input type="hidden" name="lessonId" value="@Model.Id">
+        </form>
+}
+
+    <!-- Resolution Selection Modal -->
+    <div class="modal fade" id="resolutionModal" tabindex="-1" role="dialog" aria-labelledby="resolutionModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header modal-header-primary">
+                    <h4 class="modal-title d-inline-flex align-items-center" id="resolutionModalLabel" style="gap:.5rem;">
+                        <i class="material-icons" style="font-size:1.25rem;line-height:1;" aria-hidden="true" lang="en" translate="no">video_settings</i>
+                        בחירת איכות וידאו להורדה
+                    </h4>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="סגור"><span aria-hidden="true">×</span></button>
+                </div>
+
+                <div class="modal-body" id="resolution-options-container"></div>
+
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">ביטול</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // --- C# variables are now passed into a single, clean config object ---
+        const lessonConfig = {
+            isMember: @(memberLogged.ToString().ToLower()),
+            hasActiveMembership: @(hasActiveMembership.ToString().ToLower()),
+            isMembersOnly: @(Model.MembersOnly.ToString().ToLower()),
+            hasVideo: @(hasVideo.ToString().ToLower()),
+            hasAnyVideo: @(hasAnyVideo.ToString().ToLower()),
+            hasAudio: @(hasAudio.ToString().ToLower()),
+            hasExternalVideo: @(hasExternalVideo.ToString().ToLower()),
+            externalLink: "@(Html.Raw(externalLink))",
+            isVideoSelected: @(videoSelected.ToString().ToLower()),
+            contentName: "@Model.ContentName",
+            playerLabel: @Html.Raw(System.Text.Json.JsonSerializer.Serialize("נגן שיעור - " + Model.Title)),
+            isOffline: !navigator.onLine,
+            hlsMasterPlaylistUrl: "@(hasVideo? Html.Raw(BlobService.GenerateBlobUrl(Model.ContentName, "index.m3u8", sasToken)) : "")",
+            hlsSasTokenOnly: "@(hasVideo? Html.Raw(BlobService.GetTokenOnly(sasToken)) : "")",
+            audioUrl: "@(hasAudio? Html.Raw(BlobService.GenerateBlobUrl(Model.ContentName, "audio.mp3", sasToken)) : "")",
+            shortAudioUrl: "@(hasAudio && MembersOnly && !hasActiveMembership ? Html.Raw(BlobService.GenerateUnlimitedSas(Model.ContentName, "audio-short.mp3")) : "")",
+
+            pwaMetaData: {
+                contentName: "@Model.ContentName",
+                title: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Title)),
+                url: "@Model.Url()",
+                imageUrl: "@Url.GetCropUrl(Model.Image, "small")",
+                duration: "@Model.Duration",
+                requiresMembership: @(Model.MembersOnly.ToString().ToLower())
+            },
+            serverTime: @(timeKeeper != null ? timeKeeper.time : "null"),
+            serverIsVideo: @(timeKeeper != null ? timeKeeper.isVideo.ToString().ToLower() : "null"),
+            qualities: { q240: @(h240? q240 : -1), q360: @(h360? q360 : -1), q480: @(h480? q480 : -1), q720: @(h720? q720 : -1), q1080: @(h1080? q1080 : -1) }
+        };
+
+        // --- Global script variables ---
+        var player, localTimeUpdater, localData, audioRecoveryCleanup;
+        var transitionTime = 0;
+        const broadcast = new BroadcastChannel('download_channel');
+
+        // --- Player Initialization and Helper Functions ---
+        function getYoutubeId(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        async function initVideo() {
+            console.log('[Player] Initializing VIDEO player...');
+            showVidBanner();
+
+            if (lessonConfig.hasExternalVideo) {
+                const youtubeId = getYoutubeId(lessonConfig.externalLink);
+                $('#player-wrapper').html(`<div id="player" data-plyr-provider="youtube" data-plyr-embed-id="${youtubeId}" aria-label="${lessonConfig.playerLabel}"></div>`);
+                player = new Plyr('#player', { title: lessonConfig.playerLabel, keyboard: { focused: true, global: true } });
+                return;
+            }
+
+            const downloadedResolution = localData?.videoStatus === 'completed' ? localData.videoResolution : null;
+            if (lessonConfig.isOffline && !downloadedResolution) {
+                $('#player-wrapper').html('<div class="alert alert-warning text-center"><h3>אתה לא מחובר לאינטרנט</h3><p>הוידאו של שיעור זה לא הורד למכשיר.</p></div>');
+                return;
+            }
+            $('#player-wrapper').html(`<video poster="" id="player" playsinline controls aria-label="${lessonConfig.playerLabel}"></video>`);
+            const video = document.querySelector('#player');
+            const hls = new Hls({ debug: false });
+            const downloadedQualityIndex = downloadedResolution ? lessonConfig.qualities['q' + downloadedResolution.replace('p', '')] : -1;
+            if (downloadedQualityIndex !== -1) hls.startLevel = downloadedQualityIndex;
+
+            if (lessonConfig.isOffline) {
+                hls.config.loader = class {
+                    constructor(config) { this.loader = new Hls.DefaultConfig.loader(config); }
+                    load(context, config, callbacks) { context.url = context.url.split('?')[0]; this.loader.load(context, config, callbacks); }
+                    destroy() { if (this.loader) this.loader.destroy(); }
+                    abort() { if (this.loader) this.loader.abort(); }
+                };
+                hls.loadSource(lessonConfig.hlsMasterPlaylistUrl.split('?')[0]);
+            } else {
+                const ensureSasToken = (url) => (!url || !lessonConfig.hlsSasTokenOnly || url.includes('?')) ? url : url + '?' + lessonConfig.hlsSasTokenOnly;
+                hls.config.xhrSetup = (xhr, url) => { if (url.endsWith('.ts') || url.endsWith('.m3u8')) { const u = ensureSasToken(url); if (u !== url) xhr.open('GET', u, true); } };
+                hls.loadSource(lessonConfig.hlsMasterPlaylistUrl);
+            }
+            player = new Plyr(video, {
+                title: lessonConfig.playerLabel,
+                controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'],
+                settings: ['captions', 'quality', 'speed'], keyboard: { focused: true, global: true },
+                i18n: { qualityLabel: { '-1': 'אוטומטי', 1080: `1080p${downloadedResolution === '1080p'?' <i class="fa fa-check-circle text-success"></i>':''}`, 720: `720p${downloadedResolution === '720p'?' <i class="fa fa-check-circle text-success"></i>':''}`, 480: `480p${downloadedResolution === '480p'?' <i class="fa fa-check-circle text-success"></i>':''}`, 360: `360p${downloadedResolution === '360p'?' <i class="fa fa-check-circle text-success"></i>':''}`, 240: `240p${downloadedResolution === '240p'?' <i class="fa fa-check-circle text-success"></i>':''}` } }
+            });
+            hls.on(Hls.Events.MANIFEST_PARSED, () => { if (downloadedQualityIndex !== -1) hls.currentLevel = downloadedQualityIndex; });
+            hls.attachMedia(video);
+            window.hls = hls;
+        }
+
+
+        function initAudio() {
+                   console.log('[Player] Initializing AUDIO player.');
+                   hideVidBanner();
+                   let audioSrc = '';
+                   const isDownloaded = localData?.audioStatus === 'completed';
+
+
+                   if (lessonConfig.isMembersOnly && !lessonConfig.hasActiveMembership) {
+                       audioSrc = lessonConfig.shortAudioUrl;
+                       console.log('[Player] Access Rule: Non-member on members-only content. Playing short audio preview.');
+                   }
+                   else if (isDownloaded) {
+                       audioSrc = lessonConfig.audioUrl.split('?')[0];
+                       console.log('[Player] Access Rule: Permitted user. Playing downloaded full audio from cache.');
+                   }
+                   else {
+                       audioSrc = lessonConfig.audioUrl;
+                       console.log('[Player] Access Rule: Permitted user. Playing full audio (streaming).');
+                   }
+
+                   if (!audioSrc) {
+                       $('#player-wrapper').html('<div class="alert alert-danger">קובץ השמע אינו זמין.</div>');
+                       return;
+                   }
+
+                   $('#player-wrapper').html(`<audio id="playerA" playsinline controls aria-label="${lessonConfig.playerLabel}"><source src="${audioSrc}" type="audio/mp3"></audio>`);
+                   const audioElement = document.querySelector('#playerA');
+                   player = new Plyr(audioElement, { title: lessonConfig.playerLabel, controls: ['play', 'progress', 'current-time', 'mute', 'volume', 'settings'], keyboard: { focused: true, global: true } });
+                   audioRecoveryCleanup = attachAudioRecovery(audioElement, () => audioSrc);
+               }
+
+        function attachAudioRecovery(audioElement, getSourceUrl) {
+            if (!audioElement) return null;
+
+            let waitingTimer = null;
+            let watchdogTimer = null;
+            let lastTime = 0;
+            let stagnantChecks = 0;
+            let recovering = false;
+            let retries = 0;
+            let retryWindowStartedAt = Date.now();
+
+            const clearWaitingTimer = () => {
+                if (waitingTimer) {
+                    clearTimeout(waitingTimer);
+                    waitingTimer = null;
+                }
+            };
+
+            const resetProgressState = () => {
+                clearWaitingTimer();
+                stagnantChecks = 0;
+                lastTime = audioElement.currentTime || 0;
+            };
+
+            const attemptRecovery = async reason => {
+                if (recovering || audioElement.ended) return;
+
+                const now = Date.now();
+                if (now - retryWindowStartedAt > 30000) {
+                    retries = 0;
+                    retryWindowStartedAt = now;
+                }
+
+                if (retries >= 3) {
+                    console.warn(`[Audio] Recovery limit reached. reason=${reason}`);
+                    return;
+                }
+
+                recovering = true;
+                retries += 1;
+                clearWaitingTimer();
+
+                const resumeTime = audioElement.currentTime || 0;
+                const shouldResume = !audioElement.paused && !audioElement.ended;
+                const sourceUrl = (getSourceUrl && getSourceUrl()) || audioElement.currentSrc || audioElement.src;
+
+                console.warn(`[Audio] Attempting recovery. reason=${reason}, retry=${retries}, time=${resumeTime}`);
+
+                try {
+                    if (!sourceUrl) return;
+
+                    audioElement.pause();
+                    audioElement.src = sourceUrl;
+                    const sourceNode = audioElement.querySelector('source');
+                    if (sourceNode) {
+                        sourceNode.src = sourceUrl;
+                    }
+
+                    audioElement.load();
+
+                    const restorePlayback = async () => {
+                        audioElement.removeEventListener('canplay', restorePlayback);
+                        audioElement.currentTime = resumeTime;
+                        if (shouldResume) {
+                            try {
+                                await audioElement.play();
+                            } catch (playError) {
+                                console.warn('[Audio] Recovery play() failed.', playError);
+                            }
+                        }
+                        resetProgressState();
+                        recovering = false;
+                    };
+
+                    audioElement.addEventListener('canplay', restorePlayback, { once: true });
+                } catch (error) {
+                    console.error('[Audio] Recovery failed.', error);
+                    recovering = false;
+                }
+            };
+
+            const handleWaiting = () => {
+                clearWaitingTimer();
+                waitingTimer = setTimeout(() => {
+                    if (!audioElement.paused && !audioElement.ended) {
+                        attemptRecovery('waiting-timeout');
+                    }
+                }, 4000);
+            };
+
+            const handleStalled = () => attemptRecovery('stalled-event');
+            const handleError = () => attemptRecovery('error-event');
+            const handleTimeUpdate = () => {
+                lastTime = audioElement.currentTime || 0;
+                stagnantChecks = 0;
+                clearWaitingTimer();
+            };
+
+            const handleWatchdog = () => {
+                if (audioElement.paused || audioElement.ended || recovering || audioElement.seeking) {
+                    stagnantChecks = 0;
+                    lastTime = audioElement.currentTime || 0;
+                    return;
+                }
+
+                const currentTime = audioElement.currentTime || 0;
+                if (Math.abs(currentTime - lastTime) < 0.05) {
+                    stagnantChecks += 1;
+                    if (stagnantChecks >= 3) {
+                        attemptRecovery('watchdog-stalled');
+                    }
+                } else {
+                    stagnantChecks = 0;
+                    lastTime = currentTime;
+                }
+            };
+
+            audioElement.addEventListener('waiting', handleWaiting);
+            audioElement.addEventListener('stalled', handleStalled);
+            audioElement.addEventListener('suspend', handleWaiting);
+            audioElement.addEventListener('error', handleError);
+            audioElement.addEventListener('canplay', resetProgressState);
+            audioElement.addEventListener('playing', resetProgressState);
+            audioElement.addEventListener('seeked', resetProgressState);
+            audioElement.addEventListener('timeupdate', handleTimeUpdate);
+
+            watchdogTimer = setInterval(handleWatchdog, 3000);
+            resetProgressState();
+
+            return () => {
+                clearWaitingTimer();
+                if (watchdogTimer) {
+                    clearInterval(watchdogTimer);
+                    watchdogTimer = null;
+                }
+                audioElement.removeEventListener('waiting', handleWaiting);
+                audioElement.removeEventListener('stalled', handleStalled);
+                audioElement.removeEventListener('suspend', handleWaiting);
+                audioElement.removeEventListener('error', handleError);
+                audioElement.removeEventListener('canplay', resetProgressState);
+                audioElement.removeEventListener('playing', resetProgressState);
+                audioElement.removeEventListener('seeked', resetProgressState);
+                audioElement.removeEventListener('timeupdate', handleTimeUpdate);
+            };
+        }
+
+        function showVidBanner() { if (lessonConfig.hasAnyVideo && lessonConfig.isMembersOnly && !lessonConfig.hasActiveMembership) $("#vidBanner").removeClass("invisible"); }
+        function hideVidBanner() { if (lessonConfig.hasAnyVideo && lessonConfig.isMembersOnly && !lessonConfig.hasActiveMembership) $('#vidBanner').addClass("invisible"); }
+
+        function clearPlayer() {
+            if (audioRecoveryCleanup) { audioRecoveryCleanup(); audioRecoveryCleanup = null; }
+            if (player) { console.log('[Player] Clearing player instance.'); player.destroy(); player = null; }
+            if (window.hls) { window.hls.destroy(); window.hls = null; }
+            if (localTimeUpdater) { clearInterval(localTimeUpdater); localTimeUpdater = null; }
+            $('#player-wrapper').empty();
+        }
+
+        async function updateDownloadUI() {
+          const container = document.getElementById('download-container');
+          const statusEl = document.getElementById('download-status');
+          if (!container) return;
+
+          const hideStatus = () => { if (statusEl) statusEl.style.display = 'none'; };
+
+
+          if (lessonConfig.hasExternalVideo) {
+            container.innerHTML = `
+              <div class="text-center">
+                <p class="text-muted mb-2">הסרטון מאוחסן ביוטיוב ולא ניתן להורדה.</p>
+                <a href="${lessonConfig.externalLink}" target="_blank" rel="noopener" class="btn btn-danger btn-round d-inline-flex align-items-center" style="gap:.4rem;">
+                  <i class="fa fa-youtube-play" aria-hidden="true"></i>
+                  לצפייה ב-YouTube
+                </a>
+              </div>`;
+            hideStatus();
+            return;
+          }
+
+          const canDownload = lessonConfig.hasActiveMembership || !lessonConfig.isMembersOnly;
+          if (!canDownload) {
+            container.innerHTML = `
+              <button class="btn btn-secondary btn-round d-inline-flex align-items-center" disabled title="נדרש מנוי" style="gap:.4rem;">
+                <i class="fa fa-lock" aria-hidden="true"></i>
+                הורדה
+              </button>
+              <small class="d-block mt-2">זמין למנויים בלבד.</small>`;
+            return;
+          }
+
+          if (!isPWA) {
+
+            if (hasPWA) {
+              container.innerHTML = `
+                <a href="${location.href}" target="_blank" rel="noopener"
+                   class="btn btn-primary btn-round d-inline-flex align-items-center" style="gap:.4rem;">
+                  <i class="mdi mdi-open-in-app" style="font-size:1.1rem;line-height:1;" aria-hidden="true"></i>
+                  פתיחה באפליקציה
+                </a>
+                <small class="d-block mt-2">ניתן להוריד תכנים רק באפליקציה.</small>`;
+            } else {
+              container.innerHTML = `
+                <button id="our-app"
+                        class="btn btn-primary btn-round d-inline-flex align-items-center"
+                        style="gap:.4rem;"
+                        ${window.deferredPrompt ? '' : 'data-toggle="modal" data-target="#appInstallModal"'}
+                >
+                  <i class="mdi mdi-monitor-cellphone" style="font-size:1.1rem;line-height:1;" aria-hidden="true"></i>
+                  האפליקציה שלנו
+                </button>
+                        <small class="d-block mt-2">
+          התקינו את האפליקציה כדי להוריד שיעורים.
+        </small>`;
+
+              // Correct binding (was pointing at a non-existent #install-pwa-btn)
+              const btn = document.getElementById('our-app');
+              if (window.deferredPrompt && btn) {
+                btn.addEventListener('click', async (e) => {
+                  e.preventDefault();
+                  window.deferredPrompt.prompt();
+                  try { await window.deferredPrompt.userChoice; } finally { window.deferredPrompt = null; }
+                });
+              }
+            }
+            hideStatus();
+            return;
+          }
+
+          // 4) In PWA (or captured) → show proper download UI based on local state
+          let localData = null;
+          try {
+            localData = await offlineVideoDB.getLesson(lessonConfig.contentName);
+          } catch {}
+
+          const mediaType = $('#videoB').hasClass('active') ? 'video' : 'audio';
+          const mediaStatus = localData ? (mediaType === 'video' ? localData.videoStatus : localData.audioStatus) : 'none';
+
+          hideStatus();
+          container.innerHTML = '';
+
+          if (mediaStatus === 'completed') {
+            const resText = (mediaType === 'video' && localData && localData.videoResolution) ? ` (${localData.videoResolution})` : '';
+            container.innerHTML = `
+              <div class="d-flex align-items-center justify-content-center" style="gap:15px;">
+                <p class="text-success m-0 d-inline-flex align-items-center" style="gap:.4rem;">
+                  <i class="fa fa-check-circle" aria-hidden="true"></i>
+                  ${mediaType === 'video' ? 'הוידאו' : 'השמע'} הורד${resText}
+                </p>
+                <button class="btn btn-danger btn-sm btn-round delete-media-btn" data-media-type="${mediaType}">
+                  <i class="fa fa-trash" aria-hidden="true"></i>
+                  מחק
+                </button>
+              </div>`;
+          } else if (mediaStatus === 'downloading') {
+            if (statusEl) {
+              statusEl.style.display = 'block';
+              statusEl.innerHTML = `
+                <div class="progress rounded" style="height:20px;">
+                  <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" style="width:0%;">0%</div>
+                </div>
+                <button class="btn btn-danger btn-round mt-2 mb-4" id="cancelDownloadBtn">
+                  <i class="fa fa-times" aria-hidden="true"></i>
+                  בטל הורדה
+                </button>`;
+            }
+            navigator.serviceWorker.controller?.postMessage({
+              type: 'QUERY_DOWNLOAD_STATUS',
+              payload: { contentName: lessonConfig.contentName }
+            });
+          } else {
+            container.innerHTML = `
+              <button id="downloadBtn" class="btn btn-primary btn-round d-inline-flex align-items-center" style="gap:.4rem;">
+                <i class="fa fa-download" aria-hidden="true"></i>
+                הורדת ${mediaType === 'video' ? 'וידאו' : 'שמע'}
+              </button>`;
+          }
+        }
+                function handleDownloadClick() { if ($('#videoB').hasClass('active')) { let opts = ''; ['1080', '720', '480', '360', '240'].forEach(q => { if (lessonConfig.qualities['q' + q] !== -1) opts += `<button class="btn btn-primary btn-block my-2 resolution-choice-btn" data-resolution="${q}p">${q}p</button>`; }); $('#resolution-options-container').html(opts); $('#resolutionModal').modal('show'); } else { startAudioDownload(); } }
+        async function startVideoDownload(resolution) { $('#resolutionModal').modal('hide'); const mediaType = 'video'; try { const masterUrl = lessonConfig.hlsMasterPlaylistUrl; const sas = masterUrl.includes('?') ? masterUrl.substring(masterUrl.indexOf('?')) : ''; const baseUrl = masterUrl.substring(0, masterUrl.lastIndexOf('/') + 1); const playlistFile = resolution.replace('p', '') + 'p.m3u8'; const playlistUrl = new URL(playlistFile, baseUrl).href + sas; const metadata = { ...lessonConfig.pwaMetaData, mediaType, resolution, hlsQualityPlaylistUrl: playlistUrl }; await offlineVideoDB.startDownload(metadata, mediaType, resolution); await updateDownloadUI(); const pContent = await fetch(playlistUrl).then(res => res.text()); const segments = pContent.split('\n').filter(l => l.endsWith('.ts')); const sBaseUrl = new URL('.', playlistUrl).href; const urls = [masterUrl, playlistUrl, ...segments.map(s => new URL(s, sBaseUrl).href + sas)]; navigator.serviceWorker.controller.postMessage({ type: 'CACHE_MEDIA', payload: { urls, metadata } }); } catch (error) { console.error('Video download start failed:', error); await offlineVideoDB.updateMediaStatus(lessonConfig.contentName, mediaType, 'none'); await updateDownloadUI(); } }
+        async function startAudioDownload() { const mediaType = 'audio'; try { const metadata = { ...lessonConfig.pwaMetaData, mediaType, resolution: null, audioUrl: lessonConfig.audioUrl }; await offlineVideoDB.startDownload(metadata, mediaType, null); await updateDownloadUI(); navigator.serviceWorker.controller.postMessage({ type: 'CACHE_MEDIA', payload: { urls: [lessonConfig.audioUrl], metadata } }); } catch (error) { console.error('Audio download start failed:', error); await offlineVideoDB.updateMediaStatus(lessonConfig.contentName, mediaType, 'none'); await updateDownloadUI(); } }
+        async function handleDeleteClick(mediaType) { if (confirm(`האם למחוק את ${mediaType === 'video' ? 'הוידאו' : 'השמע'}?`)) { navigator.serviceWorker.controller.postMessage({ type: 'DELETE_MEDIA_CACHE', payload: { contentName: lessonConfig.contentName, mediaType } }); } }
+        function seekPlayerTo(time) { if (!player || !time) return; if (lessonConfig.hasExternalVideo) { player.once('ready', () => player.embed.seekTo(time, true)); return; } player.once('canplay', () => { player.currentTime = time; }); if (player.ready) player.currentTime = time; }
+        async function seekToLastKnownTime() { const timeToSeek = localData?.lastPlayed?.time ?? lessonConfig.serverTime; if (timeToSeek) { console.log(`[Timekeeping] Seeking to ${timeToSeek}s. Prioritized local: ${!!localData?.lastPlayed?.time}`); seekPlayerTo(timeToSeek); } }
+        function startLocalTimeUpdater() { if (localTimeUpdater) clearInterval(localTimeUpdater); localTimeUpdater = setInterval(async () => { const hasDownloadedMedia = localData?.videoStatus === 'completed' || localData?.audioStatus === 'completed'; if (player?.currentTime > 0 && (lessonConfig.isOffline || hasDownloadedMedia)) { await offlineVideoDB.saveTimestamp(lessonConfig.contentName, player.currentTime, $('#videoB').hasClass('active')); } }, 5000); }
+        async function syncLocalTimeToServerOnLoad() { if (isPWA && lessonConfig.isMember && localData?.lastPlayed?.time && !lessonConfig.isOffline) { const form = document.getElementById('hiddenTimeForm'); if (form) { const formData = new FormData(form); formData.set('time', localData.lastPlayed.time.toString()); formData.set('isVideo', localData.lastPlayed.isVideo.toString()); navigator.sendBeacon(form.getAttribute('action'), formData); } } }
+        async function initializeFirstPlayer() { console.log('[Init] Starting initial player load...'); let initialTabIsVideo = lessonConfig.isVideoSelected; if (localData?.lastPlayed) { initialTabIsVideo = localData.lastPlayed.isVideo; } if (lessonConfig.isOffline) { const videoAvailable = localData?.videoStatus === 'completed', audioAvailable = localData?.audioStatus === 'completed'; if (!videoAvailable && !audioAvailable) { $('#player-wrapper').html('<div class="alert alert-warning text-center"><h3>אתה לא מחובר לאינטרנט</h3><p>השיעור הזה לא הורד למכשיר.</p></div>'); $('#download-container').hide(); return; } initialTabIsVideo = (initialTabIsVideo && videoAvailable) || !audioAvailable; } if (initialTabIsVideo && lessonConfig.hasAnyVideo) { $('#videoB').addClass('active').tab('show'); $('#audioB').removeClass('active'); await initVideo(); } else if (lessonConfig.hasAudio) { $('#audioB').addClass('active').tab('show'); $('#videoB').removeClass('active'); initAudio(); } else { console.log('[Init] No media available to load.'); return; } await seekToLastKnownTime(); startLocalTimeUpdater(); await updateDownloadUI(); }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                console.log('[Init] DOM content loaded.');
+                localData = await offlineVideoDB.getLesson(lessonConfig.contentName);
+                await syncLocalTimeToServerOnLoad();
+
+                $('a[data-toggle="tab"]').on('shown.bs.tab', async function (e) {
+                    if (!player) return;
+                    if (player.currentTime > 0) transitionTime = player.currentTime;
+                    const targetId = $(e.target).attr('id');
+                    console.log(`[Event] User switched tab to: ${targetId}, captured time: ${transitionTime}`);
+                    clearPlayer();
+                    if (targetId === 'videoB' && lessonConfig.hasAnyVideo) await initVideo();
+                    else if (targetId === 'audioB' && lessonConfig.hasAudio) initAudio();
+                    if (transitionTime > 0) { seekPlayerTo(transitionTime); transitionTime = 0; }
+                    else { await seekToLastKnownTime(); }
+                    startLocalTimeUpdater();
+                    await updateDownloadUI();
+                });
+
+                $(document).on('click', '#downloadBtn', handleDownloadClick);
+                $(document).on('click', '#cancelDownloadBtn', () => navigator.serviceWorker.controller?.postMessage({ type: 'CANCEL_DOWNLOAD', payload: { contentName: lessonConfig.contentName } }));
+                $(document).on('click', '.delete-media-btn', function() { handleDeleteClick($(this).data('media-type')); });
+                $(document).on('click', '.resolution-choice-btn', function() { startVideoDownload($(this).data('resolution')); });
+                await initializeFirstPlayer();
+            } catch (error) { console.error("A critical error occurred during page initialization:", error); $('#player-wrapper').html('<div class="alert alert-danger">אירעה שגיאה חמורה בטעינת הדף. נסה לרענן.</div>'); }
+        });
+
+
+        broadcast.onmessage = async (event) => {
+            const { type, payload } = event.data;
+            if (payload.contentName !== lessonConfig.contentName) return;
+
+            if (type === 'DOWNLOAD_PROGRESS') {
+                const pb = document.getElementById('progress-bar');
+                if (pb) { pb.style.width = payload.progress + '%'; pb.textContent = payload.progress + '%'; }
+            } else if (['DOWNLOAD_COMPLETE', 'DOWNLOAD_FAILED', 'DOWNLOAD_CANCELLED', 'DELETE_MEDIA_CACHE_COMPLETE'].includes(type)) {
+                localData = await offlineVideoDB.getLesson(lessonConfig.contentName);
+                await updateDownloadUI();
+
+                const activeMediaType = $('#videoB').hasClass('active') ? 'video' : 'audio';
+
+                if (type === 'DOWNLOAD_COMPLETE' && payload.mediaType === activeMediaType) {
+                    console.log(`[Broadcast] Player reload triggered by ${activeMediaType} download completion.`);
+                    clearPlayer();
+                    if (payload.mediaType === 'video') {
+                        await initVideo();
+                    } else {
+                        initAudio();
+                    }
+                    await seekToLastKnownTime();
+                    startLocalTimeUpdater();
+                }
+            }
+        };
+
+        if (lessonConfig.isMember && !lessonConfig.isOffline) {
+            window.addEventListener('beforeunload', function () {
+                if (localTimeUpdater) clearInterval(localTimeUpdater);
+                const form = document.getElementById('hiddenTimeForm');
+                if (form && player?.currentTime > 0) {
+                    const formData = new FormData(form);
+                    formData.set('time', player.currentTime.toString());
+                    formData.set('isVideo', $('#videoB').hasClass('active').toString());
+                    navigator.sendBeacon(form.getAttribute('action'), formData);
+                }
+            });
+        }
+    </script>

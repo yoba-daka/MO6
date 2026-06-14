@@ -1,0 +1,1428 @@
+﻿
+
+
+<!doctype html>
+<html lang="he">
+
+<head>
+    <link rel="manifest" href="/manifest.json">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#f77b26" />
+        <meta name="description" content="&#x5D0;&#x5D5;&#x5D3;&#x5D5;&#x5EA;">
+    <meta property="og:title" content="&#x5D0;&#x5D5;&#x5D3;&#x5D5;&#x5EA;" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="http://mo6.azurewebsites.net/&#x5D0;&#x5D5;&#x5D3;&#x5D5;&#x5EA;/" />
+
+        <meta property="og:description" content="&#x5D0;&#x5D5;&#x5D3;&#x5D5;&#x5EA;" />
+
+    <meta property="og:image" content="https://mo6.co.il/media/dlslrelb/&#x5DE;&#x5E9;&#x5D4;-&#x5E9;&#x5E8;&#x5D5;&#x5DF;.png?width=1280&amp;amp;height=720" />
+
+    <title>&#x5DE;&#x5E9;&#x5D4; &#x5E9;&#x5E8;&#x5D5;&#x5DF; - &#x5D0;&#x5D5;&#x5D3;&#x5D5;&#x5EA;</title>
+
+
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Heebo:400,500,700|Roboto:300,400,500,700|Roboto&#x2B;Slab:400,700|Material&#x2B;Icons" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" />
+
+    <link href="/sb/css-bundle.css.v666ee3e1671d80ee6cd9f5e0b2c825f6b3220e2a" rel="stylesheet" />
+
+
+
+    <script src="/sb/js-bundle.js.v666ee3e1671d80ee6cd9f5e0b2c825f6b3220e2a"></script>
+
+
+
+
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-V1H7MXFHR1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-V1H7MXFHR1');
+    </script>
+
+    <!-- Google Tag Manager -->
+    <script>
+        (function (w, d, s, l, i) {
+            w[l] = w[l] || []; w[l].push({
+                'gtm.start':
+                    new Date().getTime(), event: 'gtm.js'
+            }); var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-P8M99BNJ');</script>
+    <!-- End Google Tag Manager -->
+</head>
+
+<body class="index-page sidebar-collapse" dir="rtl">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript>
+        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P8M99BNJ"
+                height="0" width="0" style="display:none;visibility:hidden"></iframe>
+    </noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+
+    <script src="/js/db-helper.js"></script>
+    <script>
+        // --- Global PWA Flags and Install Logic ---
+        let deferredPrompt;
+
+        const isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+        let hasPWA = false;
+
+        (async () => {
+          if ('getInstalledRelatedApps' in navigator) {
+            try {
+              const apps = await navigator.getInstalledRelatedApps();
+              hasPWA = apps.some(a => a.platform === 'webapp' && a.id === 'https://mo6.co.il/');
+            } catch {}
+          }
+        })();
+
+        const isPC = (() => {
+          if (navigator.userAgentData && 'mobile' in navigator.userAgentData) {
+            return !navigator.userAgentData.mobile;
+          }
+          return !/Android|iPhone|iPad|iPod|Mobi|Mobile|Windows Phone|BlackBerry|Opera Mini/i.test(navigator.userAgent);
+        })();
+
+        const isIOS = () => {
+          const ua = navigator.userAgent || '';
+          const iDevice = /iPad|iPhone|iPod/.test(ua);
+          const iPadOS = !iDevice && navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+          return iDevice || iPadOS;
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+          const appBtn = document.getElementById('our-app');
+          const mainAppDiv = document.getElementById('main-app'); // The content area of your modal
+
+          if (appBtn) {
+            if (isPWA) {
+              appBtn.style.display = 'none';
+            } else {
+              appBtn.style.display = 'inline-block';
+            }
+          }
+
+          if (isIOS()) {
+            if (mainAppDiv) {
+              renderIOSInstallUI(mainAppDiv);
+            }
+          } else if (isPC) {
+            const installPwaBtn = document.getElementById('install-pwa-btn');
+            if (installPwaBtn) {
+              installPwaBtn.textContent = 'להתקנה במחשב';
+            }
+          }
+        });
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+          e.preventDefault();
+          deferredPrompt = e;
+        });
+
+        let installing = false;
+
+        function dismissInstallModal() {
+          const el = document.getElementById('appInstallModal');
+          if (!el) return;
+
+          if (window.bootstrap && typeof bootstrap.Modal === 'function') {
+            let instance = bootstrap.Modal.getInstance(el);
+            if (!instance) instance = new bootstrap.Modal(el);
+            instance.hide();
+            return;
+          }
+          const $jq = window.jQuery || window.$;
+          if ($jq && typeof $jq.fn?.modal === 'function') {
+            $jq(el).modal('hide');
+            return;
+          }
+          el.classList.remove('show');
+          el.setAttribute('aria-hidden', 'true');
+          el.style.display = 'none';
+          const backdrop = document.querySelector('.modal-backdrop');
+          if (backdrop) backdrop.parentNode.removeChild(backdrop);
+          document.body.classList.remove('modal-open');
+          document.body.style.paddingRight = '';
+        }
+
+        function renderInstallingUI(container) {
+          container.innerHTML = `
+            <div class="text-center" style="max-width:520px;margin:24px auto;padding:0 16px;">
+              <div class="mt-3 mb-2"><i class="mdi-huge mdi-progress-download mdi-xl text-primary"></i></div>
+              <h3 class="mb-3" style="font-size:1.1rem;">מסיים להתקין…</h3>
+            </div>
+          `;
+        }
+
+        function renderPCSuccessUI(container) {
+          container.innerHTML = `
+            <div class="text-center" style="max-width:520px;margin:24px auto;padding:0 16px;">
+              <div class="mt-4 mb-3"><i class="mdi-huge mdi-check mdi-xl text-success"></i></div>
+              <h3 class="text-success font-weight-bold mb-4" style="font-size:1.5rem;">האפליקציה הותקנה בהצלחה</h3>
+            </div>
+          `;
+        }
+
+        function renderSuccessUI(container) {
+          container.innerHTML = `
+            <div class="text-center" style="max-width:520px;margin:24px auto;padding:0 16px;">
+              <div class="mt-4 mb-3"><i class="mdi-huge mdi-check mdi-xl text-success"></i></div>
+              <h3 class="text-success font-weight-bold mb-4" style="font-size:1.5rem;">האפליקציה הותקנה בהצלחה</h3>
+              <div class="text-center text-primary mb-4">
+                <img src="/images/icon-app.webp" class="mt-2" alt="Logo" style="width:60px; height:60px;">
+              </div>
+              <div class="text-muted mb-4" style="font-size:.95rem;">
+                כדי לפתוח את האפליקציה המותקנת<br/>
+                חפשו את הסמל החדש במסך הבית או במגירת האפליקציות.
+              </div>
+              <button id="continue-here-btn" type="button" class="btn btn-primary mb-3">להמשך כאן בדפדפן</button>
+            </div>
+          `;
+        }
+
+        function renderIOSInstallUI(container) {
+          container.innerHTML = `
+            <div class="modal-body text-center p-4">
+              <div class="mb-4">
+                <img src="/images/icon-app.webp" alt="סמל האפליקציה" style="width:60px; height:60px;">
+              </div>
+              <h3 class="modal-title h5 mb-3">התקנת האתר כאפליקציה במכשירך</h3>
+              <div class="text-end px-3">
+                <ol class="list-unstyled text-center" style="max-width:320px; margin: 0 auto;">
+                  <li class="mb-3">לחצו על סמל ה<strong>שיתוף</strong> (ריבוע עם חץ עליון).</li>
+                  <li class="mb-3">גללו ובחרו באפשרות "<strong>הוספה למסך הבית</strong>".</li>
+                  <li class="mb-2">אשרו את הפעולה בלחיצה על "<strong>הוספה</strong>".</li>
+                </ol>
+              </div>
+              <p class="text-muted mt-4 mb-4" style="font-size: .9rem;">
+                שימו לב! באייפון סמל השיתוף נמצא בתחתית המסך, ובאייפד הוא ממוקם בסרגל העליון.
+              </p>
+              <button id="continue-here-btn" type="button" class="btn btn-primary btn-round">הבנתי, תודה!</button>
+            </div>
+          `;
+        }
+
+        document.addEventListener('click', async (event) => {
+          const target = event.target;
+
+          if (target.id === 'continue-here-btn') {
+            dismissInstallModal();
+            return;
+          }
+
+          // This logic now only applies to Android/PC, as iOS users won't see the #install-pwa-btn.
+          if (target.id !== 'install-pwa-btn' || installing) return;
+
+          // The iOS check is no longer needed here because it's handled on page load.
+          if (!deferredPrompt) {
+            return;
+          }
+
+          installing = true;
+          const mainAppDiv = document.getElementById('main-app');
+          deferredPrompt.prompt();
+          const { outcome } = await deferredPrompt.userChoice.catch(() => ({ outcome: 'dismissed' }));
+          deferredPrompt = null;
+
+          if (outcome !== 'accepted') {
+            installing = false;
+            return;
+          }
+
+          const installBtn = document.getElementById('our-app');
+          if (installBtn) installBtn.style.display = 'none';
+
+          if (!mainAppDiv) {
+            installing = false;
+            return;
+          }
+
+          if (isPC) {
+            renderPCSuccessUI(mainAppDiv);
+          } else {
+            renderInstallingUI(mainAppDiv);
+            await new Promise(r => setTimeout(r, 5000));
+            renderSuccessUI(mainAppDiv);
+          }
+
+          installing = false;
+        });
+
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register('/sw.js')
+            .then(registration => console.log('Service Worker registered with scope:', registration.scope))
+            .catch(error => console.log('Service Worker registration failed:', error));
+        }
+    </script>
+
+
+    
+<script>
+
+    function loadRecaptcha() {
+        // Check if the reCAPTCHA script is already loaded
+        if (!window.grecaptcha) {
+            var script = document.createElement('script');
+            script.src = 'https://www.google.com/recaptcha/api.js?render=6LecSuwnAAAAADoYyhH08Ee69PBfM1wwY4q9MQmp&onload=onRecaptchaLoad';
+            document.body.appendChild(script);
+        }
+    }
+    $(document).ready(function () {
+
+        document.addEventListener("submit", function (event) {
+            var formName = event.target.getAttribute('name');
+
+            if (formName === "loginForm") {
+                handleFormSubmission("loginForm", "login", '[data-captcha-login=true]');
+            }
+            else if (formName === "registerForm") {
+                handleFormSubmission("registerForm", "register", '[data-captcha-register=true]');
+            }
+        });
+
+
+
+
+        loadRecaptcha();
+    });
+
+    //called by ajax
+    async function handleCommentSubmission(continueSubmission) {
+        return new Promise((resolve, reject) => {
+            grecaptcha.execute("6LecSuwnAAAAADoYyhH08Ee69PBfM1wwY4q9MQmp", { action: 'comment' })
+                .then(function (token) {
+                    $("[data-captcha-comment=true]").val(token); // Add token to the hidden input field
+                    console.log(typeof continueSubmission);
+                    resolve(); // Resolve the Promise when the operation is completed
+                })
+                .catch(function (error) {
+                    reject(error); // Reject the Promise if an error occurs
+                });
+        });
+    }
+
+    function handleFormSubmission(formName, actionType, tokenFieldSelector) {
+
+        event.preventDefault();
+
+        grecaptcha.execute("6LecSuwnAAAAADoYyhH08Ee69PBfM1wwY4q9MQmp", { action: actionType }).then(function (token) {
+            $(tokenFieldSelector).val(token); // Add token to the hidden input field
+            $('form[name="' + formName + '"]').submit();
+        });
+    }
+</script>
+    <script>
+        $(document).ready(function () {
+
+            $(function () {
+                $('body').openAccessibility({
+                    textSelector: 'h1,h2,h3,h4,h5,h6,a,span,p,button,i',
+                    isMobileEnabled: true
+                });
+                if ($('#cd-vertical-nav').length) {
+                    // Move it to the beginning of the body tag
+                    $('body').prepend($('#cd-vertical-nav'));
+                }
+                if ($('.cd-nav-trigger').length) {
+                    // Move them to the beginning of the body tag
+                    $('.cd-nav-trigger').each(function () {
+                        $('body').prepend($(this));
+                    });
+                }
+            })
+
+                });
+    </script>
+    <div class="bodyAccessibility">
+
+        
+
+<nav class="navbar bg-info fixed-top  navbar-expand-lg navbar-color-on-scroll navbar-transparent" color-on-scroll="100" id="sectionsNav">
+    <div class="container" style="height:50px">
+        <div class="navbar-translate">
+            <div class="d-flex">
+                <a class="navbar-brand pt-1" href="/">
+                    <img src="/media/sz3hjxoe/icon-moshe-sharon.svg" alt="Icon" class="icon">
+                </a>
+                <a class="navbar-brand" href="/">
+                    משה שרון
+                </a>
+            </div>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="navbar-toggler-icon"></span>
+                <span class="navbar-toggler-icon"></span>
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ml-auto">
+                <li class="dropdown nav-item">
+                    <a href="/אודות" class="nav-link">
+                        <i class="mdi mdi-information mdi-line-1"></i>  אודות
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/מאמרים">
+                        <i class="mdi mdi-card-text mdi-line-1"></i>  מאמרים
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/פודקאסטים">
+                        <i class="mdi mdi-headphones mdi-line-1"></i>  פודקאסטים
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/קורסים-והרצאות">
+                        <i class="mdi mdi-library-video mdi-line-1"></i>  קורסים והרצאות
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/אירועים">
+                        <i class="mdi mdi-calendar mdi-line-1"></i>  אירועים
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/ספרים">
+                        <i class="mdi mdi-bookshelf mdi-line-1"></i>  ספרים
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/צור-קשר">
+                        <i class="mdi mdi-contact-mail mdi-line-1"></i>  צור קשר
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/מנוי">
+                        <i class="mdi mdi-crown mdi-line-1"></i>  מנוי
+                    </a>
+                </li>
+
+                <li class="nav-item" style="text-align:center">
+                        <div class="nav-link px-4" style="margin-left:0px; margin-right:0px;">
+                            <button class="btn btn-primary btn-round px-3 py-2 mb-3 mb-sm-0 d-inline-flex align-items-center" data-toggle="modal" data-target="#loginModal"><i class="mdi-small mdi-line-1-2 mdi-login-variant"></i> התחברות</button>
+
+                            <button class="btn btn-success btn-round px-3 py-2 d-inline-flex align-items-center" data-toggle="modal" data-target="#registerModal"><i class="mdi-small mdi-line-1-2 mdi-pencil-box-outline"></i> הרשמה</button>
+
+                        </div>
+                </li>
+
+
+            </ul>
+        </div>
+
+    </div>
+</nav>
+
+        
+<div class="sec-page-header page-header header-filter clear-filter" style="margin-top:0em;background-image: url('/media/dlslrelb/משה-שרון.png?width=1920&amp;height=1080');">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="text-center">
+                    <h1>אודות</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<nav id="cd-vertical-nav">
+    <ul class="mb-0 p-3">
+        <li>
+            <a href="#1" data-number="1">
+                <span class="cd-dot"></span>
+                <span class="text-primary cd-label">אודות</span>
+            </a>
+        </li>
+        <li>
+            <a href="#2" data-number="2">
+                <span class="cd-dot"></span>
+                <span class="text-primary cd-label">מכתבי תודה</span>
+            </a>
+        </li>
+        <li>
+            <a href="#3" data-number="3">
+                <span class="cd-dot"></span>
+                <span class="text-primary cd-label">מהתקשורת</span>
+            </a>
+        </li>
+        <li>
+            <a href="#4" data-number="4">
+                <span class="cd-dot"></span>
+                <span class="text-primary cd-label">לקוחות</span>
+            </a>
+        </li>
+
+    </ul>
+</nav>
+
+<div class="container">
+
+    <div class="sec" id="1"></div>
+    <h2 class="title text-primary">משה שרון</h2>
+
+
+    <div class="row article p-md-3 mt-md-0 mt-4">
+        <div class="col-lg-12 p-md-5 p-4 text-justify">
+
+    <p style="text-align: right;">עוד לפני שחגגתי את טקס בר המצווה, חלמתי להיות פסיכולוג קליני.</p>
+<p style="text-align: right;">כן, גם אני לא מכיר נערים בגיל הזה שכבר יודעים מה ירצו להיות כשיהיו גדולים, אולי בודדים. אבל אני זוכר שהיכולת לעזור ליְצוּר המרתק והמיוחד שנקרא "אדם" לצאת מתוך הלופים שלו בחיים, נדמתה בעיניי לקסם של ממש ומשכה אותי בחבליה.</p>
+<p style="text-align: right;">זה התחיל בכיתה ג', כשאובחנתי כמחונן ומערכת החינוך הציעה להוריי לשלוח אותי לפנימיות מיוחדות של משרד החינוך שתפקידן לאתר ילדים עם פוטנציאל שגרים בעיירות פיתוח ולתת להם הזדמנות ללמוד ברמה גבוהה.</p>
+<p style="text-align: right;">כשמנהלת בית הספר הציגה בפניי ובפני הוריי את האפשרות הזו, הייתי בכיתה ה', בן אחת־עשרה בסך הכול, ואני זוכר ששאלתי אותה האם אפשר ללמוד שם חמש יחידות פסיכולוגיה. היא בדקה ואמרה שכן. וביקנעם מקום מגוריי? שאלתי. תשובתה הייתה שלא. אז אני מעוניין, אמרתי.</p>
+<p style="text-align: right;">עברתי ללמוד בפנימיית שטיינברג בכפר סבא ובמשך שש שנות הלימודים שם, הייתי חוזר הביתה פעם בשבועיים, חדור מטרה – אני אהיה פסיכולוג.</p>
+<p style="text-align: right;">בסוף כיתה ט', בחרתי כמובן ללמוד במסלול חמש יחידות פסיכולוגיה.</p>
+<p style="text-align: right;">ברגע שסיימתי את השירות הצבאי נרשמתי כמובן ללימודי פסיכולוגיה באקדמיה.</p>
+<p style="text-align: right;">השקעתי כדי להצליח בתואר ולהתקבל לתואר השני. אפילו נבחרתי בסוף התואר הראשון למצטיין דיקאן.</p>
+<p style="text-align: right;">אבל לפעמים חלומות לא מתגשמים. אינני פסיכולוג.</p>
+<p style="text-align: right;"><strong>מה קרה? מה גרם לחלום להתנפץ?</strong></p>
+<p style="text-align: right;">בגיל שבע־עשרה נחשפתי ללימוד חוכמת הקבלה וחיי השתנו מן הקצה אל הקצה. גדלתי בבית חילוני ולא ידעתי יותר מדי על החגים, על התפילה ובכלל על החוכמה שקיימת ביהדות. הלכתי לחפש אתונות ומצאתי אוצר גדול ששימח את נפשי.</p>
+<p style="text-align: right;">אבל מהעבר השני, באופן יחסי לחוכמה העצומה שפגשתי ביהדות – התיאוריות הפסיכולוגיות אכזבו אותי. הן היו נחמדות ותו לא. החכמתי יותר בקורסי החובה של בר־אילן, ש"הכריחו" אותי ללמוד את תורת הרב קוק והרב סולוביצ'יק, מאשר בתואר שבחרתי. כשקראתי את הרב קוק חשבתי שהוא מבין את נפש האדם טוב יותר מכל פסיכולוג שלמדתי עליו.</p>
+<p style="text-align: right;">בשלב מסוים הפער שחוויתי בלימודים הפך מסתם אכזבה מהתכנים, לקושי של ממש.</p>
+<p style="text-align: right;">הקושי המרכזי התגלע בעיקר בקורס פסיכופתולוגיה, שבו לומדים על מחלות נפש. למרות אזהרת המרצה שכך עלול לקרות, באותם ימים נראו בעיניי כל האנשים כ"חולים" – זו "אובססיבית" וההוא "ללא צל של ספק סובל מהפרעת אישיות גבולית, יש לו הרי את כל הסימפטומים", ובת זוגתי דאז "נוירוטית בוודאות, הייתי שולח אותה לטיפול דחוף". &nbsp;</p>
+<p style="text-align: right;">מסתבר שכמו שיש "מגדיר צמחים" כך יש "מגדיר אנשים" – קוראים לו DSM והוא מרכז רשימה ארוכה של "מחלות" נפש. על פיו יישק דבר. בעיניים שלי זה היה רק אוסף של סימפטומים, שלא הצלחתי להבין מדוע מגדירים איתם אנשים. לא מדובר הרי במדדים אובייקטיביים כמו חום או דופק אלא במחשבות טורדניות (למי אין לפעמים?), אובדן התיאבון, וכדומה. לי זה נשמע סובייקטיבי לגמרי וכל פסיכיאטר יכול לפרש אחרת. על בסיס זה לתת תרופה? &nbsp;</p>
+<p style="text-align: right;">מהר מאוד זה היכה בי. לא האמנתי שמלמדים אותי להגדיר, לתייג, לאבחן, ואת מי? את היצורים האלוקיים המתוקים, את הנשמות הטובות?</p>
+<p style="text-align: right;">באותם ימים הבנתי לראשונה את הפער ביני לבין המרצים שלי – הם מאמינים בסימפטומים, בקליפה, ואני לא מאמין בה. אני רואה אותה בוודאי, אינני עיוור, אך אני מסרב לקבל את הנחת היסוד שאומרת שסימפטומים מגדירים אדם. יש פרי מתחת לקליפה, טענתי נגדם לאור הידע הקבלי שצברתי, ובמקום להעצים אותו אתם עסוקים בלאבחן ולשים תוויות.</p>
+<p style="text-align: right;">המרצים שלי טענו שלפי הסימפטומים של האדם שדנו בו, הוא יאובחן כאובססיבי ונזקק לכדור פסיכיאטרי. אני טענתי שהוא רק הלך לאיבוד והוא זקוק לתחושה ולידיעה שהוא משמעותי ואהוב. בשלב מסוים הוא כבר לא יזדקק לטקס שטיפת הידיים.</p>
+<p style="text-align: right;">טוב, אתם בטח מבינים כבר שזה "לא כוחות", סטודנט בודד בן עשרים ושתיים מול דוקטורים ופרופסורים לפסיכולוגיה ופסיכיאטריה בעלי ניסיון, ובכל זאת – אצלם אלמד שבע שנים ואעבור הכשרה ארוכה רק כדי להפוך להיות כמוהם ולהגדיר כך אנשים?</p>
+<p style="text-align: right;">מובן שאין לי שום דבר נגד פסיכולוגים שעושים עבודת קודש ומובן שלא הכול היה שחור או לבן בתואר הראשון, למדנו כמה תיאוריות חשובות מאוד שעד היום אני עוסק בהן, כמו למשל הפסיכולוגיה הנרטיבית או הלוגותרפיה של ויקטור פרנקל. יש עוד זרמים נפלאים בפסיכולוגיה שהיום אני מכיר ואוהב ואז לא ממש הכרתי, הפסיכולוגיה האינדיווידואלית של אדלר, למשל, או הפסיכולוגיה החיובית של זליגמן. אולי, אם רוחם הייתה נושבת במסדרונות האקדמיה בתחילת שנות האלפיים, הייתי היום פסיכולוג קליני. העניין הוא שרוב הזמן למדנו את פרויד.&nbsp;</p>
+<p style="text-align: right;">לא ידעתי אז שגם בתוך עולם האקדמי יש פסיכולוגים שסוברים כמוני. לו הכרתי, למשל, את פרופסור מרדכי רוטנברג היה לי קל יותר. הוא כותב, לדוגמה, כך: "מרגע שאבחנתי את האדם שאיתו אני משוחח כלא נורמלי, מיקמתי אותו מחוץ לגדרם של האנשים הנורמליים, 'התקינים', וסגרתי את האפשרות בפני פרשנות גמישה יותר של מצבו" (מבוא לפסיכולוגיה של הצמצום, עמ' 60).</p>
+<p style="text-align: right;">כשהוא אומר "פרשנות גמישה יותר" הוא מתכוון גם למחלות נפש קשות, שאפשר להתייחס אליהן בצורות שונות מהאופן שבו הפסיכיאטריה מתייחסת אליהן.</p>
+<p style="text-align: right;">התלבטתי והתלבטתי ואז הקב"ה שלח לי את "הקש ששבר...".</p>
+<p style="text-align: right;">באחד מהקורסים ציטטה אחת הפרופסוריות את הגדרת התפקיד של הפסיכולוגיה על פי פרויד במילים הבאות: "תפקיד הפסיכולוגיה: לעזור לאדם לעבור ממצב של אומללות נוראה, לחיים של אומללות רגילה, שכן האושר אינו טבעי לאדם".</p>
+<p style="text-align: right;">אני זוכר ששתקתי שתיקה רועמת ואז נזעקתי: האושר אינו טבעי לאדם?! אז למה רוב הילדים שאני מכיר כל כך שמחים? האם זו לא ההוכחה לכך שכולנו נולדנו שמחים עד שהעולם, המשפחה, הסביבה, החינוך או התרבות הרסו לנו את השמחה?</p>
+<p style="text-align: right;">והאם, לפי מייסד הפסיכולוגיה המודרנית, בכך מסתכם תפקידי כפסיכולוג – לעזור לאדם להיות "אומלל רגיל" ולא "אומלל מאוד"?</p>
+<p style="text-align: right;">ההתלבטות עלתה במלוא העוצמה: האם אוכל לשמור על דרך המחשבה הייחודית שלי בתוך מערכת שמנסה לחברֵת אותי אל תוך תפיסות העולם שלה? האם להישאר ולשמור על הייחודיות שלי או לעזוב ולצאת למסע משלי? הרצון לטפל ולעזור לאנשים לא השתנה הרי, אבל האם אני באמת חייב ללמוד תואר שני בפסיכולוגיה ואחר כך לעשות סטאז', רק כדי להיות חלק מהמערכת שתאפשר לי לטפל באנשים?</p>
+<p style="text-align: right;">הידיעה החלוטה שהופיעה בתוכי בגיל אחת־עשרה קמה שוב לתחייה.</p>
+<p style="text-align: right;">עזבתי את האקדמיה בסיום התואר הראשון, אבל כאן רק התחילה ההכשרה האמיתית שלי, כי לא ויתרתי והלכתי להכשיר את עצמי בכלים אחרים: אימון, NLP, הנחיית קבוצות, דמיון מודרך, דמיון נובע, גישור, ועוד. יחד עם הידע שלי בקבלה ובחסידות התחלתי לאמן אנשים, וברוך ה' עברו מאז למעלה מעשרים שנה.</p>
+<p style="text-align: right;">בשנת 2016 שותפי אהרן דרמון ואנוכי הקמנו תוכנית להכשרת מאמנים ומטפלים ומאז אנחנו מכשירים בעצמנו דור של מטפלים לפי הגישה שאנחנו מאמינים בה.</p>
+<p style="text-align: right;">מורי ורבי, הרב מרדכי שיינברגר, הקים לפני כ 20 שנה את תנועת האומה שעוסקת בקירוב לבבות ואחדות בעם ישראל בעזרת אהבת חינם ולימוד פנימיות התורה. ברחבי הארץ פזורים "בתי אומה" ואני מנהל אחד כזה בראש העין.</p>
+<p style="text-align: right;"><a rel="noopener" href="https://he.wikipedia.org/wiki/%D7%9E%D7%A9%D7%94_%D7%A9%D7%A8%D7%95%D7%9F_(%D7%A1%D7%95%D7%A4%D7%A8)#:~:text=%D7%9E%D7%A9%D7%94%20%D7%A9%D7%A8%D7%95%D7%9F%20%28%D7%A0%D7%95%D7%9C%D7%93%20%D7%91%20%D7%95%27%20%D7%91%D7%A0%D7%99%D7%A1%D7%9F%20%D7%94%27%D7%AA%D7%A9%D7%9C%22%D7%97%2C%2013,1978%29%20%D7%94%D7%95%D7%90%20%D7%A1%D7%95%D7%A4%D7%A8%2C%20%D7%9E%D7%A8%D7%A6%D7%94%20%D7%95%20%D7%9E%D7%90%D7%9E%D7%9F%20%D7%90%D7%99%D7%A9%D7%99%20%D7%99%D7%A9%D7%A8%D7%90%D7%9C%D7%99." target="_blank" data-anchor="#:~:text=%D7%9E%D7%A9%D7%94%20%D7%A9%D7%A8%D7%95%D7%9F%20%28%D7%A0%D7%95%D7%9C%D7%93%20%D7%91%20%D7%95%27%20%D7%91%D7%A0%D7%99%D7%A1%D7%9F%20%D7%94%27%D7%AA%D7%A9%D7%9C%22%D7%97%2C%2013,1978%29%20%D7%94%D7%95%D7%90%20%D7%A1%D7%95%D7%A4%D7%A8%2C%20%D7%9E%D7%A8%D7%A6%D7%94%20%D7%95%20%D7%9E%D7%90%D7%9E%D7%9F%20%D7%90%D7%99%D7%A9%D7%99%20%D7%99%D7%A9%D7%A8%D7%90%D7%9C%D7%99.">לעמוד הויקיפדיה של משה שרון</a></p>
+<p style="text-align: right;"><a rel="noopener" href="https://hitbonenut.net/archives/8192" target="_blank">ד"ר יחיאל הררי ממליץ על מרצים לתורת הקבלה והחסידות</a></p>
+<p style="text-align: right;">עד כה הוצאתי לאור 9 ספרים:&nbsp;</p>
+<p style="text-align: right;">ספרי הראשון, אייכה, רומן ביכורים, יצא לאור בהוצאת 'רימונים' בינואר 2013.</p>
+<p style="text-align: right;">ערכתי וליקטתי את הספרון יום ליום המכיל 360 ציטוטים של גדולי ישראל בכל הדורות, לפי הלוח העברי. יצא לאור באוגוסט 15.</p>
+<p style="text-align: right;">ספרי השלישי, העולם לא יכול להתקיים בלעדיך, ספר הדרכה למציאת הייעוד, יצא לאור בהוצאת 'ספר טוב' באפריל 16 והפך לרב מכר. בינואר 2019 תורגם לאנגלית, יצא בשם who you were meant to be והפך לרב מכר באמזון.</p>
+<p style="text-align: right;">ספרי הרביעי, עשרה נכנסו לפרד"ס, ספר לימוד על יסודות וסודות חכמת הקבלה לפי הרב אשלג, יצא בהוצאת 'ספר טוב' באפריל 17.</p>
+<p style="text-align: right;">ספרי החמישי, זוגות זוגות, מדריך מעשי לזוגיות מאושרת, יצא בהוצאת "דברי שיר" במרץ 2018.</p>
+<p style="text-align: right;">ספרי השישי, נפלאות הכעס, מדריך מעשי לחיים מאוזנים יצא בהוצאת "דברי שיר" באפריל 2019</p>
+<p style="text-align: right;">ספרי השביעי והראשון לילדים, הנסיך קוקוריקו, גרסה משעשעת לילדים על סיפור ההינדיק של רבי נחמן מברסלב, יצא בהוצאת דברי שיר" ביוני 2020"</p>
+<p style="text-align: right;">ספרי השמיני, קליפות הנפש, מדריך מעשי להתקלפות ממנגנוני ההגנה שלנו, יצא לאור בהוצאת "דברי שיר" ביוני 2022</p>
+<p style="text-align: right;">ספרי התשיעי והשני לילדים אחי אהרן ואמא בהריון יצא לאור בהוצאת פראג בינואר 2024</p>
+<p style="text-align: right;">ספרי העשירי, זוגיות עכשיו, עתיד לראות אור בקרוב</p>
+
+        </div>
+    </div>
+
+    <hr class="mt-4" />
+
+    <div class="sec" id="2"></div>
+    <h2 class="title text-primary">מכתבי תודה</h2>
+    <div class="row  pl-3">
+            <div class="col-lg-3 col-md-4 col-6 pl-0 " style="overflow:hidden">
+                <a href="/&#x5D0;&#x5D5;&#x5D3;&#x5D5;&#x5EA;/&#x5DE;&#x5DB;&#x5EA;&#x5D1;&#x5D9;-&#x5EA;&#x5D5;&#x5D3;&#x5D4;-&#x5DE;&#x5EA;&#x5DC;&#x5DE;&#x5D9;&#x5D3;&#x5D9;&#x5DD;/">
+                    <img src="/media/gdah52xw/img-20171226-wa0010.jpg?rxy=0.6196901946426422,0.43387450030074565&amp;width=540&amp;height=380" alt="&#x5DE;&#x5E9;&#x5D4; &#x5E9;&#x5E8;&#x5D5;&#x5DF;" class="rounded img-fluid">
+                    <h5 style="line-height: 22px;" class="title m-2" class="title m-2">&#x5DE;&#x5EA;&#x5DC;&#x5DE;&#x5D9;&#x5D3;&#x5D9; &#x5D4;&#x5E7;&#x5D5;&#x5E8;&#x5E1;&#x5D9;&#x5DD;</h5>
+                </a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-6 pl-0 " style="overflow:hidden">
+                <a href="/&#x5D0;&#x5D5;&#x5D3;&#x5D5;&#x5EA;/&#x5DE;&#x5DB;&#x5EA;&#x5D1;&#x5D9;-&#x5EA;&#x5D5;&#x5D3;&#x5D4;-&#x5DE;&#x5DE;&#x5EA;&#x5D0;&#x5DE;&#x5E0;&#x5D9;&#x5DD;/">
+                    <img src="/media/qkflciuo/1t5a9702.jpg?width=540&amp;height=380" alt="&#x5DE;&#x5E9;&#x5D4; &#x5E9;&#x5E8;&#x5D5;&#x5DF;" class="rounded img-fluid">
+                    <h5 style="line-height: 22px;" class="title m-2" class="title m-2">&#x5DE;&#x5DE;&#x5EA;&#x5D0;&#x5DE;&#x5E0;&#x5D9;&#x5DD;</h5>
+                </a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-6 pl-0 " style="overflow:hidden">
+                <a href="/&#x5D0;&#x5D5;&#x5D3;&#x5D5;&#x5EA;/&#x5DE;&#x5DB;&#x5EA;&#x5D1;&#x5D9;-&#x5EA;&#x5D5;&#x5D3;&#x5D4;-&#x5DE;&#x5E7;&#x5D5;&#x5E8;&#x5D0;&#x5D9;&#x5DD;/">
+                    <img src="/media/mdylo3qv/שמונה-לבן.jpg?width=540&amp;height=380" alt="&#x5D4;&#x5E1;&#x5E4;&#x5E8;&#x5D9;&#x5DD; &#x5E9;&#x5DC; &#x5DE;&#x5E9;&#x5D4; &#x5E9;&#x5E8;&#x5D5;&#x5DF;" class="rounded img-fluid">
+                    <h5 style="line-height: 22px;" class="title m-2" class="title m-2">&#x5DE;&#x5E7;&#x5D5;&#x5E8;&#x5D0;&#x5D9; &#x5D4;&#x5E1;&#x5E4;&#x5E8;&#x5D9;&#x5DD;</h5>
+                </a>
+            </div>
+    </div>
+    <hr />
+
+
+    <div class="sec" id="3"></div>
+    <h2 class="title text-primary">מן התקשורת</h2>
+    <div class="row  pl-3">
+            <div class="col-lg-3 col-md-4 col-6 pl-0 " style="overflow:hidden">
+                <a target="_blank" href="https://www.hidabroot.org/article/1132719">
+                    <img src="/media/0sbjpnn3/6806.jpg?width=540&amp;height=380" alt="&#x5D4;&#x5D9;&#x5D3;&#x5D1;&#x5E8;&#x5D5;&#x5EA;" class="rounded img-fluid">
+                    <h5 style="line-height: 22px;" class="title m-2" class="title m-2">&#x5D4;&#x5D9;&#x5D9;&#x5EA;&#x5D9; &#x5D4;&#x5DB;&#x5D9; &#x5D0;&#x5E0;&#x5D8;&#x5D9; &#x5D1;&#x5E9;&#x5DB;&#x5D1;&#x5D4;, &#x5D1;&#x5E1;&#x5D5;&#x5E3; &#x5D4;&#x5D9;&#x5D7;&#x5D9;&#x5D3; &#x5E9;&#x5D7;&#x5D6;&#x5E8; &#x5D1;&#x5EA;&#x5E9;&#x5D5;&#x5D1;&#x5D4;</h5>
+                </a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-6 pl-0 " style="overflow:hidden">
+                <a target="_blank" href="https://www.ynet.co.il/articles/0,7340,L-4388845,00.html">
+                    <img src="/media/245pc3hv/ynet_menu_logo_2x.png?rxy=0.756599252874201,0.48833333333333334&amp;width=540&amp;height=380" alt="&#x5D5;&#x5D5;&#x5D0;&#x5D9;&#x5E0;&#x5D8;" class="rounded img-fluid">
+                    <h5 style="line-height: 22px;" class="title m-2" class="title m-2">&#x5D0;&#x5D9;&#x5E9; &#x5D1;&#x5D5;&#x5E8;&#x5D7; &#x5DE;&#x5D7;&#x5EA;&#x5D5;&#x5E0;&#x5D4;</h5>
+                </a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-6 pl-0 " style="overflow:hidden">
+                <a target="_blank" href="https://www.makorrishon.co.il/nrg/online/55/ART2/221/800.html">
+                    <img src="/media/5txhtgso/nrg.jpg?width=540&amp;height=380" alt="nrg" class="rounded img-fluid">
+                    <h5 style="line-height: 22px;" class="title m-2" class="title m-2">&#x5D9;&#x5E6;&#x5D0;&#x5EA;&#x5D9; &#x5DE;&#x5E2;&#x5E6;&#x5DE;&#x5D9; &#x5EA;&#x5DB;&#x5E3; &#x5D0;&#x5E9;&#x5D5;&#x5D1;</h5>
+                </a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-6 pl-0 " style="overflow:hidden">
+                <a target="_blank" href="https://www.kan.org.il/content/kan/kan-11/p-12766/s4/145101/">
+                    <img src="/media/0aqfkb1u/כאן.jpg?width=540&amp;height=380" alt="&#x5DB;&#x5D0;&#x5DF; 11" class="rounded img-fluid">
+                    <h5 style="line-height: 22px;" class="title m-2" class="title m-2">&#x5DE;&#x5E9;&#x5D4; &#x5E9;&#x5E8;&#x5D5;&#x5DF; &#x5D1;&#x5E2;&#x5E8;&#x5D5;&#x5E5; &#x5DB;&#x5D0;&#x5DF;</h5>
+                </a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-6 pl-0 " style="overflow:hidden">
+                <a target="_blank" href="https://soundcloud.com/moshe-sharon/2ekcsacia2tn?utm_source=www.mo6.co.il&amp;utm_campaign=wtshare&amp;utm_medium=widget&amp;utm_content=https%253A%252F%252Fsoundcloud.com%252Fmoshe-sharon%252F2ekcsacia2tn">
+                    <img src="/media/k4boxxos/כאן-מורשת.jpg?width=540&amp;height=380" alt="&#x5DB;&#x5D0;&#x5DF; &#x5DE;&#x5D5;&#x5E8;&#x5E9;&#x5EA;" class="rounded img-fluid">
+                    <h5 style="line-height: 22px;" class="title m-2" class="title m-2">&#x5D3;&#x5D1;&#x5D5;&#x5E8;&#x5D4; &#x5D2;&#x5D5;&#x5D8;&#x5DE;&#x5DF; &#x5E7;&#x5D9;&#x5E6;&#x5D9;&#x5E1; &#x5DE;&#x5E8;&#x5D0;&#x5D9;&#x5D9;&#x5E0;&#x5EA; &#x5D0;&#x5EA; &#x5DE;&#x5E9;&#x5D4; &#x5E9;&#x5E8;&#x5D5;&#x5DF; &#x5DC;&#x5E8;&#x5D3;&#x5D9;&#x5D5; &#x5DB;&#x5D0;&#x5DF; &#x5DE;&#x5D5;&#x5E8;&#x5E9;&#x5EA;</h5>
+                </a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-6 pl-0 " style="overflow:hidden">
+                <a target="_blank" href="https://soundcloud.com/moshe-sharon/vfp5stsxq3kt">
+                    <img src="/media/12on45ja/רדיו-קול-חי.jpg?width=540&amp;height=380" alt="&#x5E8;&#x5D3;&#x5D9;&#x5D5; &#x5E7;&#x5D5;&#x5DC; &#x5D7;&#x5D9;" class="rounded img-fluid">
+                    <h5 style="line-height: 22px;" class="title m-2" class="title m-2">&#x5E8;&#x5D7;&#x5DC; &#x5E4;&#x5E1;&#x5D8;&#x5D2; &#x5DE;&#x5E8;&#x5D0;&#x5D9;&#x5D9;&#x5E0;&#x5EA; &#x5D0;&#x5EA; &#x5DE;&#x5E9;&#x5D4; &#x5E9;&#x5E8;&#x5D5;&#x5DF; &#x5E2;&#x5DC; &#x5D4;&#x5E1;&#x5E4;&#x5E8; &#x5D6;&#x5D5;&#x5D2;&#x5D5;&#x5EA; &#x5D6;&#x5D5;&#x5D2;&#x5D5;&#x5EA;</h5>
+                </a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-6 pl-0 " style="overflow:hidden">
+                <a target="_blank" href="https://soundcloud.com/moshe-sharon/reshet-b-ayekamp3">
+                    <img src="/media/ufjob10f/רשת-ב.jpg?width=540&amp;height=380" alt="&#x5DB;&#x5D0;&#x5DF; &#x5E8;&#x5E9;&#x5EA; &#x5D1;" class="rounded img-fluid">
+                    <h5 style="line-height: 22px;" class="title m-2" class="title m-2">&#x5E2;&#x5E0;&#x5EA; &#x5D3;&#x5D5;&#x5DC;&#x5D1; &#x5DE;&#x5E8;&#x5D0;&#x5D9;&#x5D9;&#x5E0;&#x5EA; &#x5D0;&#x5EA; &#x5DE;&#x5E9;&#x5D4; &#x5E9;&#x5E8;&#x5D5;&#x5DF; &#x5D1;&#x5E8;&#x5E9;&#x5EA; &#x5D1;</h5>
+                </a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-6 pl-0 " style="overflow:hidden">
+                <a target="_blank" href="https://www.makorrishon.co.il/culture/65583/">
+                    <img src="/media/f0pjboxd/מקור.jpg?rxy=0.7714097844737884,0.5824800707010293&amp;width=540&amp;height=380" alt="&#x5DE;&#x5E7;&#x5D5;&#x5E8; &#x5E8;&#x5D0;&#x5E9;&#x5D5;&#x5DF;" class="rounded img-fluid">
+                    <h5 style="line-height: 22px;" class="title m-2" class="title m-2">&#x5D4;&#x5D0;&#x5D2;&#x5D5; &#x5E2;&#x5D5;&#x5E9;&#x5D4; &#x5D4;&#x5DB;&#x5D9; &#x5D4;&#x5E8;&#x5D1;&#x5D4; &#x5D1;&#x5DC;&#x5D2;&#x5DF; &#x5D1;&#x5D9;&#x5DF; &#x5D1;&#x5E0;&#x5D9; &#x5D6;&#x5D5;&#x5D2;</h5>
+                </a>
+            </div>
+        </div>
+        <hr />
+
+
+        <div class="sec" id="4"></div>
+        <h2 class="title text-primary">לקוחות</h2>
+        <div class="row">
+                <div class="col-lg-2 col-md-3 col-4">
+                    <div class="my-3 rounded customer-frame" style="background-color:white;">
+                    <a target="_blank" href="&#x5E2;&#x5D2;">
+                            <img src="/media/1fqdiw4r/1200px-intel-logo-svg.png" alt="&#x5D0;&#x5D9;&#x5E0;&#x5D8;&#x5DC;" class="customer-image p-3 rounded img-fluid">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-4">
+                    <div class="my-3 rounded customer-frame" style="background-color:white;">
+                    <a target="_blank" href="https://www.mizrahi-tefahot.co.il/">
+                            <img src="/media/pvkha4ta/&#x5DE;&#x5D6;&#x5E8;&#x5D7;&#x5D9;-&#x5D8;&#x5E4;&#x5D7;&#x5D5;&#x5EA;.jpg" alt="&#x5DE;&#x5D6;&#x5E8;&#x5D7;&#x5D9; &#x5D8;&#x5E4;&#x5D7;&#x5D5;&#x5EA;" class="customer-image p-3 rounded img-fluid">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-4">
+                    <div class="my-3 rounded customer-frame" style="background-color:white;">
+                    <a target="_blank" href="https://www.microsoft.com/he-il/">
+                            <img src="/media/rlshhct0/&#x5DE;&#x5D9;&#x5E7;&#x5E8;&#x5D5;&#x5E1;&#x5D5;&#x5E4;&#x5D8;.png" alt="&#x5DE;&#x5D9;&#x5E7;&#x5E8;&#x5D5;&#x5E1;&#x5D5;&#x5E4;&#x5D8;" class="customer-image p-3 rounded img-fluid">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-4">
+                    <div class="my-3 rounded customer-frame" style="background-color:white;">
+                    <a target="_blank" href="https://www.bezeq.co.il/">
+                            <img src="/media/gjcdugg4/&#x5D1;&#x5D6;&#x5E7;.jpg" alt="&#x5D1;&#x5D6;&#x5E7;" class="customer-image p-3 rounded img-fluid">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-4">
+                    <div class="my-3 rounded customer-frame" style="background-color:white;">
+                    <a target="_blank" href="https://www.as-invest.co.il/">
+                            <img src="/media/zamfaxw1/748_d7774d8af8982d45cc4008664da6541a.jpg" alt="&#x5D0;&#x5DC;&#x5D8;&#x5E9;&#x5D5;&#x5DC;&#x5E8; &#x5E9;&#x5D7;&#x5DD;" class="customer-image p-3 rounded img-fluid">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-4">
+                    <div class="my-3 rounded customer-frame" style="background-color:white;">
+                    <a target="_blank" href="https://israelpost.co.il/">
+                            <img src="/media/zvaddore/748_5448eb17db67f0c18e610c0a369f2c3f.jpg" alt="&#x5D3;&#x5D5;&#x5D0;&#x5E8; &#x5D9;&#x5E9;&#x5E8;&#x5D0;&#x5DC;" class="customer-image p-3 rounded img-fluid">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-4">
+                    <div class="my-3 rounded customer-frame" style="background-color:white;">
+                    <a target="_blank" href="https://www.tnuva.co.il/">
+                            <img src="/media/ljoflp0e/&#x5EA;&#x5E0;&#x5D5;&#x5D1;&#x5D4;.jpg" alt="&#x5EA;&#x5E0;&#x5D5;&#x5D1;&#x5D4;" class="customer-image p-3 rounded img-fluid">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-4">
+                    <div class="my-3 rounded customer-frame" style="background-color:white;">
+                    <a target="_blank" href="https://www.gov.il/he/departments/israel_police/govil-landing-page">
+                            <img src="/media/o2nim4b3/748_20485dd46eeb96c11da6827e41dd01b6.jpg" alt="&#x5DE;&#x5E9;&#x5D8;&#x5E8;&#x5EA; &#x5D9;&#x5E9;&#x5E8;&#x5D0;&#x5DC;" class="customer-image p-3 rounded img-fluid">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-4">
+                    <div class="my-3 rounded customer-frame" style="background-color:white;">
+                    <a target="_blank" href="https://amitchildren.org/">
+                            <img src="/media/uv0bs3wl/&#x5D0;&#x5DE;&#x5D9;&#x5EA;.jpg" alt="&#x5D0;&#x5DE;&#x5D9;&#x5EA;" class="customer-image p-3 rounded img-fluid">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-4">
+                    <div class="my-3 rounded customer-frame" style="background-color:white;">
+                    <a target="_blank" href="https://www.egged.co.il/">
+                            <img src="/media/zmphuckm/&#x5D0;&#x5D2;&#x5D3;.jpg" alt="&#x5D0;&#x5D2;&#x5D3;" class="customer-image p-3 rounded img-fluid">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-4">
+                    <div class="my-3 rounded customer-frame" style="background-color:white;">
+                    <a target="_blank" href="https://zmaneshkol.co.il/">
+                            <img src="/media/e1ol5tev/748_69955cac1bf3c4292e29ba3b2fb14209.jpg" alt="&#x5D6;&#x5DE;&#x5DF; &#x5D0;&#x5E9;&#x5DB;&#x5D5;&#x5DC;" class="customer-image p-3 rounded img-fluid">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-4">
+                    <div class="my-3 rounded customer-frame" style="background-color:white;">
+                    <a target="_blank" href="https://www.gov.il/he/departments/prison_service/govil-landing-page">
+                            <img src="/media/lc0o5kjr/748_cfda81a81c506303ded75f3c7758712f.gif" alt="&#x5E9;&#x5D9;&#x5E8;&#x5D5;&#x5EA; &#x5D1;&#x5EA;&#x5D9; &#x5D4;&#x5E1;&#x5D5;&#x5D4;&#x5E8;" class="customer-image p-3 rounded img-fluid">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-4">
+                    <div class="my-3 rounded customer-frame" style="background-color:white;">
+                    <a target="_blank" href="https://elima.org.il/">
+                            <img src="/media/ss5lkgx0/748_2c605ebedfacf030ea63c08af80e1c9a.png" alt="&#x5DE;&#x5DB;&#x5DC;&#x5DC;&#x5EA; &#x5D0;&#x5D9;&#x5DC;&#x5DE;&#x5D4;" class="customer-image p-3 rounded img-fluid">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-4">
+                    <div class="my-3 rounded customer-frame" style="background-color:white;">
+                    <a target="_blank" href="https://acum.org.il/">
+                            <img src="/media/fyyb5hwj/&#x5D0;&#x5E7;&#x5D5;&#x5DD;.jpg" alt="&#x5D0;&#x5E7;&#x5D5;&#x5DD;" class="customer-image p-3 rounded img-fluid">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-4">
+                    <div class="my-3 rounded customer-frame" style="background-color:white;">
+                    <a target="_blank" href="https://my.idf.il/">
+                            <img src="/media/fixod5hs/748_b3a0e08277958817ab8645f0bac391f0.jpg" alt="&#x5E6;&#x5D4;&#x5DC;" class="customer-image p-3 rounded img-fluid">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-4">
+                    <div class="my-3 rounded customer-frame" style="background-color:white;">
+                    <a target="_blank" href="https://www.mod.gov.il/Pages/default.aspx">
+                            <img src="/media/ze3hdydx/748_220fc15d086265f2b9a5dce3470140cd.jpg" alt="&#x5DE;&#x5E9;&#x5E8;&#x5D3; &#x5D4;&#x5D1;&#x5D8;&#x5D7;&#x5D5;&#x5DF;" class="customer-image p-3 rounded img-fluid">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-4">
+                    <div class="my-3 rounded customer-frame" style="background-color:white;">
+                    <a target="_blank" href="https://www.leumi.co.il/">
+                            <img src="/media/foolj4fx/&#x5DC;&#x5D0;&#x5D5;&#x5DE;&#x5D9;.jpg" alt="&#x5D1;&#x5E0;&#x5E7; &#x5DC;&#x5D0;&#x5D5;&#x5DE;&#x5D9;" class="customer-image p-3 rounded img-fluid">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-4">
+                    <div class="my-3 rounded customer-frame" style="background-color:white;">
+                    <a target="_blank" href="https://www.gov.il/he/Departments/Guides/contact-us-education-ministry">
+                            <img src="/media/0yiis2ik/748_1392c535d4896d919523034aa4904f6d.jpg" alt="&#x5DE;&#x5E9;&#x5E8;&#x5D3; &#x5D4;&#x5D7;&#x5D9;&#x5E0;&#x5D5;&#x5DA;" class="customer-image p-3 rounded img-fluid">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-4">
+                    <div class="my-3 rounded customer-frame" style="background-color:white;">
+                    <a target="_blank" href="https://www.openu.ac.il/">
+                            <img src="/media/3funqbez/&#x5D4;&#x5E4;&#x5EA;&#x5D5;&#x5D7;&#x5D4;.jpg" alt="&#x5D4;&#x5D0;&#x5D5;&#x5E0;&#x5D9;&#x5D1;&#x5E8;&#x5E1;&#x5D9;&#x5D8;&#x5D4; &#x5D4;&#x5E4;&#x5EA;&#x5D5;&#x5D7;&#x5D4;" class="customer-image p-3 rounded img-fluid">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-4">
+                    <div class="my-3 rounded customer-frame" style="background-color:white;">
+                    <a target="_blank" href="https://www.ort.org.il/">
+                            <img src="/media/3vknbrvd/&#x5D0;&#x5D5;&#x5E8;&#x5D8;.jpg" alt="&#x5D0;&#x5D5;&#x5E8;&#x5D8;" class="customer-image p-3 rounded img-fluid">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-4">
+                    <div class="my-3 rounded customer-frame" style="background-color:white;">
+                    <a target="_blank" href="https://www.hp.com/il-he/home.html">
+                            <img src="/media/murf2tnj/748_bd5b36847859a7d12c1bdf2d334497bf.jpg" alt="hp" class="customer-image p-3 rounded img-fluid">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-4">
+                    <div class="my-3 rounded customer-frame" style="background-color:white;">
+                    <a target="_blank" href="https://www.mdais.org/">
+                            <img src="/media/lfalf5t4/&#x5DE;&#x5D3;&#x5D0;.jpg" alt="&#x5DE;&#x5D2;&#x5DF; &#x5D3;&#x5D5;&#x5D3; &#x5D0;&#x5D3;&#x5D5;&#x5DD;" class="customer-image p-3 rounded img-fluid">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-4">
+                    <div class="my-3 rounded customer-frame" style="background-color:white;">
+                    <a target="_blank" href="https://www.tel-aviv.gov.il/Pages/HomePage.aspx">
+                            <img src="/media/dm0pc4fy/&#x5DC;&#x5D5;&#x5D2;&#x5D5;-&#x5EA;&#x5DC;-&#x5D0;&#x5D1;&#x5D9;&#x5D1;-&#x5D9;&#x5E4;&#x5D5;.png" alt="&#x5E2;&#x5D9;&#x5E8;&#x5D9;&#x5D9;&#x5EA; &#x5EA;&#x5DC; &#x5D0;&#x5D1;&#x5D9;&#x5D1;" class="customer-image p-3 rounded img-fluid">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-4">
+                    <div class="my-3 rounded customer-frame" style="background-color:white;">
+                    <a target="_blank" href="https://www.itu.org.il/">
+                            <img src="/media/mxfjbxdr/748_71078dd3b0f3f6722b2f2dc600a77dae.jpg" alt="&#x5D4;&#x5E1;&#x5EA;&#x5D3;&#x5E8;&#x5D5;&#x5EA; &#x5D4;&#x5DE;&#x5D5;&#x5E8;&#x5D9;&#x5DD;" class="customer-image p-3 rounded img-fluid">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-4">
+                    <div class="my-3 rounded customer-frame" style="background-color:white;">
+                    <a target="_blank" href="https://www.dan.co.il/">
+                            <img src="/media/heof4j4c/&#x5D3;&#x5DF;.jpg" alt="&#x5D3;&#x5DF;" class="customer-image p-3 rounded img-fluid">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-4">
+                    <div class="my-3 rounded customer-frame" style="background-color:white;">
+                    <a target="_blank" href="https://www.broshim.tau.org.il/">
+                            <img src="/media/nawcovvu/748_baf71bdb4c89d1f65f89a8049da26120.gif" alt="&#x5D1;&#x5E8;&#x5D5;&#x5E9;&#x5D9;&#x5DD;" class="customer-image p-3 rounded img-fluid">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-4">
+                    <div class="my-3 rounded customer-frame" style="background-color:white;">
+                    <a target="_blank" href="https://emunah.org.il/">
+                            <img src="/media/xihkqdoi/748_b8c66c1300678cc462c65829d424654e.jpg" alt="&#x5D0;&#x5DE;&#x5D5;&#x5E0;&#x5D4;" class="customer-image p-3 rounded img-fluid">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-4">
+                    <div class="my-3 rounded customer-frame" style="background-color:white;">
+                    <a target="_blank" href="https://www.tau.ac.il/">
+                            <img src="/media/ut3p3tha/&#x5D0;&#x5D5;&#x5E0;&#x5D9;&#x5D1;&#x5E8;&#x5E1;&#x5D9;&#x5D8;&#x5EA;-&#x5EA;&#x5DC;-&#x5D0;&#x5D1;&#x5D9;&#x5D1;.jpg" alt="&#x5D0;&#x5D5;&#x5E0;&#x5D9;&#x5D1;&#x5E8;&#x5E1;&#x5D9;&#x5D8;&#x5EA; &#x5EA;&#x5DC; &#x5D0;&#x5D1;&#x5D9;&#x5D1;" class="customer-image p-3 rounded img-fluid">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-4">
+                    <div class="my-3 rounded customer-frame" style="background-color:white;">
+                    <a target="_blank" href="https://www.electra.co.il/">
+                            <img src="/media/4i0fyxut/&#x5D0;&#x5DC;&#x5E7;&#x5D8;&#x5E8;&#x5D4;.jpg" alt="&#x5D0;&#x5DC;&#x5E7;&#x5D8;&#x5E8;&#x5D4;" class="customer-image p-3 rounded img-fluid">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-4">
+                    <div class="my-3 rounded customer-frame" style="background-color:white;">
+                    <a target="_blank" href="https://www.fnx.co.il/">
+                            <img src="/media/uqwbgx5z/&#x5D4;&#x5E4;&#x5E0;&#x5D9;&#x5E7;&#x5E1;.jpg" alt="&#x5D4;&#x5E4;&#x5E0;&#x5D9;&#x5E7;&#x5E1;" class="customer-image p-3 rounded img-fluid">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-4">
+                    <div class="my-3 rounded customer-frame" style="background-color:white;">
+                    <a target="_blank" href="https://www.discountbank.co.il/DB/private">
+                            <img src="/media/ftvncjli/&#x5D3;&#x5D9;&#x5E1;&#x5E7;&#x5D5;&#x5E0;&#x5D8;.jpg" alt="&#x5D3;&#x5D9;&#x5E1;&#x5E7;&#x5D5;&#x5E0;&#x5D8;" class="customer-image p-3 rounded img-fluid">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-4">
+                    <div class="my-3 rounded customer-frame" style="background-color:white;">
+                    <a target="_blank" href="https://www.jafora.co.il/">
+                            <img src="/media/oojfg0gk/748_f7f575a5acff48c6f6dc7e2aea3d23d5.jpg" alt="&#x5D9;&#x5E4;&#x5D0;&#x5D5;&#x5E8;&#x5D4; &#x5EA;&#x5D1;&#x5D5;&#x5E8;&#x5D9;" class="customer-image p-3 rounded img-fluid">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-4">
+                    <div class="my-3 rounded customer-frame" style="background-color:white;">
+                    <a target="_blank" href="https://www.weizmann.ac.il/pages/he">
+                            <img src="/media/odpblqou/&#x5DE;&#x5DB;&#x5D5;&#x5DF;.png" alt="&#x5DE;&#x5DB;&#x5D5;&#x5DF; &#x5D5;&#x5D9;&#x5D9;&#x5E6;&#x5DE;&#x5DF; &#x5DC;&#x5DE;&#x5D3;&#x5E2;" class="customer-image p-3 rounded img-fluid">
+                        </a>
+                    </div>
+                </div>
+        </div>
+        <hr />
+    </div>
+
+
+    <script src="/js/vertical-nav.js"></script>
+
+    </div>
+
+    
+
+
+<footer class="footer footer-big" style="background-color:#dddddd">
+
+    <div class="container" >
+        <div class="content">
+            <div class="row">
+                <div class="col-md-4 flex-column d-flex flex-column">
+                    <h5>תוכן</h5>
+                    <a class="mb-2 text-gray" href="/">דף הבית</a>
+
+                    <a class="mb-2 text-gray" href="/אודות">אודות</a>
+
+                    <a class="mb-2 text-gray" href="/מאמרים">מאמרים</a>
+
+                    <a class="mb-2 text-gray" href="/קורסים-והרצאות">קורסים והרצאות</a>
+
+                    <a class="mb-2 text-gray" href="/אירועים">אירועים</a>
+
+                    <a class="mb-2 text-gray" href="/ספרים">ספרים</a>
+
+                    <a class="mb-2 text-gray" href="/צור-קשר">צור קשר</a>
+
+                    <a class="mb-2 text-gray" href="תקנון">תקנון האתר</a>
+
+
+
+                </div>
+                <div class="col-md-4">
+                    <h5>מדיה חברתית</h5>
+                    <a target="_blank" href="https://www.facebook.com/mo6aron"
+                    <button class="btn btn-just-icon  btn-facebook">
+                        <i class="mdi mdi-line-inherit mdi-facebook"> </i>
+                    </button>
+                    </a>
+                    <a target="_blank" href="https://www.instagram.com/mo6aron/">
+                        <button class="btn btn-just-icon instagram">
+                            <i class="mdi mdi-line-inherit mdi-instagram"> </i>
+                            </button>
+                        </a>
+                    <a target="_blank" href="https://www.youtube.com/@MosheSharon6">
+                        <button class="btn btn-just-icon  btn-youtube">
+                            <i class="mdi mdi-line-inherit mdi-youtube"> </i>
+                        </button>
+                    </a>
+                    <a target="_blank" href="https://chat.whatsapp.com/LvFG8ourAf81w2xZ5yswMH">
+                        <button class="btn btn-just-icon  btn-whatsapp">
+                            <i class="mdi mdi-line-inherit mdi-whatsapp"> </i>
+                        </button>
+                    </a>
+                    <a target="_blank" href="https://t.me/joinchat/GnRWhstxsMAWErGC">
+                        <button class="btn btn-just-icon" style="background-color:#2ca5e0;">
+                            <i class="mdi mdi-line-inherit mdi-telegram"> </i>
+                        </button>
+                    </a>
+                    </div>
+                <div class="col-md-4">
+    <h5 data-open-accessibility-text-original="17px" style="font-size: 17px;">הרשמה לניוזלטר</h5>
+    <div id="newsletter-signup-form">
+        <div id="ravcontent">
+            <div class="floatingarea  white" data-floatingalign="middle_middle" data-floatingopencondition="pageload" data-floatingopeneffect="" data-showfloating="true" data-enableoverlay="" data-showfloatingonceperclient="" data-closefloatingonpressoutside="" data-overlayopacity="100" data-floatingopenpageloaddelay="1000" data-floatingperctscroll="50" data-floatingopenfadeinduration="" data-floatingopenenterfromtopduration="" "=" ">  <div class=" floatingareaBackground" style="opacity:1 !important"></div>  <div class="  floatingareaAlignment " style="">
+                <div class=" floatingareaContainerElm floatingareaContainer " style="" data-heighthint="275px" data-widthhint="1232px">
+                    <div class="  closefloating " style=""> </div>   <div class=" multyparent bodyarea_multyelements" style="">
+                        <div class="inner_bodyarea_multyelements">
+                            <div data-responsive_settings="range(0,400) {{{
+setClass(&quot;display_tag_responsive_floatingform_narrow&quot;);
+}}}
+range(401,10000) {{{
+removeClass(&quot;display_tag_responsive_floatingform_narrow&quot;);
+}}}" class="overridestyle t0 t2105 t1504954 multyserial  multy  name_floatingFormContainer name_floatingFormContainer-simple name_floatingFormContainer-simple-inherited name_floatingFormContainer   sonof_ sonof_name_ after_ after_name_ before_ before_name_ display_tag_conf_multy_view_admin paddingInOutsideMulty" style="flex-basis:582px !important; " data-multy-unique-id="">
+                                <div class="multyinner" style="">
+                                    <div class=" multyparent multyelements" style="">
+                                        <div data-responsive_settings="" class="overridestyle t0 t2105 t1504954 multyimage  multy  name_closebutton name_closebutton-basic name_closebutton-basic-new name_closebutton  right sonof_multyserial sonof_name_floatingFormContainer-simple-inherited sonof_name_floatingFormContainer sonof_multyserial  sonof_name_floatingFormContainer sonof_name_floatingFormContainer-simple sonof_name_floatingFormContainer-simple-inherited after_ after_name_ before_multyserial before_name_serial-form_container  before_name_serial before_name_serial-form_container display_tag_multyimage_closepanelbutton display_tag_conf_multy_private" style=" display:none !important" data-multy-unique-id="">  <div class="multyinner" style="">  <div class="inputImageControl imageControl" style="width:38px !important;height:38px !important;">  <a href="#closePopup" target="_blank" data-open-accessibility-text-original="16px" style="font-size: 16px;">  <img src="//simages.ravpages.co.il/xsite_resources/static_images/templates_images/forms/global/closepanel/transparent-regular-white_38X38.png?ver=3.12&amp;rxc=1532355884" class="imageContainer inputImageControl imageControl" style="display:none !important;width:38px !important;" alt="" title=""> </a>  </div>  </div>  </div>  <div data-responsive_settings="" class="overridestyle t0 t2105 t1504954 multyserial  multy  name_serial name_serial-form_container name_serial   sonof_multyserial sonof_name_floatingFormContainer-simple-inherited sonof_name_floatingFormContainer sonof_multyserial  sonof_name_floatingFormContainer sonof_name_floatingFormContainer-simple sonof_name_floatingFormContainer-simple-inherited after_multyimage after_name_closebutton-basic-new  after_name_closebutton after_name_closebutton-basic after_name_closebutton-basic-new before_ before_name_ display_tag_conf_multy_view_all" style=" " data-multy-unique-id="">
+                                            <div class="multyinner" style="">
+                                                <div class=" multyparent multyelements" style="">
+                                                    <div data-responsive_settings="" class="overridestyle t0 t2105 t1504954 multyserial  multy  name_subarea name_subarea-simple name_subarea-simple-black name_subarea  center sonof_multyserial sonof_name_serial-form_container sonof_name_serial sonof_multyserial  sonof_name_serial sonof_name_serial-form_container after_ after_name_ before_multyserial before_name_subarea-simple-white  before_name_subarea before_name_subarea-simple before_name_subarea-simple-white display_tag_conf_multy_view_all backgroundColorInMultyInner paddingInOutsideMulty" style=" " data-multy-unique-id="">  <div class="multyinner" style="">  <div class=" multyparent multyelements" style="">  <div data-responsive_settings="" role="heading" aria-level="1" class="overridestyle t0 t2105 t1504954 multytext  multy  name_text name_text-regular name_text-regular-title_white_assisstant name_text   sonof_multyserial sonof_name_subarea-simple-black sonof_name_subarea sonof_multyserial  sonof_name_subarea sonof_name_subarea-simple sonof_name_subarea-simple-black after_ after_name_ before_multytext before_name_text-regular-subtitle_white_assistant  before_name_text before_name_text-regular before_name_text-regular-subtitle_white_assistant display_tag_multy_text_regular display_tag_conf_multy_view_all" style=" " data-multy-unique-id="">  <div class="multyinner" style=""> <div style="" class=" text_text text text-primary"><p data-open-accessibility-text-original="14px" style="font-size: 14px;"><span class="text-primary" style="font-size: 14px;" data-open-accessibility-text-original="14px">לקבלת מאמרים, הרצאות וקורסים חדשים</span></p></div> </div>  </div>  <div data-responsive_settings="" role="heading" aria-level="1" class="overridestyle t0 t2105 t1504954 multytext  multy  name_text name_text-regular name_text-regular-subtitle_white_assistant name_text   sonof_multyserial sonof_name_subarea-simple-black sonof_name_subarea sonof_multyserial  sonof_name_subarea sonof_name_subarea-simple sonof_name_subarea-simple-black after_multytext after_name_text-regular-title_white_assisstant  after_name_text after_name_text-regular after_name_text-regular-title_white_assisstant before_ before_name_ display_tag_multy_text_regular display_tag_conf_multy_view_all" style=" " data-multy-unique-id="">  <div class="multyinner" style=""> <div style="" class=" text_text text"><p class=" text_text text text-primary" data-open-accessibility-text-original="14px" style="font-size: 14px;">הרשמו עכשיו למגזין השבועי של משה שרון</p></div> </div>  </div>  </div>  </div>  </div>  <div data-responsive_settings="" class="overridestyle t0 t2105 t1504954 multyserial  multy  name_subarea name_subarea-simple name_subarea-simple-white name_subarea  center sonof_multyserial sonof_name_serial-form_container sonof_name_serial sonof_multyserial  sonof_name_serial sonof_name_serial-form_container after_multyserial after_name_subarea-simple-black  after_name_subarea after_name_subarea-simple after_name_subarea-simple-black before_ before_name_ display_tag_conf_multy_view_all backgroundColorInMultyInner paddingInOutsideMulty" style=" " data-multy-unique-id="">
+                                                        <div class="multyinner" style="">
+                                                            <div class=" multyparent multyelements" style="">
+                                                                <div data-responsive_settings="range(0,292) {{{
+                                                                     enableAutoScaler({targetWidth:292});
+                                                                     }}}
+                                                                     range(293,10000) {{{
+                                                                     disableAutoScaler();
+                                                                     }}}
+                                                                     range(0,400) {{{
+                                                                     setClass(&quot;display_tag_multyform_verticalform&quot;);
+                                                                     removeClass(&quot;display_tag_multyform_horizontalform&quot;);
+                                                                     }}}
+                                                                     range(401,10000) {{{
+                                                                     removeClass(&quot;display_tag_multyform_verticalform&quot;);
+                                                                     setClass(&quot;display_tag_multyform_horizontalform&quot;);
+                                                                     }}}
+                                                                     condition(range(0,550) &amp;&amp; formFieldsCount()>
+                                                                    1) {{{
+                                                                    setClass(&quot;display_tag_multyform_verticalform&quot;);
+                                                                    removeClass(&quot;display_tag_multyform_horizontalform&quot;);
+                                                                    }}}
+                                                                    condition(range(0,600) &amp;&amp; formFieldsCount() > 2) {{{
+                                                                    setClass(&quot;display_tag_multyform_verticalform&quot;);
+                                                                    removeClass(&quot;display_tag_multyform_horizontalform&quot;);
+                                                                    }}}
+                                                                    condition(range(0,700) &amp;&amp; formFieldsCount() > 3) {{{
+                                                                    setClass(&quot;display_tag_multyform_verticalform&quot;);
+                                                                    removeClass(&quot;display_tag_multyform_horizontalform&quot;);
+                                                                    }}}
+                                                                    condition(range(0,10000) &amp;&amp; formFieldsCount() > 4) {{{
+                                                                    setClass(&quot;display_tag_multyform_verticalform&quot;);
+                                                                    removeClass(&quot;display_tag_multyform_horizontalform&quot;);
+                                                                    }}}" class="overridestyle t0 t2105 t1504954 multyform  multy  name_form name_form-horizontal_square name_form-horizontal_square-inherited name_form   sonof_multyserial sonof_name_subarea-simple-white sonof_name_subarea sonof_multyserial  sonof_name_subarea sonof_name_subarea-simple sonof_name_subarea-simple-white after_ after_name_ before_ before_name_ display_tag_multyform_horizontalform display_tag_conf_multy_view_all" style=" " data-multy-unique-id="jsid10000001">  <div class="multyinner" style=""> <div class="formBody"> <form field-count="1" class="form" action="https://ravxx-subscriber-v1.ravpage.co.il/" method="post">  <div class=" multyparent multyfields" style="">  <div class="inner_multyfields">  <div data-responsive_settings="" class="overridestyle t0 t2105 t1504954 multyfield  multy  name_ name_   sonof_multyform sonof_name_form-horizontal_square-inherited sonof_name_form sonof_multyform  sonof_name_form sonof_name_form-horizontal_square sonof_name_form-horizontal_square-inherited after_ after_name_ before_ before_name_" style=" " data-multy-unique-id="">  <div class="multyinner" style="">  <div class=" field fieldname_subscribers_email fieldtype_singlelineText nolabel">  <input aria-label="הכנס את כתובת האימייל שלך..." name="fields[subscribers_email]" type="email" placeholder="כתובת האימייל שלך..." class="email required " value="">  </div>  </div>  </div>  </div>  </div>   <div class="submitbuttonbox">  <a href="#" class="submitButton" style="font-size: 16px;" data-open-accessibility-text-original="16px"> <div class="rightPart"></div> <input type="submit" class="btn btn-sm btn-primary" name="none" value="להרשמה"> <div class="leftPart"></div> <div class="clear"></div> </a>  </div> <input type="hidden" name="__ravxx_url__" value="http://form.ravpage.co.il/2ae29537c45e5642924d43bb22570a41657EC158"> <input type="hidden" name="__ravxx_source_info__" value="{&quot;public_id&quot;:&quot;2ae29537c45e5642924d43bb22570a41657EC158&quot;,&quot;normalized_url&quot;:&quot;http:\/\/form.ravpage.co.il\/2ae29537c45e5642924d43bb22570a41657EC158&quot;,&quot;url&quot;:&quot;http:\/\/form.ravpage.co.il\/2ae29537c45e5642924d43bb22570a41657EC158&quot;,&quot;group&quot;:&quot;24a1340d478621780bb8e4b0cad022dc&quot;}"> <input type="hidden" name="form_id" value="2479489"> <input type="hidden" name="encoding" value="utf-8"> </form> <div class="clear"></div> </div> </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>var __ravxxx_captcha__ = true;</script>
+<style>
+    body > div:has(iframe[src*="recaptcha"]) {
+        display: none !important;
+    }</style> <!--FORM_PROTECTION_CAPTCHA--> <script>document.addEventListener('DOMContentLoaded', () => { setTimeout(function () { const parsedURL = new URL(window.location.href); const hostname = parsedURL.hostname; if (window["__ravxxx_captcha__"]) { const scriptTag = document.createElement('script'); scriptTag.src = 'https://www.google.com/recaptcha/api.js?render=6LdUQi4mAAAAAK3x9z3v4BWVLqtHbQxeTn9rsT8b'; scriptTag.async = true; scriptTag.defer = true; document.head.appendChild(scriptTag); } }, 0); });</script>
+<script type="text/javascript">if (typeof console == "undefined") var console = { log: function () { } }; __ravpageContext = { 'locals': {}, 'updates': [] }; cookieStr = __ravpageContext.locals.cookiesStr = "" + document.cookie; publicID = __ravpageContext.locals.publicID = "2ae29537c45e5642924d43bb22570a41657EC158"; tabtype = __ravpageContext.locals.tabtype = "desktop"; analyticsTrackingID = __ravpageContext.locals.analyticsTrackingID = ""; pageURL = __ravpageContext.locals.pageURL = "http://form.ravpage.co.il/2ae29537c45e5642924d43bb22570a41657EC158"; formHandler = __ravpageContext.locals.formHandler = "~~${formHandler}~~"; pageType = __ravpageContext.locals.pageType = "form"; uniqueID = __ravpageContext.locals.uniqueID = "6614674_1702815602";</script>
+<script type="text/javascript">if (typeof (realbeginning) == 'undefined') realbeginning = new Date(); var begin_wrapper_1 = new Date(); if ((typeof (__ravpageContext) != 'undefined') && __ravpageContext.locals.console) __ravpageContext.locals.console.log('time till begin_wrapper_1', begin_wrapper_1 - realbeginning);</script><script type="text/javascript" src="//js.ravpages.co.il/xsite_resources/js/static/cached/xsites/formoutput/122023/xsites__formoutput__6ff6448017b4df3acd1bda5fcda4f5f1_a9400e332f8b92f25620695c49483c46_1702312210.js?rxc=1532355884"></script>
+<script type="text/javascript">if (typeof (realbeginning) == 'undefined') realbeginning = new Date(); if ((typeof (__ravpageContext) != 'undefined') && __ravpageContext.locals.console) __ravpageContext.locals.console.log('time after begin_wrapper_1', (new Date()) - realbeginning, '+(', (new Date()) - begin_wrapper_1, ')');</script>
+<script type="text/javascript">if (typeof (realbeginning) == 'undefined') realbeginning = new Date(); var begin_wrapper_1 = new Date(); if ((typeof (__ravpageContext) != 'undefined') && __ravpageContext.locals.console) __ravpageContext.locals.console.log('time till begin_wrapper_1', begin_wrapper_1 - realbeginning);</script>
+<script type="text/javascript">if (typeof (realbeginning) == 'undefined') realbeginning = new Date(); if ((typeof (__ravpageContext) != 'undefined') && __ravpageContext.locals.console) __ravpageContext.locals.console.log('time after begin_wrapper_1', (new Date()) - realbeginning, '+(', (new Date()) - begin_wrapper_1, ')');</script> <style type="text/css"></style>
+<div data-content-language="" class="RDUI_6614674_1702815602 a RDS100213 RMCONTENT RMFORM RMFORM_2105 entityType_floating_form floating_form desktop    color1  texture1  version4 afterinit" data-embed-type="flex">   </div>
+
+
+            </div>
+        </div>
+        <hr>
+        <div class="copyright float-right">
+            &copy;
+            <script>
+                document.write(new Date().getFullYear())
+            </script>
+            משה שרון
+        </div>
+    </div>
+</footer>
+
+
+<script>
+    $(document).ready(function () {
+
+                        });
+</script>
+
+
+<div id="loginModal" tabindex="-1" role="dialog" class="modal fade" style="display: none;" aria-hidden="true">
+
+    <div class="modal-dialog modal-login" role="document">
+        <div class="modal-content">
+            <div class="card card-signup card-plain">
+                <div class="modal-header">
+                    <div class="card-header card-header-primary text-center">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="material-icons">clear</i></button>
+                        <h3 class="mb-2 card-title">התחברות</h3>
+                    </div>
+                </div>
+                <div id="loginForm">
+
+
+                    <div class="login-form">
+<form action="/%D7%90%D7%95%D7%93%D7%95%D7%AA" enctype="multipart/form-data" id="form3e7c23f7a68646f2a443ac042d8fb783" method="post" name="loginForm">                            <div class="modal-body">
+                                <div class="card-body">
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="material-icons">mail</i>
+                                                </span>
+                                            </div>
+                                            <label class="bmd-label-floating login-field">אימייל</label>
+                                            <input data-val-required="נדרש אימייל" class="form-control" type="text" data-val="true" id="loginModel_Username" name="loginModel.Username" value="" />
+                                            <span class="login-error field-validation-valid" data-valmsg-for="loginModel.Username" data-valmsg-replace="true"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="material-icons">password</i>
+                                                </span>
+                                            </div>
+                                            <label class="bmd-label-floating login-field">סיסמא</label>
+                                            <input data-val-required="נדרשת סיסמא" class="form-control" type="password" data-val="true" data-val-length="The field Password must be a string with a maximum length of 256." data-val-length-max="256" id="loginModel_Password" maxlength="256" name="loginModel.Password" />
+                                            <span class="login-error field-validation-valid" data-valmsg-for="loginModel.Password" data-valmsg-replace="true"></span>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group justify-content-center">
+                                            <div class="input-group-prepend">
+                                            </div>
+                                            <input class="mx-2" type="checkbox" data-val="true" data-val-required="The Remember me? field is required." id="loginModel_RememberMe" name="loginModel.RememberMe" value="true">
+                                            <label class="form-check-label" for="loginModel_RememberMe">
+                                                זכור אותי
+                                            </label>
+                                        </div>
+                                    </div>
+
+
+                                    </div>
+                                </div>
+                            <div id="login-message"></div>
+                            <div class="modal-footer justify-content-center">
+                                <input type="hidden" name="captcha" id="captchaInputLogin" data-captcha-login="true" />
+                                <button type="submit" class="btn btn-primary btn-wd mb-4">התחברות</button>
+                            </div>
+<input name="__RequestVerificationToken" type="hidden" value="CfDJ8PhdAR4BIOJNutCsGDRSrnrgO-AMZyv9VcNJ2ExkaJlUFiSZMZIWDtmg93ySVTrnhLIMZrrEossDwcuAaAPBlcswF9h4Ct23vaD4kvSvn-MUd6V4xVElj4v1nmtV7r8d4-hmaN3DCd4wYCUoSpZ_tKg" /><input name="ufprt" type="hidden" value="CfDJ8PhdAR4BIOJNutCsGDRSrnqVb8mOorQ0YRX06_tGym81bg085NMiNc0EOPKWxBTaCrzh0Bk-vvxE3NSUAf0th3YUDpgdFJBijsDhZzHU5tyX7NoQjueUEJepTxMuhg4yjtmvIev6IeEuuN8nEXVudHs" /><input name="loginModel.RememberMe" type="hidden" value="false"></form>                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    $(document).ready(function () {
+                });
+</script>
+<div id="registerModal" tabindex="-1" role="dialog" class="modal fade" style="display: none;" aria-hidden="true">
+
+    <div class="modal-dialog modal-login" role="document">
+        <div class="modal-content">
+            <div class="card card-signup card-plain">
+                <div class="modal-header">
+                    <div class="card-header card-header-success text-center">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="material-icons">clear</i></button>
+                        <h3 class="mb-2 card-title">הרשמה</h3>
+                    </div>
+                </div>
+
+<form action="/%D7%90%D7%95%D7%93%D7%95%D7%AA" enctype="multipart/form-data" id="form08f415677bd848f6a8d4cc26b04148bc" method="post" name="registerForm">                        <div style="text-align:center">
+                            <h4 class="mt-4">ברוכים הבאים!</h4>
+                            <p class="mx-4 my-3 "> כל אחד יכול להירשם בחינם לאתר שלנו, לכתוב תגובות ולהצטרף לדיונים על התוכן.<br /><br /> לאחר ההרשמה, אתם גם יכולים להפוך למנויים ולהינות מגישה מלאה לכל התכנים המרתקים שלנו בתשלום של 67 ₪ בחודש ברכישת מנוי חודשי מתחדש, או 47 ₪ לחודש ברכישת מנוי לשנה. הצטרפו אלינו וגלו עולם של תוכן משנה חיים!</p>
+                            <button class="btn btn-success btn-link btn-wd btn-lg" data-dismiss="modal" data-toggle="modal" data-target="#registerSubscribeModal">להרשמה עם רכישת מנוי לחצו כאן</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="card-body">
+
+
+
+                                <div class="form-group bmd-form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">
+                                                <i class="material-icons">badge</i>
+                                            </span>
+                                        </div>
+                                        <label class="bmd-label-floating login-field">שם מלא</label>
+                                        <input class="form-control form-control-green" aria-required="true" data-val="true" data-val-required="נדרש שם" data-val-regex="נדרש שם מלא - שם ושם משפחה" data-val-regex-pattern="^\s*\S+(\s+\S+)+\s*$" type="text" id="registerModel_Name" name="registerModel.Name" value="" />
+                                               <span class="login-error field-validation-valid" data-valmsg-for="registerModel.Name" data-valmsg-replace="true"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group bmd-form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">
+                                                <i class="material-icons">email</i>
+                                            </span>
+                                        </div>
+                                        <label class="bmd-label-floating login-field">אימייל</label>
+                                        <input data-val-email="כתובת האימייל אינה חוקית" data-val-required="נדרשת כתובת אימייל" class="form-control form-control-green" autocomplete="username" aria-required="true" type="email" data-val="true" id="registerModel_Email" name="registerModel.Email" value="" />
+                                        <span class="login-error field-validation-valid" data-valmsg-for="registerModel.Email" data-valmsg-replace="true"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group bmd-form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">
+                                                <i class="material-icons">password</i>
+                                            </span>
+                                        </div>
+                                        <label class="bmd-label-floating login-field">סיסמא</label>
+                                        <input data-val-required="נדרשת סיסמא" class="form-control form-control-green" autocomplete="new-password" aria-required="true" type="password" data-val="true" data-val-length="The field Password must be a string with a maximum length of 256." data-val-length-max="256" id="registerModel_Password" maxlength="256" name="registerModel.Password" />
+                                        <span class="login-error field-validation-valid" data-valmsg-for="registerModel.Password" data-valmsg-replace="true"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group bmd-form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">
+                                                <i class="material-icons">done_all</i>
+                                            </span>
+                                        </div>
+                                        <label class="bmd-label-floating login-field">אימות סיסמא</label>
+                                        <input data-val-equalto="הסיסמאות אינן תואמות" data-val-required="נדרשת סיסמא לאימות" class="form-control form-control-green" type="password" data-val="true" data-val-equalto-other="*.Password" id="registerModel_ConfirmPassword" name="registerModel.ConfirmPassword" />
+                                        <span class="login-error field-validation-valid" data-valmsg-for="registerModel.ConfirmPassword" data-valmsg-replace="true"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group bmd-form-group">
+                                    <div class="input-group justify-content-center">
+                                        <div class="input-group-prepend">
+                                        </div>
+                                        <input type="checkbox" name="takanon" class="mx-2" value="true" id="takanonCheckbox">
+                                        <label class="form-check-label" for="takanonCheckbox">
+                                            קראתי ואני מסכים <a class="text-success" href="/תקנון" target="_blank">לתקנון</a> האתר
+                                        </label>
+                                        <!-- Error message span -->
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+                        <div class="modal-footer justify-content-center">
+                            <input type="hidden" name="captcha" id="captchaInputRegister" data-captcha-register="true" />
+                            <button type="submit" class="btn btn-success btn-wd mb-4">הרשמה</button>
+                        </div>
+<input name="__RequestVerificationToken" type="hidden" value="CfDJ8PhdAR4BIOJNutCsGDRSrnrgO-AMZyv9VcNJ2ExkaJlUFiSZMZIWDtmg93ySVTrnhLIMZrrEossDwcuAaAPBlcswF9h4Ct23vaD4kvSvn-MUd6V4xVElj4v1nmtV7r8d4-hmaN3DCd4wYCUoSpZ_tKg" /><input name="ufprt" type="hidden" value="CfDJ8PhdAR4BIOJNutCsGDRSrnqkjyQ3-lSzHFmSP-6RurcwysNm02wD26bTcgqb89o8q53pD4CzfWRnNil6Fj-OfL3J237zOL_QA-sawUifEHXHzlfJfHXlUwdAsZz7nVMcPvuK0XQ1txD4oWreeyENqECN_X72i-Satkbts4VYD6L-jJ5JgfCRVSST_ZHrAUwqfVpP9OsG5uHDOwY94miEsmP5l4XnTl5SX9_isjutpvxCQ62AbxEs9nJMijxMhdHrbQ" /></form>            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+                });
+</script>
+<div id="registerSubscribeModal" tabindex="-1" role="dialog" class="modal fade" aria-hidden="true">
+    <!-- Enforce a max width of ~800px on desktop -->
+    <div class="modal-dialog modal-login" role="document" style="max-width: 800px;">
+        <div class="modal-content">
+            <div class="card card-signup card-plain">
+                <div class="modal-header">
+                    <div class="card-header card-header-success text-center">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                            <i class="material-icons">clear</i>
+                        </button>
+                        <h3 class="text-center">הרשמה ורכישת מנוי</h3>
+                        <p class="text-center">הרשמו לאתר ורכשו מנוי בטופס אחד</p>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="card-body">
+<form action="/%D7%90%D7%95%D7%93%D7%95%D7%AA" enctype="multipart/form-data" id="formabf6c358a94b4a64927ea4f611d7d61a" method="post">                            <div class="row">
+
+
+                                <div class="col-md-6">
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="material-icons">badge</i>
+                                                </span>
+                                            </div>
+                                            <label class="bmd-label-floating login-field">שם מלא</label>
+                                            <input class="form-control form-control-success" type="text" data-val="true" data-val-regex="&#x5E0;&#x5D3;&#x5E8;&#x5E9; &#x5E9;&#x5DD; &#x5DE;&#x5DC;&#x5D0; - &#x5E9;&#x5DD; &#x5D5;&#x5E9;&#x5DD; &#x5DE;&#x5E9;&#x5E4;&#x5D7;&#x5D4;" data-val-regex-pattern="^\s*\S&#x2B;(\s&#x2B;\S&#x2B;)&#x2B;\s*$" data-val-required="&#x5E0;&#x5D3;&#x5E8;&#x5E9; &#x5E9;&#x5DD;" id="Name" name="Name" value="" />
+                                            <span class="login-error field-validation-valid" data-valmsg-for="Name" data-valmsg-replace="true"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="material-icons">email</i>
+                                                </span>
+                                            </div>
+                                            <label class="bmd-label-floating login-field">אימייל</label>
+                                            <input class="form-control form-control-success" type="email" data-val="true" data-val-email="&#x5DB;&#x5EA;&#x5D5;&#x5D1;&#x5EA; &#x5D4;&#x5D0;&#x5D9;&#x5DE;&#x5D9;&#x5D9;&#x5DC; &#x5D0;&#x5D9;&#x5E0;&#x5D4; &#x5D7;&#x5D5;&#x5E7;&#x5D9;&#x5EA;" data-val-required="&#x5E0;&#x5D3;&#x5E8;&#x5E9;&#x5EA; &#x5DB;&#x5EA;&#x5D5;&#x5D1;&#x5EA; &#x5D0;&#x5D9;&#x5DE;&#x5D9;&#x5D9;&#x5DC;" id="Email" name="Email" value="" />
+                                            <span class="login-error field-validation-valid" data-valmsg-for="Email" data-valmsg-replace="true"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="material-icons">email</i>
+                                                </span>
+                                            </div>
+                                            <label class="bmd-label-floating login-field">אימות אימייל</label>
+                                            <input class="form-control form-control-success" type="text" data-val="true" data-val-equalto="&#x5DB;&#x5EA;&#x5D5;&#x5D1;&#x5D5;&#x5EA; &#x5D4;&#x5D0;&#x5D9;&#x5DE;&#x5D9;&#x5D9;&#x5DC; &#x5D0;&#x5D9;&#x5E0;&#x5DF; &#x5EA;&#x5D5;&#x5D0;&#x5DE;&#x5D5;&#x5EA;" data-val-equalto-other="*.Email" data-val-required="&#x5E0;&#x5D3;&#x5E8;&#x5E9; &#x5D0;&#x5D9;&#x5DE;&#x5D5;&#x5EA; &#x5DC;&#x5DB;&#x5EA;&#x5D5;&#x5D1;&#x5EA; &#x5D0;&#x5D9;&#x5DE;&#x5D9;&#x5D9;&#x5DC;" id="EmailConfirmation" name="EmailConfirmation" value="" />
+                                            <span class="login-error field-validation-valid" data-valmsg-for="EmailConfirmation" data-valmsg-replace="true"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="material-icons">password</i>
+                                                </span>
+                                            </div>
+                                            <label class="bmd-label-floating login-field">סיסמא</label>
+                                            <input type="password" class="form-control form-control-success" data-val="true" data-val-minlength="&#x5E2;&#x5DC; &#x5D4;&#x5E1;&#x5D9;&#x5E1;&#x5DE;&#x5D0; &#x5DC;&#x5D4;&#x5D9;&#x5D5;&#x5EA; &#x5D1;&#x5D0;&#x5D5;&#x5E8;&#x5DA; &#x5E2;&#x5E9;&#x5E8;&#x5D4; &#x5EA;&#x5D5;&#x5D5;&#x5D9;&#x5DD; &#x5DC;&#x5E4;&#x5D7;&#x5D5;&#x5EA;" data-val-minlength-min="10" data-val-required="&#x5E0;&#x5D3;&#x5E8;&#x5E9;&#x5EA; &#x5E1;&#x5D9;&#x5E1;&#x5DE;&#x5D0;" id="Password" name="Password" />
+                                            <span class="login-error field-validation-valid" data-valmsg-for="Password" data-valmsg-replace="true"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="material-icons">done_all</i>
+                                                </span>
+                                            </div>
+                                            <label class="bmd-label-floating login-field">אימות סיסמא</label>
+                                            <input type="password" class="form-control form-control-success" data-val="true" data-val-equalto="&#x5D4;&#x5E1;&#x5D9;&#x5E1;&#x5DE;&#x5D0;&#x5D5;&#x5EA; &#x5D0;&#x5D9;&#x5E0;&#x5DF; &#x5EA;&#x5D5;&#x5D0;&#x5DE;&#x5D5;&#x5EA;" data-val-equalto-other="*.Password" data-val-required="&#x5E0;&#x5D3;&#x5E8;&#x5E9;&#x5EA; &#x5E1;&#x5D9;&#x5E1;&#x5DE;&#x5D0; &#x5DC;&#x5D0;&#x5D9;&#x5DE;&#x5D5;&#x5EA;" id="ConfirmPassword" name="ConfirmPassword" />
+                                            <span class="login-error field-validation-valid" data-valmsg-for="ConfirmPassword" data-valmsg-replace="true"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="material-icons">phone</i>
+                                                </span>
+                                            </div>
+                                            <label class="bmd-label-floating login-field">מספר טלפון</label>
+                                            <input type="tel" class="form-control form-control-success" data-val="true" data-val-regex="&#x5DE;&#x5E1;&#x5E4;&#x5E8; &#x5D4;&#x5D8;&#x5DC;&#x5E4;&#x5D5;&#x5DF; &#x5D0;&#x5D9;&#x5E0;&#x5D5; &#x5EA;&#x5E7;&#x5D9;&#x5DF;" data-val-regex-pattern="^0\d{8,9}$" data-val-required="&#x5E0;&#x5D3;&#x5E8;&#x5E9; &#x5DE;&#x5E1;&#x5E4;&#x5E8; &#x5D8;&#x5DC;&#x5E4;&#x5D5;&#x5DF;" id="PhoneNumber" name="PhoneNumber" value="" />
+                                            <span class="login-error field-validation-valid" data-valmsg-for="PhoneNumber" data-valmsg-replace="true"></span>
+                                        </div>
+                                    </div>
+
+
+                                </div> <!-- end col-md-6 -->
+
+                                <div class="col-md-6 mt-lg-4">
+                                    <div class="mt-4 mb-3">
+                                        <!-- Existing nested row for the two subscription options -->
+                                        <div class="row justify-content-center">
+                                            <div class="col-md-5 col-sm-12">
+                                                <div class="card card-pricing card-plain" style="margin:0px;">
+                                                    <div class="card-body text-center">
+                                                        <h6 class="card-category text-info">מנוי חודשי</h6>
+                                                        <h2 class="card-title">
+                                                            <small>₪</small>67
+                                                            <small style="font-size: 30%;">/חודש</small>
+                                                        </h2>
+                                                        <ul class="text-right pr-0" style="list-style-type: none;">
+                                                            <li>גישה מלאה לכל התכנים</li>
+                                                            <li>תשלום של ₪67 מדי חודש</li>
+                                                            <li>ביטול באתר בכל עת</li>
+                                                        </ul>
+                                                        <div class="form-check form-check-radio">
+                                                            <label class="form-check-label" for="MonthlySubscription">
+                                                                <input class="form-check-input" type="radio" value="true" id="MonthlySubscription" checked data-val="true" data-val-required="The Monthly field is required." name="Monthly" />
+                                                                בחירה במנוי חודשי
+                                                                <span class="circle">
+                                                                    <span class="check"></span>
+                                                                </span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-5 col-sm-12">
+                                                <div class="card card-pricing card-plain" style="margin:0px;">
+                                                    <div class="card-body text-center">
+                                                        <h6 class="card-category text-info">מנוי שנתי</h6>
+                                                        <h2 class="card-title">
+                                                            <small>₪</small>47
+                                                            <small style="font-size: 30%;">/חודש</small>
+                                                        </h2>
+                                                        <ul class="text-right pr-0" style="list-style-type: none;">
+                                                            <li>גישה מלאה לכל התכנים</li>
+                                                            <li>תשלום חד פעמי של ₪564 לשנה</li>
+                                                            <li>לא מתחדש באופן אוטומטי</li>
+                                                        </ul>
+                                                        <div class="form-check form-check-radio">
+                                                            <label class="form-check-label" for="YearlySubscription">
+                                                                <input class="form-check-input" type="radio" value="false" id="YearlySubscription" name="Monthly" />
+                                                                בחירה במנוי שנתי
+                                                                <span class="circle">
+                                                                    <span class="check"></span>
+                                                                </span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div> <!-- end row -->
+                            <div class="form-group bmd-form-group">
+                                <div class="input-group justify-content-center">
+                                    <input type="checkbox" class="mx-2" id="AcceptTermsCheckbox" data-val="true" data-val-required="&#x5E0;&#x5D3;&#x5E8;&#x5E9;&#x5EA; &#x5D4;&#x5E1;&#x5DB;&#x5DE;&#x5D4; &#x5DC;&#x5EA;&#x5E7;&#x5E0;&#x5D5;&#x5DF;" name="AcceptTerms" value="true" />
+                                    <label class="form-check-label" for="AcceptTermsCheckbox">
+                                        קראתי ואני מסכים
+                                        <a class="text-success" href="/תקנון" target="_blank">לתקנון</a> האתר
+                                    </label>
+                                </div>
+                                <span class="login-error d-block text-center field-validation-valid" data-valmsg-for="AcceptTerms" data-valmsg-replace="true"></span>
+                            </div>
+                            <div class="form-group">
+                                <div class="text-center">
+                                    <input type="hidden" name="captcha" id="captchaInputRegisterSubscribe" data-captcha-register="true" />
+                                    <button type="submit" class="btn btn-success btn-wd">
+                                        הרשמה ותשלום
+                                    </button>
+                                </div>
+                            </div>
+<input name="__RequestVerificationToken" type="hidden" value="CfDJ8PhdAR4BIOJNutCsGDRSrnrgO-AMZyv9VcNJ2ExkaJlUFiSZMZIWDtmg93ySVTrnhLIMZrrEossDwcuAaAPBlcswF9h4Ct23vaD4kvSvn-MUd6V4xVElj4v1nmtV7r8d4-hmaN3DCd4wYCUoSpZ_tKg" /><input name="ufprt" type="hidden" value="CfDJ8PhdAR4BIOJNutCsGDRSrnrFpMuj8crFBls6NTnd_LQP0Z4qwins_vheA7oPNprq-cWdac9iQBLqq4mERyeWA6LmdbfLOhRyxzRobfTB4ZTNwKyCHls1NoXB_fB-21qDTkAimMF0eXP4sRkrXsZ9OwPOVEigb5dBV80nSTwSOxIC" /><input name="AcceptTerms" type="hidden" value="false" /></form>                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        // Load reCAPTCHA if enabled
+        if (typeof loadRecaptcha === 'function') {
+            loadRecaptcha();
+        }
+    });
+</script>
+
+
+    <div id="appInstallModal" tabindex="-1" role="dialog" class="modal fade" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog modal-login" role="document">
+            <div class="modal-content">
+                <div class="card card-signup card-plain">
+                    <div class="modal-header">
+                        <div class="card-header card-header-primary text-center">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="material-icons">clear</i></button>
+                            <!-- שלב 1: שכנוע עם מסר חזק -->
+                            <h3 class="mb-2 card-title">האפליקציה שלנו</h3>
+                        </div>
+                    </div>
+                    <div id="main-app">
+                        <div class="card-body px-4 py-4 text-center">
+                            <p class="card-description">
+                                התקינו את האפליקציה שלנו!
+                            </p>
+                            <div class="text-center text-primary mb-4">
+                                <img src="/images/icon-app.webp" class="mt-2" alt="Logo" style="width:60px; height:60px;">
+                            </div>
+                            <!-- שלב 2: הסבר על התועלות -->
+                            <p class="card-description">
+                                קבלו גישה מהירה ונוחה לכל התוכן, והורידו שיעורים לצפייה גם כשאין חיבור אינטרנט.
+                            </p>
+                        </div>
+
+                        <div class="px-4 pb-4">
+                            <!-- שלב 3: כפתור פעולה אמין שתואם לדפדפן -->
+                            <button id="install-pwa-btn" class="btn btn-primary btn-lg w-100 m-0">
+                                הוספה למסך הבית
+                            </button>
+                        </div>
+
+                        <div class="text-center mb-4">
+                            <a href="#" data-dismiss="modal" class="text-gray">אולי בפעם אחרת</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+
+
+</html>

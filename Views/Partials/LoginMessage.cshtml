@@ -1,0 +1,19 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+
+@model string
+@if (string.IsNullOrEmpty(Model))
+{
+    <div id="login-message">
+
+    </div>
+    <script>
+        $('#loginModal').modal('hide');
+        location.reload();
+    </script>
+}
+else
+{
+    <div id="login-message">
+        <h4 class="text-danger text-center">@Model</h4>
+    </div>
+}

@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.11" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="FluentAssertions" Version="6.12.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Services\DB.cs" Link="Source\Services\DB.cs" />
+    <Compile Include="..\Services\TemporaryMemberResolver.cs" Link="Source\Services\TemporaryMemberResolver.cs" />
+    <Compile Include="..\Models\Transaction.cs" Link="Source\Models\Transaction.cs" />
+    <Compile Include="..\Models\TemporaryMember.cs" Link="Source\Models\TemporaryMember.cs" />
+    <Compile Include="..\Services\MeshulamWebhookPayload.cs" Link="Source\Services\MeshulamWebhookPayload.cs" />
+    <Compile Include="..\Services\MeshulamApiUrl.cs" Link="Source\Services\MeshulamApiUrl.cs" />
+    <Compile Include="..\Services\MeshulamWebhookPayloadReader.cs" Link="Source\Services\MeshulamWebhookPayloadReader.cs" />
+    <Compile Include="..\Services\MeshulamTransactionMapper.cs" Link="Source\Services\MeshulamTransactionMapper.cs" />
+    <Compile Include="..\Services\MembershipCancellationHelper.cs" Link="Source\Services\MembershipCancellationHelper.cs" />
+    <Compile Include="..\Services\PaymentsHarnessStore.cs" Link="Source\Services\PaymentsHarnessStore.cs" />
+    <Compile Include="..\Services\PaymentsHarnessSandboxClient.cs" Link="Source\Services\PaymentsHarnessSandboxClient.cs" />
+  </ItemGroup>
+</Project>

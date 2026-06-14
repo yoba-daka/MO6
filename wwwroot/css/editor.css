@@ -1,0 +1,35 @@
+  
+  
+
+/**umb_name:כותרת 1*/
+h1 {
+}
+
+/**umb_name:כותרת 2*/
+h2 {
+}
+
+/**umb_name:כותרת 3*/
+h3 {
+}
+
+/**umb_name:כותרת 4*/
+h4 {
+}
+
+/**umb_name:כותרת 5*/
+h5 {
+}
+
+/**umb_name:כתום*/
+.text-primary {
+	color:#f77b26;
+}
+/**umb_name:ירוק*/
+.text-success {
+	color:#4caf50;
+}
+/**umb_name:אדום*/
+.text-danger {
+	color:#f44336;
+}

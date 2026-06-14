@@ -1,0 +1,1518 @@
+﻿
+
+
+<!doctype html>
+<html lang="he">
+
+<head>
+    <link rel="manifest" href="/manifest.json">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#f77b26" />
+        <meta name="description" content="&#x5E1;&#x5E4;&#x5E8;&#x5D9;&#x5DD; &#x5DE;&#x5E9;&#x5D4; &#x5E9;&#x5E8;&#x5D5;&#x5DF;">
+    <meta property="og:title" content="&#x5E1;&#x5E4;&#x5E8;&#x5D9;&#x5DD;" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="http://mo6.azurewebsites.net/&#x5E1;&#x5E4;&#x5E8;&#x5D9;&#x5DD;/" />
+
+        <meta property="og:description" content="&#x5E1;&#x5E4;&#x5E8;&#x5D9;&#x5DD; &#x5DE;&#x5E9;&#x5D4; &#x5E9;&#x5E8;&#x5D5;&#x5DF;" />
+
+    <meta property="og:image" content="https://mo6.co.il/media/v2khgmii/book.jpg?rxy=0.5,0.5007407407407407&amp;amp;width=1280&amp;amp;height=720" />
+
+    <title>&#x5DE;&#x5E9;&#x5D4; &#x5E9;&#x5E8;&#x5D5;&#x5DF; - &#x5E1;&#x5E4;&#x5E8;&#x5D9;&#x5DD;</title>
+
+
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Heebo:400,500,700|Roboto:300,400,500,700|Roboto&#x2B;Slab:400,700|Material&#x2B;Icons" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" />
+
+    <link href="/sb/css-bundle.css.v666ee3e1671d80ee6cd9f5e0b2c825f6b3220e2a" rel="stylesheet" />
+
+
+
+    <script src="/sb/js-bundle.js.v666ee3e1671d80ee6cd9f5e0b2c825f6b3220e2a"></script>
+
+
+
+
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-V1H7MXFHR1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-V1H7MXFHR1');
+    </script>
+
+    <!-- Google Tag Manager -->
+    <script>
+        (function (w, d, s, l, i) {
+            w[l] = w[l] || []; w[l].push({
+                'gtm.start':
+                    new Date().getTime(), event: 'gtm.js'
+            }); var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-P8M99BNJ');</script>
+    <!-- End Google Tag Manager -->
+</head>
+
+<body class="index-page sidebar-collapse" dir="rtl">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript>
+        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P8M99BNJ"
+                height="0" width="0" style="display:none;visibility:hidden"></iframe>
+    </noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+
+    <script src="/js/db-helper.js"></script>
+    <script>
+        // --- Global PWA Flags and Install Logic ---
+        let deferredPrompt;
+
+        const isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+        let hasPWA = false;
+
+        (async () => {
+          if ('getInstalledRelatedApps' in navigator) {
+            try {
+              const apps = await navigator.getInstalledRelatedApps();
+              hasPWA = apps.some(a => a.platform === 'webapp' && a.id === 'https://mo6.co.il/');
+            } catch {}
+          }
+        })();
+
+        const isPC = (() => {
+          if (navigator.userAgentData && 'mobile' in navigator.userAgentData) {
+            return !navigator.userAgentData.mobile;
+          }
+          return !/Android|iPhone|iPad|iPod|Mobi|Mobile|Windows Phone|BlackBerry|Opera Mini/i.test(navigator.userAgent);
+        })();
+
+        const isIOS = () => {
+          const ua = navigator.userAgent || '';
+          const iDevice = /iPad|iPhone|iPod/.test(ua);
+          const iPadOS = !iDevice && navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+          return iDevice || iPadOS;
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+          const appBtn = document.getElementById('our-app');
+          const mainAppDiv = document.getElementById('main-app'); // The content area of your modal
+
+          if (appBtn) {
+            if (isPWA) {
+              appBtn.style.display = 'none';
+            } else {
+              appBtn.style.display = 'inline-block';
+            }
+          }
+
+          if (isIOS()) {
+            if (mainAppDiv) {
+              renderIOSInstallUI(mainAppDiv);
+            }
+          } else if (isPC) {
+            const installPwaBtn = document.getElementById('install-pwa-btn');
+            if (installPwaBtn) {
+              installPwaBtn.textContent = 'להתקנה במחשב';
+            }
+          }
+        });
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+          e.preventDefault();
+          deferredPrompt = e;
+        });
+
+        let installing = false;
+
+        function dismissInstallModal() {
+          const el = document.getElementById('appInstallModal');
+          if (!el) return;
+
+          if (window.bootstrap && typeof bootstrap.Modal === 'function') {
+            let instance = bootstrap.Modal.getInstance(el);
+            if (!instance) instance = new bootstrap.Modal(el);
+            instance.hide();
+            return;
+          }
+          const $jq = window.jQuery || window.$;
+          if ($jq && typeof $jq.fn?.modal === 'function') {
+            $jq(el).modal('hide');
+            return;
+          }
+          el.classList.remove('show');
+          el.setAttribute('aria-hidden', 'true');
+          el.style.display = 'none';
+          const backdrop = document.querySelector('.modal-backdrop');
+          if (backdrop) backdrop.parentNode.removeChild(backdrop);
+          document.body.classList.remove('modal-open');
+          document.body.style.paddingRight = '';
+        }
+
+        function renderInstallingUI(container) {
+          container.innerHTML = `
+            <div class="text-center" style="max-width:520px;margin:24px auto;padding:0 16px;">
+              <div class="mt-3 mb-2"><i class="mdi-huge mdi-progress-download mdi-xl text-primary"></i></div>
+              <h3 class="mb-3" style="font-size:1.1rem;">מסיים להתקין…</h3>
+            </div>
+          `;
+        }
+
+        function renderPCSuccessUI(container) {
+          container.innerHTML = `
+            <div class="text-center" style="max-width:520px;margin:24px auto;padding:0 16px;">
+              <div class="mt-4 mb-3"><i class="mdi-huge mdi-check mdi-xl text-success"></i></div>
+              <h3 class="text-success font-weight-bold mb-4" style="font-size:1.5rem;">האפליקציה הותקנה בהצלחה</h3>
+            </div>
+          `;
+        }
+
+        function renderSuccessUI(container) {
+          container.innerHTML = `
+            <div class="text-center" style="max-width:520px;margin:24px auto;padding:0 16px;">
+              <div class="mt-4 mb-3"><i class="mdi-huge mdi-check mdi-xl text-success"></i></div>
+              <h3 class="text-success font-weight-bold mb-4" style="font-size:1.5rem;">האפליקציה הותקנה בהצלחה</h3>
+              <div class="text-center text-primary mb-4">
+                <img src="/images/icon-app.webp" class="mt-2" alt="Logo" style="width:60px; height:60px;">
+              </div>
+              <div class="text-muted mb-4" style="font-size:.95rem;">
+                כדי לפתוח את האפליקציה המותקנת<br/>
+                חפשו את הסמל החדש במסך הבית או במגירת האפליקציות.
+              </div>
+              <button id="continue-here-btn" type="button" class="btn btn-primary mb-3">להמשך כאן בדפדפן</button>
+            </div>
+          `;
+        }
+
+        function renderIOSInstallUI(container) {
+          container.innerHTML = `
+            <div class="modal-body text-center p-4">
+              <div class="mb-4">
+                <img src="/images/icon-app.webp" alt="סמל האפליקציה" style="width:60px; height:60px;">
+              </div>
+              <h3 class="modal-title h5 mb-3">התקנת האתר כאפליקציה במכשירך</h3>
+              <div class="text-end px-3">
+                <ol class="list-unstyled text-center" style="max-width:320px; margin: 0 auto;">
+                  <li class="mb-3">לחצו על סמל ה<strong>שיתוף</strong> (ריבוע עם חץ עליון).</li>
+                  <li class="mb-3">גללו ובחרו באפשרות "<strong>הוספה למסך הבית</strong>".</li>
+                  <li class="mb-2">אשרו את הפעולה בלחיצה על "<strong>הוספה</strong>".</li>
+                </ol>
+              </div>
+              <p class="text-muted mt-4 mb-4" style="font-size: .9rem;">
+                שימו לב! באייפון סמל השיתוף נמצא בתחתית המסך, ובאייפד הוא ממוקם בסרגל העליון.
+              </p>
+              <button id="continue-here-btn" type="button" class="btn btn-primary btn-round">הבנתי, תודה!</button>
+            </div>
+          `;
+        }
+
+        document.addEventListener('click', async (event) => {
+          const target = event.target;
+
+          if (target.id === 'continue-here-btn') {
+            dismissInstallModal();
+            return;
+          }
+
+          // This logic now only applies to Android/PC, as iOS users won't see the #install-pwa-btn.
+          if (target.id !== 'install-pwa-btn' || installing) return;
+
+          // The iOS check is no longer needed here because it's handled on page load.
+          if (!deferredPrompt) {
+            return;
+          }
+
+          installing = true;
+          const mainAppDiv = document.getElementById('main-app');
+          deferredPrompt.prompt();
+          const { outcome } = await deferredPrompt.userChoice.catch(() => ({ outcome: 'dismissed' }));
+          deferredPrompt = null;
+
+          if (outcome !== 'accepted') {
+            installing = false;
+            return;
+          }
+
+          const installBtn = document.getElementById('our-app');
+          if (installBtn) installBtn.style.display = 'none';
+
+          if (!mainAppDiv) {
+            installing = false;
+            return;
+          }
+
+          if (isPC) {
+            renderPCSuccessUI(mainAppDiv);
+          } else {
+            renderInstallingUI(mainAppDiv);
+            await new Promise(r => setTimeout(r, 5000));
+            renderSuccessUI(mainAppDiv);
+          }
+
+          installing = false;
+        });
+
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register('/sw.js')
+            .then(registration => console.log('Service Worker registered with scope:', registration.scope))
+            .catch(error => console.log('Service Worker registration failed:', error));
+        }
+    </script>
+
+
+    
+<script>
+
+    function loadRecaptcha() {
+        // Check if the reCAPTCHA script is already loaded
+        if (!window.grecaptcha) {
+            var script = document.createElement('script');
+            script.src = 'https://www.google.com/recaptcha/api.js?render=6LecSuwnAAAAADoYyhH08Ee69PBfM1wwY4q9MQmp&onload=onRecaptchaLoad';
+            document.body.appendChild(script);
+        }
+    }
+    $(document).ready(function () {
+
+        document.addEventListener("submit", function (event) {
+            var formName = event.target.getAttribute('name');
+
+            if (formName === "loginForm") {
+                handleFormSubmission("loginForm", "login", '[data-captcha-login=true]');
+            }
+            else if (formName === "registerForm") {
+                handleFormSubmission("registerForm", "register", '[data-captcha-register=true]');
+            }
+        });
+
+
+
+
+        loadRecaptcha();
+    });
+
+    //called by ajax
+    async function handleCommentSubmission(continueSubmission) {
+        return new Promise((resolve, reject) => {
+            grecaptcha.execute("6LecSuwnAAAAADoYyhH08Ee69PBfM1wwY4q9MQmp", { action: 'comment' })
+                .then(function (token) {
+                    $("[data-captcha-comment=true]").val(token); // Add token to the hidden input field
+                    console.log(typeof continueSubmission);
+                    resolve(); // Resolve the Promise when the operation is completed
+                })
+                .catch(function (error) {
+                    reject(error); // Reject the Promise if an error occurs
+                });
+        });
+    }
+
+    function handleFormSubmission(formName, actionType, tokenFieldSelector) {
+
+        event.preventDefault();
+
+        grecaptcha.execute("6LecSuwnAAAAADoYyhH08Ee69PBfM1wwY4q9MQmp", { action: actionType }).then(function (token) {
+            $(tokenFieldSelector).val(token); // Add token to the hidden input field
+            $('form[name="' + formName + '"]').submit();
+        });
+    }
+</script>
+    <script>
+        $(document).ready(function () {
+
+            $(function () {
+                $('body').openAccessibility({
+                    textSelector: 'h1,h2,h3,h4,h5,h6,a,span,p,button,i',
+                    isMobileEnabled: true
+                });
+                if ($('#cd-vertical-nav').length) {
+                    // Move it to the beginning of the body tag
+                    $('body').prepend($('#cd-vertical-nav'));
+                }
+                if ($('.cd-nav-trigger').length) {
+                    // Move them to the beginning of the body tag
+                    $('.cd-nav-trigger').each(function () {
+                        $('body').prepend($(this));
+                    });
+                }
+            })
+
+                });
+    </script>
+    <div class="bodyAccessibility">
+
+        
+
+<nav class="navbar bg-info fixed-top  navbar-expand-lg navbar-color-on-scroll navbar-transparent" color-on-scroll="100" id="sectionsNav">
+    <div class="container" style="height:50px">
+        <div class="navbar-translate">
+            <div class="d-flex">
+                <a class="navbar-brand pt-1" href="/">
+                    <img src="/media/sz3hjxoe/icon-moshe-sharon.svg" alt="Icon" class="icon">
+                </a>
+                <a class="navbar-brand" href="/">
+                    משה שרון
+                </a>
+            </div>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="navbar-toggler-icon"></span>
+                <span class="navbar-toggler-icon"></span>
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ml-auto">
+                <li class="dropdown nav-item">
+                    <a href="/אודות" class="nav-link">
+                        <i class="mdi mdi-information mdi-line-1"></i>  אודות
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/מאמרים">
+                        <i class="mdi mdi-card-text mdi-line-1"></i>  מאמרים
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/פודקאסטים">
+                        <i class="mdi mdi-headphones mdi-line-1"></i>  פודקאסטים
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/קורסים-והרצאות">
+                        <i class="mdi mdi-library-video mdi-line-1"></i>  קורסים והרצאות
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/אירועים">
+                        <i class="mdi mdi-calendar mdi-line-1"></i>  אירועים
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/ספרים">
+                        <i class="mdi mdi-bookshelf mdi-line-1"></i>  ספרים
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/צור-קשר">
+                        <i class="mdi mdi-contact-mail mdi-line-1"></i>  צור קשר
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/מנוי">
+                        <i class="mdi mdi-crown mdi-line-1"></i>  מנוי
+                    </a>
+                </li>
+
+                <li class="nav-item" style="text-align:center">
+                        <div class="nav-link px-4" style="margin-left:0px; margin-right:0px;">
+                            <button class="btn btn-primary btn-round px-3 py-2 mb-3 mb-sm-0 d-inline-flex align-items-center" data-toggle="modal" data-target="#loginModal"><i class="mdi-small mdi-line-1-2 mdi-login-variant"></i> התחברות</button>
+
+                            <button class="btn btn-success btn-round px-3 py-2 d-inline-flex align-items-center" data-toggle="modal" data-target="#registerModal"><i class="mdi-small mdi-line-1-2 mdi-pencil-box-outline"></i> הרשמה</button>
+
+                        </div>
+                </li>
+
+
+            </ul>
+        </div>
+
+    </div>
+</nav>
+
+        
+
+<div class="sec-page-header page-header header-filter clear-filter" style="margin-top:0em;background-image: url('/media/v2khgmii/book.jpg?rxy=0.5,0.5007407407407407&amp;width=1920&amp;height=1080');">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="text-center">
+                    <h1>ספרים</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="d-flex justify-content-center">
+<div class="books-player" style=" background-color:#fdb88a;border-radius:15px;">
+    <div id="media-player" class="video">
+
+        <div id="player-wrapper">
+        </div>
+    </div>
+</div>
+</div>
+
+<script>
+    var player;
+    var source;
+    var video;
+
+    var initVideo = function () {
+
+        source = "";
+
+
+
+        $('#player-wrapper').html('<video poster="" id="player"></video>');
+        video = document.querySelector('#player');
+
+
+        var plyr_controls = ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen', 'rewind', 'fast-forward'];
+        var plyr_settings = ['captions', 'quality', 'loop', 'speed'];
+        var quality = function (q) {
+            switch (q) {
+                case -1:
+                    hls.currentLevel = -1;
+                    break;
+            }
+        };
+
+        source = 'https://www.youtube.com/watch?v=qzJ0wtwK98s';
+        player = new Plyr(video, { type: 'video' });
+        player.source = {
+            type: 'video',
+            sources: [
+                {
+                    src: 'https://www.youtube.com/watch?v=qzJ0wtwK98s',
+                    provider: 'youtube', // or 'vimeo', etc., based on the external link type
+                },
+            ],
+        };
+
+    }
+
+
+    $(document).ready(function () {
+        setTimeout(() => {
+            initVideo();
+        }, 150);
+    });
+
+</script>
+<h3 class="title text-center text-primary mt-5 mb-5 mx-3">&#x5D4;&#x5E1;&#x5E4;&#x5E8;&#x5D9;&#x5DD; &#x5E9;&#x5DC; &#x5DE;&#x5E9;&#x5D4; &#x5E9;&#x5E8;&#x5D5;&#x5DF; - &#x5DE;&#x5EA;&#x5E0;&#x5D5;&#x5EA; &#x5E0;&#x5E4;&#x5DC;&#x5D0;&#x5D5;&#x5EA; &#x5DC;&#x5E2;&#x5E6;&#x5DE;&#x5DB;&#x5DD; &#x5D5;&#x5DC;&#x5DE;&#x5D9; &#x5E9;&#x5D0;&#x5EA;&#x5DD; &#x5D0;&#x5D5;&#x5D4;&#x5D1;&#x5D9;&#x5DD; &#x5D1;&#x5D0;&#x5DE;&#x5EA;.</h3>
+<div class="container pt-0 mb-5">
+    <div class="row justify-content-center px-2 mx-3">
+
+                <div class="rotating-card-container m-2" >
+                    <div class="card card-rotate text-center my-0" style="display:block">
+                        <div class="front" style="width: 300px; height:350px;">
+                            <div class="card-body text-center px-0" style="display:block; ">
+                                <h4 class="card-title mb-3">
+                                    &#x5D4;&#x5E2;&#x5D5;&#x5DC;&#x5DD; &#x5DC;&#x5D0; &#x5D9;&#x5DB;&#x5D5;&#x5DC; &#x5DC;&#x5D4;&#x5EA;&#x5E7;&#x5D9;&#x5D9;&#x5DD; &#x5D1;&#x5DC;&#x5E2;&#x5D3;&#x5D9;&#x5DA;
+                                </h4>
+                                <img class="img" src="/media/xibadlzp/העולם.jpg?width=250&amp;height=250" alt="&#x5D4;&#x5E2;&#x5D5;&#x5DC;&#x5DD; &#x5DC;&#x5D0; &#x5D9;&#x5DB;&#x5D5;&#x5DC; &#x5DC;&#x5D4;&#x5EA;&#x5E7;&#x5D9;&#x5D9;&#x5DD; &#x5D1;&#x5DC;&#x5E2;&#x5D3;&#x5D9;&#x5DA;" style="width: 250px">
+                            </div>
+                        </div>
+                        <div rel="prefetch" class="back" style="width: 300px; height:350px;">
+                            <div class="card-body">
+                                <a href="/&#x5E1;&#x5E4;&#x5E8;&#x5D9;&#x5DD;/&#x5D4;&#x5E2;&#x5D5;&#x5DC;&#x5DD;-&#x5DC;&#x5D0;-&#x5D9;&#x5DB;&#x5D5;&#x5DC;-&#x5DC;&#x5D4;&#x5EA;&#x5E7;&#x5D9;&#x5D9;&#x5DD;-&#x5D1;&#x5DC;&#x5E2;&#x5D3;&#x5D9;&#x5DA;/">
+                                    <h4 class="card-title mb-2">
+                                        &#x5D4;&#x5E2;&#x5D5;&#x5DC;&#x5DD; &#x5DC;&#x5D0; &#x5D9;&#x5DB;&#x5D5;&#x5DC; &#x5DC;&#x5D4;&#x5EA;&#x5E7;&#x5D9;&#x5D9;&#x5DD; &#x5D1;&#x5DC;&#x5E2;&#x5D3;&#x5D9;&#x5DA;
+                                    </h4>
+
+                                    <div class="card-description">
+                                        &#x5D4;&#x5DE;&#x5D3;&#x5E8;&#x5D9;&#x5DA; &#x5DC;&#x5DE;&#x5E6;&#x5D9;&#x5D0;&#x5EA; &#x5D4;&#x5D9;&#x5D9;&#x5E2;&#x5D5;&#x5D3;/&#x5D4;&#x5E9;&#x5DC;&#x5D9;&#x5D7;&#x5D5;&#x5EA; &#x5E9;&#x5DC;&#x5DA; &#x5D1;&#x5E2;&#x5D5;&#x5DC;&#x5DD;. &#x5D4;&#x5D5;&#x5D0; &#x5D9;&#x5D5;&#x5D1;&#x5D9;&#x5DC; &#x5D0;&#x5D5;&#x5EA;&#x5DA; &#x5DC;&#x5DE;&#x5E1;&#x5E2; &#x5D0;&#x5DC; &#x5EA;&#x5D5;&#x5DA; &#x5E2;&#x5E6;&#x5DE;&#x5DA; &#x5D1;&#x5D9;&#x5DF; &#x5EA;&#x5D5;&#x5D1;&#x5E0;&#x5D5;&#x5EA; &#x5DE;&#x5E2;&#x5D5;&#x5DC;&#x5DD; &#x5D4;&#x5E4;&#x5D9;&#x5DC;&#x5D5;&#x5E1;&#x5D5;&#x5E4;&#x5D9;&#x5D4; &#x5D4;&#x5D9;&#x5D4;&#x5D5;&#x5D3;&#x5D9;&#x5EA; &#x5D5;&#x5DB;&#x5DC;&#x5D9;&#x5DD; &#x5DE;&#x5E2;&#x5D5;&#x5DC;&#x5DD; &#x5D4;&#x5D0;&#x5D9;&#x5DE;&#x5D5;&#x5DF;. &#x5D5;&#x5D9;&#x5D7;&#x5D6;&#x5D9;&#x5E7; &#x5DC;&#x5DA; &#x5D0;&#x5EA; &#x5D4;&#x5D9;&#x5D3; &#x5D1;&#x5D3;&#x5E8;&#x5DA; &#x5DC;&#x5D0;&#x5D7;&#x5EA; &#x5D4;&#x5DE;&#x5EA;&#x5E0;&#x5D5;&#x5EA; &#x5D4;&#x5E2;&#x5D5;&#x5E6;&#x5DE;&#x5EA;&#x5D9;&#x5D5;&#x5EA; &#x5D1;&#x5D9;&#x5D5;&#x5EA;&#x5E8; &#x5E9;&#x5D0;&#x5D3;&#x5DD; &#x5D9;&#x5DB;&#x5D5;&#x5DC; &#x5DC;&#x5D1;&#x5E7;&#x5E9; &#x2013; &#x5DC;&#x5D7;&#x5D9;&#x5D5;&#x5EA; &#x5D1;&#x5DB;&#x5DC; &#x5E8;&#x5D2;&#x5E2; &#x5D5;&#x5E8;&#x5D2;&#x5E2; &#x5D1;&#x5EA;&#x5D7;&#x5D5;&#x5E9;&#x5D4; &#x5E9;&#x5D4;&#x5D5;&#x5D0; &#x5DE;&#x5E9;&#x5DE;&#x5E2;&#x5D5;&#x5EA;&#x5D9;.
+                                    </div>
+                                </a>
+
+                                <h6 class="card-category text-success m-0 mt-3">במבצע!</h6>
+                                <div class="row mt-3 justify-content-center">
+
+                                    <a href="https://www.kabook.co.il/pl_product~168~15~0.htm?1=1">
+                                            <button class="px-2 mx-1 btn btn-primary btn-round "><i class="mdi-small mdi-book"></i> פיזי &nbsp;</button>
+                                    </a>
+                                    <a href="https://www.e-vrit.co.il/Product/7462/%d7%94%d7%a2%d7%95%d7%9c%d7%9d_%d7%9c%d7%90_%d7%99%d7%9b%d7%95%d7%9c_%d7%9c%d7%94%d7%aa%d7%a7%d7%99%d7%99%d7%9d_%d7%91%d7%9c%d7%a2%d7%93%d7%99%d7%9a">
+                                            <button class="px-2 mx-1 btn btn-primary btn-round "><i class="mdi-small mdi-tablet-cellphone"></i> דיגיטלי &nbsp;</button>
+                                    </a>
+                                    <a href="https://www.storytel.com/il/books/%D7%94%D7%A2%D7%95%D7%9C%D7%9D-%D7%9C%D7%90-%D7%99%D7%9B%D7%95%D7%9C-%D7%9C%D7%94%D7%AA%D7%A7%D7%99%D7%99%D7%9D-%D7%91%D7%9C%D7%A2%D7%93%D7%99%D7%9A-2230574">
+                                            <button class="px-2 mx-1 btn btn-primary btn-round "><i class="mdi-small mdi-volume-high"></i> קולי &nbsp;</button>
+                                    </a>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="rotating-card-container m-2" >
+                    <div class="card card-rotate text-center my-0" style="display:block">
+                        <div class="front" style="width: 300px; height:350px;">
+                            <div class="card-body text-center px-0" style="display:block; ">
+                                <h4 class="card-title mb-3">
+                                    &#x5D0;&#x5D9;&#x5D9;&#x5DB;&#x5D4;
+                                </h4>
+                                <img class="img" src="/media/3gzpppmb/אייכה.png?width=250&amp;height=250" alt="&#x5D0;&#x5D9;&#x5D9;&#x5DB;&#x5D4;" style="width: 250px">
+                            </div>
+                        </div>
+                        <div rel="prefetch" class="back" style="width: 300px; height:350px;">
+                            <div class="card-body">
+                                <a href="/&#x5E1;&#x5E4;&#x5E8;&#x5D9;&#x5DD;/&#x5D0;&#x5D9;&#x5D9;&#x5DB;&#x5D4;/">
+                                    <h4 class="card-title mb-2">
+                                        &#x5D0;&#x5D9;&#x5D9;&#x5DB;&#x5D4;
+                                    </h4>
+
+                                    <div class="card-description">
+                                        &#x5D1;&#x5D0;&#x5D9;&#x5E9;&#x5D5;&#x5DF; &#x5DC;&#x5D9;&#x5DC;&#x5D4; &#x5E2;&#x5D5;&#x5D6;&#x5D1; &#x5D0;&#x5E8;&#x5D9;&#x5D0;&#x5DC; &#x5D0;&#x5EA; &#x5D1;&#x5D9;&#x5EA;&#x5D5; &#x5D1;&#x5D7;&#x5D9;&#x5E4;&#x5D4; &#x5D5;&#x5D9;&#x5D5;&#x5E6;&#x5D0; &#x5D0;&#x5DC; &#x5E9;&#x5D3;&#x5D4; &#x5D4;&#x5EA;&#x5E2;&#x5D5;&#x5E4;&#x5D4;, &#x5DE;&#x5D5;&#x5EA;&#x5D9;&#x5E8; &#x5D0;&#x5D7;&#x5E8;&#x5D9;&#x5D5; &#x5E4;&#x5EA;&#x5E7; &#x5E7;&#x5D8;&#x5DF; &#x5E2;&#x5DC; &#x5D4;&#x5DB;&#x5E8;. &#x5D1;&#x5D3;&#x5D5;&#x5DE;&#x5D4; &#x5DC;&#x5E6;&#x5E2;&#x5D9;&#x5E8;&#x5D9;&#x5DD; &#x5D9;&#x5E9;&#x5E8;&#x5D0;&#x5DC;&#x5D9;&#x5DD; &#x5E8;&#x5D1;&#x5D9;&#x5DD;, &#x5D4;&#x5D5;&#x5D0; &#x5D8;&#x5E1; &#x5DC;&#x5D4;&#x5D5;&#x5D3;&#x5D5;, &#x5D0;&#x5DC;&#x5D0; &#x5E9;&#x5D4;&#x5D5;&#x5D0; &#x5D0;&#x5D9;&#x5E0;&#x5D5; &#x5D9;&#x5D5;&#x5E6;&#x5D0; &#x5DC;&#x5D8;&#x5D9;&#x5D5;&#x5DC; &#x5D4;&#x5D2;&#x5D3;&#x5D5;&#x5DC; &#x5E9;&#x5DC; &#x5D7;&#x5D9;&#x5D9;&#x5D5; &#x2013; &#x5D4;&#x5D5;&#x5D0; &#x5E0;&#x5DE;&#x5DC;&#x5D8;.
+                                    </div>
+                                </a>
+
+                                <h6 class="card-category text-success m-0 mt-3">במבצע!</h6>
+                                <div class="row mt-3 justify-content-center">
+
+                                    <a href="https://www.kabook.co.il/product.asp?Pid=59">
+                                            <button class="px-2 mx-1 btn btn-primary btn-round "><i class="mdi-small mdi-book"></i> פיזי &nbsp;</button>
+                                    </a>
+                                    <a href="https://www.e-vrit.co.il/Product/2058/%D7%90%D7%99%D7%9B%D7%94">
+                                            <button class="px-2 mx-1 btn btn-primary btn-round "><i class="mdi-small mdi-tablet-cellphone"></i> דיגיטלי &nbsp;</button>
+                                    </a>
+                                    <a href="https://www.icast.co.il/%D7%A1%D7%A4%D7%A8/%D7%90%D7%99%D7%9B%D7%94">
+                                            <button class="px-2 mx-1 btn btn-primary btn-round "><i class="mdi-small mdi-volume-high"></i> קולי &nbsp;</button>
+                                    </a>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="rotating-card-container m-2" >
+                    <div class="card card-rotate text-center my-0" style="display:block">
+                        <div class="front" style="width: 300px; height:350px;">
+                            <div class="card-body text-center px-0" style="display:block; ">
+                                <h4 class="card-title mb-3">
+                                    &#x5E7;&#x5DC;&#x5D9;&#x5E4;&#x5D5;&#x5EA; &#x5D4;&#x5E0;&#x5E4;&#x5E9;
+                                </h4>
+                                <img class="img" src="/media/5lojivxv/קליפות-הנפש.webp?width=250&amp;height=250" alt="&#x5E7;&#x5DC;&#x5D9;&#x5E4;&#x5D5;&#x5EA; &#x5D4;&#x5E0;&#x5E4;&#x5E9; &#x5DE;&#x5E9;&#x5D4; &#x5E9;&#x5E8;&#x5D5;&#x5DF;" style="width: 250px">
+                            </div>
+                        </div>
+                        <div rel="prefetch" class="back" style="width: 300px; height:350px;">
+                            <div class="card-body">
+                                <a href="/&#x5E1;&#x5E4;&#x5E8;&#x5D9;&#x5DD;/&#x5E7;&#x5DC;&#x5D9;&#x5E4;&#x5D5;&#x5EA;-&#x5D4;&#x5E0;&#x5E4;&#x5E9;/">
+                                    <h4 class="card-title mb-2">
+                                        &#x5E7;&#x5DC;&#x5D9;&#x5E4;&#x5D5;&#x5EA; &#x5D4;&#x5E0;&#x5E4;&#x5E9;
+                                    </h4>
+
+                                    <div class="card-description">
+                                        &#x5E1;&#x5E4;&#x5E8;&#x5D5; &#x5D4;&#x5E9;&#x5DE;&#x5D9;&#x5E0;&#x5D9; &#x5E9;&#x5DC; &#x5DE;&#x5E9;&#x5D4; &#x5E9;&#x5E8;&#x5D5;&#x5DF; &#x5DE;&#x5DC;&#x5DE;&#x5D3; 14 &#x5E2;&#x5E6;&#x5D5;&#x5EA; &#x5D6;&#x5D4;&#x5D1;, &#x5D0;&#x5D9;&#x5DA; &#x5DC;&#x5E7;&#x5DC;&#x5E3; 32 &#x5E7;&#x5DC;&#x5D9;&#x5E4;&#x5D5;&#x5EA; &#x5E9;&#x5D9;&#x5D5;&#x5E9;&#x5D1;&#x5D5;&#x5EA; &#x5DC;&#x5DB;&#x5DD; &#x5E2;&#x5DC; &#x5D4;&#x5DC;&#x5D1;, &#x5DB;&#x5D3;&#x5D9; &#x5E9;&#x5EA;&#x5D5;&#x5DB;&#x5DC;&#x5D5; &#x5DC;&#x5D4;&#x5D9;&#x5D5;&#x5EA; &#x5E4;&#x5E9;&#x5D5;&#x5D8;&#x5D9;&#x5DD; &#x5D5;&#x5DE;&#x5D0;&#x5D5;&#x5E9;&#x5E8;&#x5D9;&#x5DD; &#x5D9;&#x5D5;&#x5EA;&#x5E8;
+                                    </div>
+                                </a>
+
+                                <h6 class="card-category text-success m-0 mt-3">במבצע!</h6>
+                                <div class="row mt-3 justify-content-center">
+
+                                    <a href="https://www.kabook.co.il/pl_product~279~42~0.htm">
+                                            <button class="px-2 mx-1 btn btn-primary btn-round "><i class="mdi-small mdi-book"></i> פיזי &nbsp;</button>
+                                    </a>
+                                    <a href="https://www.e-vrit.co.il/Product/28457/%D7%A7%D7%9C%D7%99%D7%A4%D7%95%D7%AA_%D7%94%D7%A0%D7%A4%D7%A9">
+                                            <button class="px-2 mx-1 btn btn-primary btn-round "><i class="mdi-small mdi-tablet-cellphone"></i> דיגיטלי &nbsp;</button>
+                                    </a>
+                                    <a href="https://www.storytel.com/il/he/books/%D7%A7%D7%9C%D7%99%D7%A4%D7%95%D7%AA-%D7%94%D7%A0%D7%A4%D7%A9-2083858">
+                                            <button class="px-2 mx-1 btn btn-primary btn-round "><i class="mdi-small mdi-volume-high"></i> קולי &nbsp;</button>
+                                    </a>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="rotating-card-container m-2" >
+                    <div class="card card-rotate text-center my-0" style="display:block">
+                        <div class="front" style="width: 300px; height:350px;">
+                            <div class="card-body text-center px-0" style="display:block; ">
+                                <h4 class="card-title mb-3">
+                                    &#x5D4;&#x5E0;&#x5E1;&#x5D9;&#x5DA; &#x5E7;&#x5D5;&#x5E7;&#x5D5;&#x5E8;&#x5D9;&#x5E7;&#x5D5;
+                                </h4>
+                                <img class="img" src="/media/wrsfahzb/whatsapp-image-2022-07-18-at-12-14-46.jpeg?width=250&amp;height=250" alt="&#x5D4;&#x5E0;&#x5E1;&#x5D9;&#x5DA; &#x5E7;&#x5D5;&#x5E7;&#x5D5;&#x5E8;&#x5D9;&#x5E7;&#x5D5;" style="width: 250px">
+                            </div>
+                        </div>
+                        <div rel="prefetch" class="back" style="width: 300px; height:350px;">
+                            <div class="card-body">
+                                <a href="/&#x5E1;&#x5E4;&#x5E8;&#x5D9;&#x5DD;/&#x5D4;&#x5E0;&#x5E1;&#x5D9;&#x5DA;-&#x5E7;&#x5D5;&#x5E7;&#x5D5;&#x5E8;&#x5D9;&#x5E7;&#x5D5;/">
+                                    <h4 class="card-title mb-2">
+                                        &#x5D4;&#x5E0;&#x5E1;&#x5D9;&#x5DA; &#x5E7;&#x5D5;&#x5E7;&#x5D5;&#x5E8;&#x5D9;&#x5E7;&#x5D5;
+                                    </h4>
+
+                                    <div class="card-description">
+                                        &#x5DE;&#x5E9;&#x5DC; &#x5D4;&#x5D4;&#x5D9;&#x5E0;&#x5D3;&#x5D9;&#x5E7; &#x5D4;&#x5DE;&#x5E4;&#x5D5;&#x5E8;&#x5E1;&#x5DD; &#x5E9;&#x5DC; &#x5E8;&#x5D1;&#x5D9; &#x5E0;&#x5D7;&#x5DE;&#x5DF; &#x5DE;&#x5D1;&#x5E8;&#x5E1;&#x5DC;&#x5D1;, &#x5D6;&#x5D5;&#x5DB;&#x5D4; &#x5DB;&#x5E2;&#x5EA; &#x5DC;&#x5E2;&#x5D9;&#x5D1;&#x5D5;&#x5D3; &#x5DE;&#x5D7;&#x5D5;&#x5D3;&#x5E9;, &#x5DE;&#x5E9;&#x5E2;&#x5E9;&#x5E2; &#x5D5;&#x5E8;&#x5DC;&#x5D5;&#x5D5;&#x5E0;&#x5D8;&#x5D9; &#x5DE;&#x5EA;&#x5DE;&#x5D9;&#x5D3; &#x5DC;&#x5D9;&#x5DC;&#x5D3;&#x5D9;&#x5DD;, &#x5E4;&#x5E8;&#x5D9; &#x5D9;&#x5E6;&#x5D9;&#x5E8;&#x5EA;&#x5DD; &#x5E9;&#x5DC; &#x5D4;&#x5E1;&#x5D5;&#x5E4;&#x5E8; &#x5DE;&#x5E9;&#x5D4; &#x5E9;&#x5E8;&#x5D5;&#x5DF; &#x5D5;&#x5D4;&#x5DE;&#x5D0;&#x5D9;&#x5D9;&#x5E8;&#x5EA; &#x5E0;&#x5E2;&#x5DE;&#x5D4; &#x5DC;&#x5D4;&#x5D1;.
+                                    </div>
+                                </a>
+
+                                <div class="row mt-3 justify-content-center">
+
+                                    <a href="https://www.kabook.co.il/pl_product~236~15~0.htm?1=1">
+                                            <button class="px-2 mx-1 btn btn-primary btn-round "><i class="mdi-small mdi-book"></i> פיזי &nbsp;</button>
+                                    </a>
+                                    <a href="https://www.icast.co.il/%D7%A1%D7%A4%D7%A8/%D7%94%D7%A0%D7%A1%D7%99%D7%9A-%D7%A7%D7%95%D7%A7%D7%95%D7%A8%D7%99%D7%A7%D7%95">
+                                            <button class="px-2 mx-1 btn btn-primary btn-round "><i class="mdi-small mdi-volume-high"></i> קולי &nbsp;</button>
+                                    </a>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="rotating-card-container m-2" >
+                    <div class="card card-rotate text-center my-0" style="display:block">
+                        <div class="front" style="width: 300px; height:350px;">
+                            <div class="card-body text-center px-0" style="display:block; ">
+                                <h4 class="card-title mb-3">
+                                    &#x5E2;&#x5E9;&#x5E8;&#x5D4; &#x5E0;&#x5DB;&#x5E0;&#x5E1;&#x5D5; &#x5DC;&#x5E4;&#x5E8;&#x5D3;&quot;&#x5E1;
+                                </h4>
+                                <img class="img" src="/media/nz1a052p/עשרה-נכנסו-לפרדס.jpg?width=250&amp;height=250" alt="&#x5E2;&#x5E9;&#x5E8;&#x5D4; &#x5E0;&#x5DB;&#x5E0;&#x5E1;&#x5D5; &#x5DC;&#x5E4;&#x5E8;&#x5D3;&quot;&#x5E1;" style="width: 250px">
+                            </div>
+                        </div>
+                        <div rel="prefetch" class="back" style="width: 300px; height:350px;">
+                            <div class="card-body">
+                                <a href="/&#x5E1;&#x5E4;&#x5E8;&#x5D9;&#x5DD;/&#x5E2;&#x5E9;&#x5E8;&#x5D4;-&#x5E0;&#x5DB;&#x5E0;&#x5E1;&#x5D5;-&#x5DC;&#x5E4;&#x5E8;&#x5D3;&#x5E1;/">
+                                    <h4 class="card-title mb-2">
+                                        &#x5E2;&#x5E9;&#x5E8;&#x5D4; &#x5E0;&#x5DB;&#x5E0;&#x5E1;&#x5D5; &#x5DC;&#x5E4;&#x5E8;&#x5D3;&quot;&#x5E1;
+                                    </h4>
+
+                                    <div class="card-description">
+                                        &#x5D4;&#x5D0;&#x5DD; &#x5DE;&#x5D5;&#x5EA;&#x5E8; &#x5DC;&#x5DC;&#x5DE;&#x5D5;&#x5D3; &#x5E7;&#x5D1;&#x5DC;&#x5D4;? &#x5D4;&#x5D0;&#x5DD; &#x5DE;&#x5E9;&#x5EA;&#x5D2;&#x5E2;&#x5D9;&#x5DD; &#x5DE;&#x5E7;&#x5D1;&#x5DC;&#x5D4;? &#x5DC;&#x5DE;&#x5D4; &#x5D3;&#x5EA;&#x5D9;&#x5D9;&#x5DD; &#x5DE;&#x5EA;&#x5E0;&#x5D2;&#x5D3;&#x5D9;&#x5DD; &#x5DC;&#x5DC;&#x5D9;&#x5DE;&#x5D5;&#x5D3; &#x5E7;&#x5D1;&#x5DC;&#x5D4;? &#x5DE;&#x5D3;&#x5D5;&#x5E2; &#x5D4;&#x5EA;&#x5E4;&#x5E8;&#x5E1;&#x5DE;&#x5D4; &#x5D3;&#x5D5;&#x5D5;&#x5E7;&#x5D0; &#x5D1;&#x5D3;&#x5D5;&#x5E8;&#x5E0;&#x5D5;? &#x5E1;&#x5E4;&#x5E8;&#x5D5; &#x5D4;&#x5E8;&#x5D1;&#x5D9;&#x5E2;&#x5D9; &#x5E9;&#x5DC; &#x5DE;&#x5E9;&#x5D4; &#x5E9;&#x5E8;&#x5D5;&#x5DF; &#x5E2;&#x5D5;&#x5E0;&#x5D4; &#x5E2;&#x5DC; &#x5D4;&#x5E9;&#x5D0;&#x5DC;&#x5D5;&#x5EA; &#x5D4;&#x5E7;&#x5E9;&#x5D5;&#x5EA; &#x5D5;&#x5E2;&#x5D5;&#x5E9;&#x5D4; &#x5E1;&#x5D3;&#x5E8; - 10 &#x5E9;&#x5D9;&#x5E2;&#x5D5;&#x5E8;&#x5D9;&#x5DD; &#x5E8;&#x5D0;&#x5E9;&#x5D5;&#x5E0;&#x5D9;&#x5DD; &#x5D1;&#x5D7;&#x5DB;&#x5DE;&#x5EA; &#x5D4;&#x5E7;&#x5D1;&#x5DC;&#x5D4;. &#x5E1;&#x5E4;&#x5E8; &#x5DC;&#x5D9;&#x5DE;&#x5D5;&#x5D3; &#x5E9;&#x5DE;&#x5D1;&#x5D0;&#x5E8; &#x5DC;&#x5DB;&#x5DC; &#x5D0;&#x5D3;&#x5DD; &#x5D0;&#x5EA; &#x5D4;&#x5D7;&#x5DB;&#x5DE;&#x5D4; &#x5D4;&#x5E2;&#x5EA;&#x5D9;&#x5E7;&#x5D4; &#x5D1;&#x5E2;&#x5D5;&#x5DC;&#x5DD; &#x5D1;&#x5E9;&#x5E4;&#x5D4; &#x5D1;&#x5E8;&#x5D5;&#x5E8;&#x5D4; &#x5D5;&#x5E0;&#x5E2;&#x5D9;&#x5DE;&#x5D4;
+                                    </div>
+                                </a>
+
+                                <div class="row mt-3 justify-content-center">
+
+                                    <a href="https://www.kabook.co.il/pl_product~250~15~0.htm?1=1">
+                                            <button class="px-2 mx-1 btn btn-primary btn-round "><i class="mdi-small mdi-book"></i> פיזי &nbsp;</button>
+                                    </a>
+                                    <a href="https://www.e-vrit.co.il/Product/21452/%D7%A2%D7%A9%D7%A8%D7%94_%D7%A0%D7%9B%D7%A0%D7%A1%D7%95_%D7%9C%D7%A4%D7%A8%D7%93_%D7%A1">
+                                            <button class="px-2 mx-1 btn btn-primary btn-round "><i class="mdi-small mdi-tablet-cellphone"></i> דיגיטלי &nbsp;</button>
+                                    </a>
+                                    <a href="https://www.storytel.com/il/he/books/%D7%A2%D7%A9%D7%A8%D7%94-%D7%A0%D7%9B%D7%A0%D7%A1%D7%95-%D7%9C%D7%A4%D7%A8%D7%93%D7%A1-2129520">
+                                            <button class="px-2 mx-1 btn btn-primary btn-round "><i class="mdi-small mdi-volume-high"></i> קולי &nbsp;</button>
+                                    </a>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="rotating-card-container m-2" >
+                    <div class="card card-rotate text-center my-0" style="display:block">
+                        <div class="front" style="width: 300px; height:350px;">
+                            <div class="card-body text-center px-0" style="display:block; ">
+                                <h4 class="card-title mb-3">
+                                    &#x5E0;&#x5E4;&#x5DC;&#x5D0;&#x5D5;&#x5EA; &#x5D4;&#x5DB;&#x5E2;&#x5E1;
+                                </h4>
+                                <img class="img" src="/media/32eampcd/נפלאות-הכעס.jpg?width=250&amp;height=250" alt="&#x5E0;&#x5E4;&#x5DC;&#x5D0;&#x5D5;&#x5EA; &#x5D4;&#x5DB;&#x5E2;&#x5E1;" style="width: 250px">
+                            </div>
+                        </div>
+                        <div rel="prefetch" class="back" style="width: 300px; height:350px;">
+                            <div class="card-body">
+                                <a href="/&#x5E1;&#x5E4;&#x5E8;&#x5D9;&#x5DD;/&#x5E0;&#x5E4;&#x5DC;&#x5D0;&#x5D5;&#x5EA;-&#x5D4;&#x5DB;&#x5E2;&#x5E1;/">
+                                    <h4 class="card-title mb-2">
+                                        &#x5E0;&#x5E4;&#x5DC;&#x5D0;&#x5D5;&#x5EA; &#x5D4;&#x5DB;&#x5E2;&#x5E1;
+                                    </h4>
+
+                                    <div class="card-description">
+                                        &#x5DB;&#x5DE;&#x5D4; &#x5E4;&#x5E2;&#x5DE;&#x5D9;&#x5DD; &#x5D0;&#x5DE;&#x5E8;&#x5EA; &#x5DC;&#x5E2;&#x5E6;&#x5DE;&#x5DA;: &quot;&#x5D3;&#x5D9; &#x5DC;&#x5D4;&#x5EA;&#x5E2;&#x5E6;&#x5D1;&#x5DF;, &#x5D6;&#x5D4; &#x5D4;&#x5D5;&#x5E8;&#x5E1; &#x5D0;&#x5EA; &#x5D4;&#x5D1;&#x5E8;&#x5D9;&#x5D0;&#x5D5;&#x5EA;!&quot;? &#x5DB;&#x5DE;&#x5D4; &#x5E4;&#x5E2;&#x5DE;&#x5D9;&#x5DD; &#x5E0;&#x5E4;&#x5DC;&#x5EA; &#x5D0;&#x5DC; &#x5D0;&#x5D5;&#x5EA;&#x5D5; &#x5DB;&#x5E2;&#x5E1; &#x5DE;&#x5EA;&#x5E1;&#x5DB;&#x5DC;, &#x5DC;&#x5DE;&#x5E8;&#x5D5;&#x5EA; &#x5DB;&#x5DC; &#x5D4;&#x5EA;&#x5D9;&#x5D0;&#x5D5;&#x5E8;&#x5D9;&#x5D5;&#x5EA; &#x5E9;&#x5DC;&#x5DE;&#x5D3;&#x5EA;? &#x5D4;&#x5D0;&#x5DD; &#x5D9;&#x5E9;&#x5E0;&#x5D4; &#x5D3;&#x5E8;&#x5DA; &#x5E1;&#x5D3;&#x5D5;&#x5E8;&#x5D4; &#x5DC;&#x5D4;&#x5D2;&#x5D9;&#x5E2; &#x5DC;&#x5E9;&#x5DC;&#x5D5;&#x5D5;&#x5D4; &#x5D5;&#x5DC;&#x5D0;&#x5D9;&#x5D6;&#x5D5;&#x5DF; &#x5E8;&#x5D2;&#x5E9;&#x5D9;?
+                                    </div>
+                                </a>
+
+                                <h6 class="card-category text-success m-0 mt-3">במבצע!</h6>
+                                <div class="row mt-3 justify-content-center">
+
+                                    <a href="https://www.kabook.co.il/pl_product~226~15~0.htm?1=1">
+                                            <button class="px-2 mx-1 btn btn-primary btn-round "><i class="mdi-small mdi-book"></i> פיזי &nbsp;</button>
+                                    </a>
+                                    <a href="https://www.e-vrit.co.il/Product/31878/%D7%A0%D7%A4%D7%9C%D7%90%D7%95%D7%AA_%D7%94%D7%9B%D7%A2%D7%A1">
+                                            <button class="px-2 mx-1 btn btn-primary btn-round "><i class="mdi-small mdi-tablet-cellphone"></i> דיגיטלי &nbsp;</button>
+                                    </a>
+                                    <a href="https://books.icast.co.il/%D7%A1%D7%A4%D7%A8/%D7%A0%D7%A4%D7%9C%D7%90%D7%95%D7%AA-%D7%94%D7%9B%D7%A2%D7%A1">
+                                            <button class="px-2 mx-1 btn btn-primary btn-round "><i class="mdi-small mdi-volume-high"></i> קולי &nbsp;</button>
+                                    </a>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="rotating-card-container m-2" >
+                    <div class="card card-rotate text-center my-0" style="display:block">
+                        <div class="front" style="width: 300px; height:350px;">
+                            <div class="card-body text-center px-0" style="display:block; ">
+                                <h4 class="card-title mb-3">
+                                    &#x5D6;&#x5D5;&#x5D2;&#x5D5;&#x5EA; &#x5D6;&#x5D5;&#x5D2;&#x5D5;&#x5EA;
+                                </h4>
+                                <img class="img" src="/media/0puc4u1g/zugot.webp?width=250&amp;height=250" alt="&#x5D6;&#x5D5;&#x5D2;&#x5D5;&#x5EA; &#x5D6;&#x5D5;&#x5D2;&#x5D5;&#x5EA;" style="width: 250px">
+                            </div>
+                        </div>
+                        <div rel="prefetch" class="back" style="width: 300px; height:350px;">
+                            <div class="card-body">
+                                <a href="/&#x5E1;&#x5E4;&#x5E8;&#x5D9;&#x5DD;/&#x5D6;&#x5D5;&#x5D2;&#x5D5;&#x5EA;-&#x5D6;&#x5D5;&#x5D2;&#x5D5;&#x5EA;/">
+                                    <h4 class="card-title mb-2">
+                                        &#x5D6;&#x5D5;&#x5D2;&#x5D5;&#x5EA; &#x5D6;&#x5D5;&#x5D2;&#x5D5;&#x5EA;
+                                    </h4>
+
+                                    <div class="card-description">
+                                        &#x5DB;&#x5D9;&#x5E6;&#x5D3; &#x5DE;&#x5E1;&#x5D9;&#x5D9;&#x5E2;&#x5D9;&#x5DD; &#x5DC;&#x5DC;&#x5D9;&#x5E8;&#x5DF; &#x5D5;&#x5D4;&#x5D3;&#x5E1; &#x5DC;&#x5D4;&#x5EA;&#x5DE;&#x5D5;&#x5D3;&#x5D3; &#x5E2;&#x5DD; &#x5D4;&#x5E2;&#x5D5;&#x5D1;&#x5D3;&#x5D4; &#x5E9;&#x5D4;&#x5DD; &#x5E9;&#x5D5;&#x5E0;&#x5D9;&#x5DD; &#x5DB;&#x5DC; &#x5DB;&#x5DA;? &#x5DE;&#x5D4; &#x5D0;&#x5DE;&#x5D5;&#x5E8;&#x5D4; &#x5DC;&#x5E2;&#x5E9;&#x5D5;&#x5EA; &#x5D9;&#x5D5;&#x5E0;&#x5D9;&#x5EA; &#x5DB;&#x5E9;&#x5D1;&#x5E2;&#x5DC;&#x5D4;, &#x5D0;&#x5DE;&#x5E0;&#x5D5;&#x5DF;, &#x5DE;&#x5E2;&#x5E8;&#x5E2;&#x5E8; &#x5DC;&#x5D4; &#x5D0;&#x5EA; &#x5D4;&#x5D1;&#x5D9;&#x5D8;&#x5D7;&#x5D5;&#x5DF; &#x5E9;&#x5D4;&#x5D9;&#x5D0; &#x5D6;&#x5E7;&#x5D5;&#x5E7;&#x5D4; &#x5DC;&#x5D5;? &#x5D0;&#x5D9;&#x5DA; &#x5D0;&#x5E1;&#x5D9; &#x5D9;&#x5DB;&#x5D5;&#x5DC; &#x5DC;&#x5D7;&#x5D9;&#x5D5;&#x5EA; &#x5E2;&#x5DD; &#x5DE;&#x5D9;&#x5E8;&#x5D1; &#x5E9;&#x5D7;&#x5D5;&#x5E9;&#x5D1;&#x5EA; &#x5E9;&#x5D4;&#x5D9;&#x5D0; &#x5D9;&#x5D5;&#x5D3;&#x5E2;&#x5EA; &#x5D4;&#x5DB;&#x5DC;? &#x5DE;&#x5E9;&#x5D4; &#x5E9;&#x5E8;&#x5D5;&#x5DF; &#x5D7;&#x5D5;&#x5E9;&#x5E3; &#x5D1;&#x5E4;&#x5E0;&#x5D9;&#x5E0;&#x5D5; &#x5D0;&#x5EA; &#x5E1;&#x5D9;&#x5E4;&#x5D5;&#x5E8;&#x5D9;&#x5D4;&#x5DD; &#x5E9;&#x5DC; &#x5E2;&#x5E9;&#x5E8;&#x5D4; &#x5D6;&#x5D5;&#x5D2;&#x5D5;&#x5EA;, &#x5E2;&#x5DC; &#x5D4;&#x5D4;&#x5EA;&#x5E8;&#x5D2;&#x5E9;&#x5D5;&#x5EA;, &#x5D4;&#x5DB;&#x5D0;&#x5D1; &#x5D5;&#x5D4;&#x5DE;&#x5D5;&#x5E8;&#x5DB;&#x5D1;&#x5D5;&#x5EA; &#x5E9;&#x5DE;&#x5D6;&#x5DE;&#x5E0;&#x5EA; &#x5D0;&#x5D9;&#x5EA;&#x5D4; &#x5DE;&#x5E2;&#x5E8;&#x5DB;&#x5EA; &#x5D9;&#x5D7;&#x5E1;&#x5D9;&#x5DD; &#x5D0;&#x5D9;&#x5E0;&#x5D8;&#x5D9;&#x5DE;&#x5D9;&#x5EA; &#x5D1;&#x5D9;&#x5DF; &#x5D0;&#x5D9;&#x5E9; &#x5D5;&#x5D0;&#x5D9;&#x5E9;&#x5D4;, &#x5D5;&#x5DE;&#x5E6;&#x5D9;&#x5E2; &#x5E4;&#x5EA;&#x5E8;&#x5D5;&#x5E0;&#x5D5;&#x5EA; &#x5DE;&#x5E2;&#x5E9;&#x5D9;&#x5D9;&#x5DD; &#x5E9;&#x5DB;&#x5DC; &#x5E7;&#x5D5;&#x5E8;&#x5D0; &#x5D9;&#x5DB;&#x5D5;&#x5DC; &#x5DC;&#x5D4;&#x5E9;&#x5EA;&#x5DE;&#x5E9; &#x5D1;&#x5D4;&#x5DD; &#x5E2;&#x5DC; &#x5DE;&#x5E0;&#x5EA; &#x5DC;&#x5E9;&#x5E4;&#x5E8; &#x5D5;&#x5DC;&#x5D3;&#x5D9;&#x5D9;&#x5E7; &#x5D0;&#x5EA; &#x5D7;&#x5D9;&#x5D9; &#x5D4;&#x5D6;&#x5D5;&#x5D2;&#x5D9;&#x5D5;&#x5EA; &#x5E9;&#x5DC;&#x5D5;.
+                                    </div>
+                                </a>
+
+                                <h6 class="card-category text-success m-0 mt-3">במבצע!</h6>
+                                <div class="row mt-3 justify-content-center">
+
+                                    <a href="https://www.kabook.co.il/pl_product~196~15~0.htm?1=1">
+                                            <button class="px-2 mx-1 btn btn-primary btn-round "><i class="mdi-small mdi-book"></i> פיזי &nbsp;</button>
+                                    </a>
+                                    <a href="https://www.e-vrit.co.il/Product/31585/%D7%96%D7%95%D7%92%D7%95%D7%AA_%D7%96%D7%95%D7%92%D7%95%D7%AA">
+                                            <button class="px-2 mx-1 btn btn-primary btn-round "><i class="mdi-small mdi-tablet-cellphone"></i> דיגיטלי &nbsp;</button>
+                                    </a>
+                                    <a href="https://www.icast.co.il/%D7%A1%D7%A4%D7%A8/%D7%96%D7%95%D7%92%D7%95%D7%AA-%D7%96%D7%95%D7%92%D7%95%D7%AA">
+                                            <button class="px-2 mx-1 btn btn-primary btn-round "><i class="mdi-small mdi-volume-high"></i> קולי &nbsp;</button>
+                                    </a>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="rotating-card-container m-2" >
+                    <div class="card card-rotate text-center my-0" style="display:block">
+                        <div class="front" style="width: 300px; height:350px;">
+                            <div class="card-body text-center px-0" style="display:block; ">
+                                <h4 class="card-title mb-3">
+                                    &#x5D9;&#x5D5;&#x5DD; &#x5DC;&#x5D9;&#x5D5;&#x5DD;
+                                </h4>
+                                <img class="img" src="/media/t1hbtt3o/יום-ליום.jpg?width=250&amp;height=250" alt="&#x5D9;&#x5D5;&#x5DD; &#x5DC;&#x5D9;&#x5D5;&#x5DD;" style="width: 250px">
+                            </div>
+                        </div>
+                        <div rel="prefetch" class="back" style="width: 300px; height:350px;">
+                            <div class="card-body">
+                                <a href="/&#x5E1;&#x5E4;&#x5E8;&#x5D9;&#x5DD;/&#x5D9;&#x5D5;&#x5DD;-&#x5DC;&#x5D9;&#x5D5;&#x5DD;/">
+                                    <h4 class="card-title mb-2">
+                                        &#x5D9;&#x5D5;&#x5DD; &#x5DC;&#x5D9;&#x5D5;&#x5DD;
+                                    </h4>
+
+                                    <div class="card-description">
+                                        &#x5D4;&#x5DE;&#x5EA;&#x5E0;&#x5D4; &#x5D4;&#x5D0;&#x5D5;&#x5DC;&#x5D8;&#x5D9;&#x5DE;&#x5D8;&#x5D9;&#x5D1;&#x5D9;&#x5EA;! 360 &#x5E6;&#x5D9;&#x5D8;&#x5D5;&#x5D8;&#x5D9;&#x5DD; &#x5E9;&#x5DC; &#x5D2;&#x5D3;&#x5D5;&#x5DC;&#x5D9; &#x5D9;&#x5E9;&#x5E8;&#x5D0;&#x5DC; &#x5DE;&#x5E1;&#x5D5;&#x5D3;&#x5E8;&#x5D9;&#x5DD; &#x5D5;&#x5DE;&#x5EA;&#x5D0;&#x5D9;&#x5DE;&#x5D9;&#x5DD; &#x5DC;&#x5DB;&#x5DC; &#x5D9;&#x5D5;&#x5DD; &#x5D1;&#x5DC;&#x5D5;&#x5D7; &#x5D4;&#x5E9;&#x5E0;&#x5D4; &#x5D4;&#x5E2;&#x5D1;&#x5E8;&#x5D9; &#x5D1;&#x5E9;&#x5E4;&#x5D4; &#x5D1;&#x5E8;&#x5D5;&#x5E8;&#x5D4; &#x5D5;&#x5E0;&#x5E2;&#x5D9;&#x5DE;&#x5D4; &#x5D1;&#x5D0;&#x5D5;&#x5EA;&#x5D9;&#x5D5;&#x5EA; &#x5D2;&#x5D3;&#x5D5;&#x5DC;&#x5D5;&#x5EA; &#x5D5;&#x5DE;&#x5D0;&#x5D9;&#x5E8;&#x5D5;&#x5EA; &#x5E2;&#x5D9;&#x5E0;&#x5D9;&#x5D9;&#x5DD;. &quot;&#x5D9;&#x5D5;&#x5DD; &#x5DC;&#x5D9;&#x5D5;&#x5DD;&quot; &#x5D4;&#x5D5;&#x5D0; &#x5E1;&#x5E4;&#x5E8;&#x5D5;&#x5DF; &#x5E7;&#x5D8;&#x5DF; &#x5D5;&#x5EA;&#x5DB;&#x5DC;&#x5EA;, &#x5E2;&#x5DD; &#x5DB;&#x5E8;&#x5D9;&#x5DB;&#x5D4; &#x5E8;&#x5DB;&#x5D4; &#x5DB;&#x5D9;&#x5E4;&#x5D9;&#x5EA; &#x5D5;&#x5E0;&#x5D5;&#x5DB;&#x5D7;&#x5D5;&#x5EA; &#x5E9;&#x5DE;&#x5D6;&#x5DE;&#x5D9;&#x5E0;&#x5D4; &#x5DC;&#x5D4;&#x5DB;&#x5E0;&#x5D9;&#x5E1; &#x5D0;&#x5D5;&#x5EA;&#x5D5; &#x5DC;&#x5EA;&#x5D9;&#x5E7; &#x5D0;&#x5D5; &#x5DC;&#x5D4;&#x5E0;&#x5D9;&#x5D7; &#x5D0;&#x5D5;&#x5EA;&#x5D5; &#x5DC;&#x5D9;&#x5D3; &#x5D4;&#x5DB;&#x5E8;&#x5D9;&#x5EA;. &quot;&#x5D9;&#x5D5;&#x5DD; &#x5DC;&#x5D9;&#x5D5;&#x5DD;&quot; &#x5D4;&#x5D5;&#x5D0; &#x5D0;&#x5D5;&#x5E6;&#x5E8; &#x5E9;&#x5D0;&#x5D9;&#x5DF; &#x5DB;&#x5D3;&#x5D5;&#x5D2;&#x5DE;&#x5EA;&#x5D5;, &#x5D4;&#x5D5;&#x5D0; &#x5DC;&#x5D9;&#x5E7;&#x5D5;&#x5D8; &#x5DE;&#x5D3;&#x5D5;&#x5D9;&#x5E7; &#x5E9;&#x5DC; &#x5D3;&#x5D1;&#x5E8;&#x5D9; &#x5D7;&#x5D6;&quot;&#x5DC; &#x5DC;&#x5D0;&#x5D5;&#x5E8;&#x5DA; &#x5D4;&#x5D3;&#x5D5;&#x5E8;&#x5D5;&#x5EA;, &#x5D4;&#x5D5;&#x5D0; &#x5DE;&#x5EA;&#x5E0;&#x5D4; &#x5DC;&#x5DB;&#x5DC; &#x5D0;&#x5D9;&#x5E9; &#x5E1;&#x5E4;&#x5E8; &#x5D5;&#x5DC;&#x5DB;&#x5DC; &#x5DE;&#x5D9; &#x5E9;&#x5D7;&#x5DB;&#x5DE;&#x5EA;&#x5DD; &#x5E9;&#x5DC; &#x5D2;&#x5D3;&#x5D5;&#x5DC;&#x5D9; &#x5D9;&#x5E9;&#x5E8;&#x5D0;&#x5DC; &#x5DE;&#x5E7;&#x5D9;&#x5E6;&#x5D4; &#x5D1;&#x5D5; &#x5D0;&#x5D9;&#x5D1;&#x5E8;&#x5D9;&#x5DD; &#x5E9;&#x5DC;&#x5D0; &#x5D9;&#x5D3;&#x5E2; &#x5E2;&#x5DC; &#x5E7;&#x5D9;&#x5D5;&#x5DE;&#x5DD;.
+                                    </div>
+                                </a>
+
+                                <h6 class="card-category text-success m-0 mt-3">במבצע!</h6>
+                                <div class="row mt-3 justify-content-center">
+
+                                    <a href="https://www.kabook.co.il/pl_product~137~42~0.htm">
+                                            <button class="px-2 mx-1 btn btn-primary btn-round "><i class="mdi-small mdi-book"></i> פיזי &nbsp;</button>
+                                    </a>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="rotating-card-container m-2" >
+                    <div class="card card-rotate text-center my-0" style="display:block">
+                        <div class="front" style="width: 300px; height:350px;">
+                            <div class="card-body text-center px-0" style="display:block; ">
+                                <h4 class="card-title mb-3">
+                                    who you were meant to be
+                                </h4>
+                                <img class="img" src="/media/pf0k44ih/wymtb.webp?width=250&amp;height=250" alt="who you were meant to be" style="width: 250px">
+                            </div>
+                        </div>
+                        <div rel="prefetch" class="back" style="width: 300px; height:350px;">
+                            <div class="card-body">
+                                <a href="/&#x5E1;&#x5E4;&#x5E8;&#x5D9;&#x5DD;/who-you-were-meant-to-be/">
+                                    <h4 class="card-title mb-2">
+                                        who you were meant to be
+                                    </h4>
+
+                                    <div class="card-description">
+                                        A guide to finding your purpose in life
+                                    </div>
+                                </a>
+
+                                <h6 class="card-category text-success m-0 mt-3">במבצע!</h6>
+                                <div class="row mt-3 justify-content-center">
+
+                                    <a href="https://www.kabook.co.il/pl_product~214~15~0.htm?1=1">
+                                            <button class="px-2 mx-1 btn btn-primary btn-round "><i class="mdi-small mdi-book"></i> פיזי &nbsp;</button>
+                                    </a>
+                                    <a href="https://www.amazon.com/-/he/Moshe-Sharon-ebook/dp/B07N6FXWSV/ref=sr_1_1?crid=145RP1KDRPZCC&amp;dib=eyJ2IjoiMSJ9.sFfp4pfvEESZ8wZshnubMVpvyuyzrMX2yrvV79nRpPrGjHj071QN20LucGBJIEps.BAab771DZehmBgJaskKzZmZ8YckCUFUHy7mq22wBHog&amp;dib_tag=se&amp;keywords=who&#x2B;you&#x2B;were&#x2B;meant&#x2B;to&#x2B;be&#x2B;moshe&#x2B;sharon&amp;qid=1709804633&amp;s=books&amp;sprefix=who&#x2B;you&#x2B;were&#x2B;meant&#x2B;to&#x2B;be&#x2B;moshe&#x2B;sharon%2Cstripbooks-intl-ship%2C201&amp;sr=1-1">
+                                            <button class="px-2 mx-1 btn btn-primary btn-round "><i class="mdi-small mdi-tablet-cellphone"></i> דיגיטלי &nbsp;</button>
+                                    </a>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="rotating-card-container m-2" >
+                    <div class="card card-rotate text-center my-0" style="display:block">
+                        <div class="front" style="width: 300px; height:350px;">
+                            <div class="card-body text-center px-0" style="display:block; ">
+                                <h4 class="card-title mb-3">
+                                    &#x5D0;&#x5D7;&#x5D9; &#x5D0;&#x5D4;&#x5E8;&#x5DF; &#x5D5;&#x5D0;&#x5DE;&#x5D0; &#x5D1;&#x5D4;&#x5E8;&#x5D9;&#x5D5;&#x5DF;
+                                </h4>
+                                <img class="img" src="/media/rqtppov2/אחי-אהרן.jpg?width=250&amp;height=250" alt="&#x5E1;&#x5E4;&#x5E8; &#x5D9;&#x5DC;&#x5D3;&#x5D9;&#x5DD; &#x5D0;&#x5D7;&#x5D9; &#x5D0;&#x5D4;&#x5E8;&#x5DF; &#x5D5;&#x5D0;&#x5DE;&#x5D0; &#x5D1;&#x5D4;&#x5E8;&#x5D9;&#x5D5;&#x5DF; &#x5DE;&#x5E9;&#x5D4; &#x5E9;&#x5E8;&#x5D5;&#x5DF;" style="width: 250px">
+                            </div>
+                        </div>
+                        <div rel="prefetch" class="back" style="width: 300px; height:350px;">
+                            <div class="card-body">
+                                <a href="/&#x5E1;&#x5E4;&#x5E8;&#x5D9;&#x5DD;/&#x5D0;&#x5D7;&#x5D9;-&#x5D0;&#x5D4;&#x5E8;&#x5DF;-&#x5D5;&#x5D0;&#x5DE;&#x5D0;-&#x5D1;&#x5D4;&#x5E8;&#x5D9;&#x5D5;&#x5DF;/">
+                                    <h4 class="card-title mb-2">
+                                        &#x5D0;&#x5D7;&#x5D9; &#x5D0;&#x5D4;&#x5E8;&#x5DF; &#x5D5;&#x5D0;&#x5DE;&#x5D0; &#x5D1;&#x5D4;&#x5E8;&#x5D9;&#x5D5;&#x5DF;
+                                    </h4>
+
+                                    <div class="card-description">
+                                        &#x5D0;&#x5D3;&#x5E8; &#x5DE;&#x5D2;&#x5DC;&#x5D4; &#x5E9;&#x5D0;&#x5DE;&#x5D0; &#x5E9;&#x5DC;&#x5D4; &#x5D1;&#x5D4;&#x5E8;&#x5D9;&#x5D5;&#x5DF; &#x5D5;&#x5D9;&#x5D5;&#x5E6;&#x5D0;&#x5EA; &#x5DC;&#x5DE;&#x5E1;&#x5E2; &#x5E9;&#x5DB;&#x5E0;&#x5D5;&#x5E2;&#x5D9;&#x5DD; &#x5DE;&#x5D5;&#x5DC; &#x5D4;&#x5D5;&#x5E8;&#x5D9;&#x5D4; &#x5DB;&#x5D3;&#x5D9; &#x5E9;&#x5D9;&#x5E7;&#x5E8;&#x5D0;&#x5D5; &#x5DC;&#x5D0;&#x5D7;&#x5D9;&#x5D4; &#x2013; &#x5D0;&#x5D4;&#x5E8;&#x5DF;. &#x5D4;&#x5D5;&#x5E8;&#x5D9;&#x5D4; &#x5DC;&#x5D0; &#x5DE;&#x5E2;&#x5D5;&#x5E0;&#x5D9;&#x5D9;&#x5E0;&#x5D9;&#x5DD;, &#x5DB;&#x5D9; &#x5D4;&#x5E9;&#x5DD; &#x5D0;&#x5D4;&#x5E8;&#x5DF; &#x5E0;&#x5E8;&#x5D0;&#x5D4; &#x5D1;&#x5E2;&#x5D9;&#x5E0;&#x5D9;&#x5D4;&#x5DD; &#x5E9;&#x5DD; &#x27;&#x5E2;&#x5EA;&#x5D9;&#x5E7;&#x27; &#x5D5;&#x5DC;&#x5D0; &#x5E8;&#x5DC;&#x5D5;&#x5D5;&#x5E0;&#x5D8;&#x5D9; &#x5D5;&#x5E0;&#x5D5;&#x5E6;&#x5E8; &#x5E7;&#x5D5;&#x5E0;&#x5E4;&#x5DC;&#x5D9;&#x5E7;&#x5D8; &#x5DE;&#x5E9;&#x5E2;&#x5E9;&#x5E2; &#x5D1;&#x5D9;&#x5DF; &#x5D4;&#x5E8;&#x5E6;&#x5D5;&#x5E0;&#x5D5;&#x5EA; &#x5E9;&#x5DC;&#x5D4;&#x5DD; &#x5DC;&#x5E8;&#x5E6;&#x5D5;&#x5DF; &#x5E9;&#x5DC;&#x5D4; - &#x5E2;&#x5D3; &#x5DC;&#x5E8;&#x5D2;&#x5E2; &#x5D4;&#x5D0;&#x5DE;&#x5EA;, &#x5D8;&#x5E7;&#x5E1; &#x5D1;&#x5E8;&#x5D9;&#x5EA; &#x5D4;&#x5DE;&#x5D9;&#x5DC;&#x5D4;, &#x5D1;&#x5D5; &#x5DE;&#x5DB;&#x5E8;&#x5D9;&#x5D6;&#x5D9;&#x5DD; &#x5E2;&#x5DC; &#x5D4;&#x5E9;&#x5DD; &#x5E9;&#x5E0;&#x5D1;&#x5D7;&#x5E8;. &#x5DE;&#x5D4; &#x5D9;&#x5E7;&#x5E8;&#x5D4; &#x5D1;&#x5E1;&#x5D5;&#x5E3;? &#x5D5;&#x5D0;&#x5DD; &#x5DC;&#x5D0; &#x5D9;&#x5D9;&#x5D1;&#x5D7;&#x5E8; &#x5D4;&#x5E9;&#x5DD; &#x5E9;&#x5D0;&#x5D3;&#x5E8; &#x5E8;&#x5E6;&#x5EA;&#x5D4;, &#x5DB;&#x5D9;&#x5E6;&#x5D3; &#x5D4;&#x5D9;&#x5D0; &#x5EA;&#x5D2;&#x5D9;&#x5D1; &#x5D5;&#x5DE;&#x5D4; &#x5EA;&#x5E2;&#x5E9;&#x5D4;? &#x5D1;&#x5D4;&#x5D5;&#x5DE;&#x5D5;&#x5E8;, &#x5DE;&#x5E9;&#x5D7;&#x5E7; &#x5D5;&#x5E6;&#x5D1;&#x5E2;, &#x5DE;&#x5DC;&#x5D5;&#x5D5;&#x5D9;&#x5DD; &#x5D4;&#x5E1;&#x5D5;&#x5E4;&#x5E8; &#x5DE;&#x5E9;&#x5D4; &#x5E9;&#x5E8;&#x5D5;&#x5DF; &#x5D5;&#x5D4;&#x5DE;&#x5D0;&#x5D9;&#x5D9;&#x5E8;&#x5EA; &#x5E9;&#x5DC;&#x5D4;&#x5D1;&#x5EA;&#x5D9;&#x5D4; &#x5D6;&#x5D9;&#x5E1;, &#x5D0;&#x5EA; &#x5D0;&#x5D3;&#x5E8; &#x5D4;&#x5D2;&#x5D9;&#x5D1;&#x5D5;&#x5E8;&#x5D4; (&#x5EA;&#x5E8;&#x5EA;&#x5D9; &#x5DE;&#x5E9;&#x5DE;&#x5E2;) &#x5D0;&#x5DC; &#x5D4;&#x5E8;&#x5D2;&#x5E2; &#x5E9;&#x5D1;&#x5D5; &#x5EA;&#x5D9;&#x5D0;&#x5DC;&#x5E5; &#x5DC;&#x5D4;&#x5EA;&#x5DE;&#x5D5;&#x5D3;&#x5D3; &#x5E2;&#x5DD; &#x5E2;&#x5D5;&#x5D1;&#x5D3;&#x5EA; &#x5D4;&#x5D7;&#x5D9;&#x5D9;&#x5DD; &#x5D4;&#x5DB;&#x5D5;&#x5D0;&#x5D1;&#x5EA; - &#x5E9;&#x5DC;&#x5D0; &#x5D4;&#x5DB;&#x5D5;&#x5DC; &#x5E7;&#x5D5;&#x5E8;&#x5D4; &#x5D1;&#x5D3;&#x5D9;&#x5D5;&#x5E7; &#x5DB;&#x5DE;&#x5D5; &#x5E9;&#x5D4;&#x5D9;&#x5D0; &#x5E6;&#x5D9;&#x5E4;&#x5EA;&#x5D4; &#x5D5;&#x5D7;&#x5DC;&#x5DE;&#x5D4;.
+                                    </div>
+                                </a>
+
+                                <h6 class="card-category text-success m-0 mt-3">במבצע!</h6>
+                                <div class="row mt-3 justify-content-center">
+
+                                    <a href="https://www.kabook.co.il/pl_product~310~42~0.htm">
+                                            <button class="px-2 mx-1 btn btn-primary btn-round "><i class="mdi-small mdi-book"></i> פיזי &nbsp;</button>
+                                    </a>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="rotating-card-container m-2" >
+                    <div class="card card-rotate text-center my-0" style="display:block">
+                        <div class="front" style="width: 300px; height:350px;">
+                            <div class="card-body text-center px-0" style="display:block; ">
+                                <h4 class="card-title mb-3">
+                                    &#x5D4;&#x5D9;&#x5DB;&#x5DF; &#x5E8;&#x5D5;&#x5DB;&#x5E9;&#x5D9;&#x5DD; &#x5D0;&#x5EA; &#x5E1;&#x5E4;&#x5E8;&#x5D9;&#x5D5; &#x5E9;&#x5DC; &#x5DE;&#x5E9;&#x5D4; &#x5E9;&#x5E8;&#x5D5;&#x5DF;?
+                                </h4>
+                                <img class="img" src="/media/13al5nh1/elg-74.jpg?rxy=0.5050114247942461,0.3192358592625948&amp;width=250&amp;height=250" alt="&#x5D4;&#x5E1;&#x5E4;&#x5E8;&#x5D9;&#x5DD; &#x5E9;&#x5DC; &#x5DE;&#x5E9;&#x5D4; &#x5E9;&#x5E8;&#x5D5;&#x5DF;" style="width: 250px">
+                            </div>
+                        </div>
+                        <div rel="prefetch" class="back" style="width: 300px; height:350px;">
+                            <div class="card-body">
+                                <a href="/&#x5E1;&#x5E4;&#x5E8;&#x5D9;&#x5DD;/&#x5D4;&#x5D9;&#x5DB;&#x5DF;-&#x5E8;&#x5D5;&#x5DB;&#x5E9;&#x5D9;&#x5DD;/">
+                                    <h4 class="card-title mb-2">
+                                        &#x5D4;&#x5D9;&#x5DB;&#x5DF; &#x5E8;&#x5D5;&#x5DB;&#x5E9;&#x5D9;&#x5DD; &#x5D0;&#x5EA; &#x5E1;&#x5E4;&#x5E8;&#x5D9;&#x5D5; &#x5E9;&#x5DC; &#x5DE;&#x5E9;&#x5D4; &#x5E9;&#x5E8;&#x5D5;&#x5DF;?
+                                    </h4>
+
+                                    <div class="card-description">
+                                        &#x5DB;&#x5D9;&#x5E6;&#x5D3; &#x5EA;&#x5D5;&#x5DB;&#x5DC;&#x5D5; &#x5DC;&#x5E8;&#x5DB;&#x5D5;&#x5E9; &#x5D0;&#x5EA; &#x5E1;&#x5E4;&#x5E8;&#x5D9;&#x5D5; &#x5E9;&#x5DC; &#x5DE;&#x5E9;&#x5D4; &#x5E9;&#x5E8;&#x5D5;&#x5DF;
+                                    </div>
+                                </a>
+
+                                <div class="row mt-3 justify-content-center">
+
+                                    <a href="https://www.kabook.co.il/items~42.htm">
+                                            <button class="px-2 mx-1 btn btn-primary btn-round "><i class="mdi-small mdi-book"></i> פיזי &nbsp;</button>
+                                    </a>
+                                    <a href="https://www.e-vrit.co.il/Author/1261/%D7%9E%D7%A9%D7%94_%D7%A9%D7%A8%D7%95%D7%9F">
+                                            <button class="px-2 mx-1 btn btn-primary btn-round "><i class="mdi-small mdi-tablet-cellphone"></i> דיגיטלי &nbsp;</button>
+                                    </a>
+                                    <a href="https://www.storytel.com/il/narrators/%D7%9E%D7%A9%D7%94-%D7%A9%D7%A8%D7%95%D7%9F-417282">
+                                            <button class="px-2 mx-1 btn btn-primary btn-round "><i class="mdi-small mdi-volume-high"></i> קולי &nbsp;</button>
+                                    </a>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+    </div>
+
+</div>
+
+
+
+    </div>
+
+    
+
+
+<footer class="footer footer-big" style="background-color:#dddddd">
+
+    <div class="container" >
+        <div class="content">
+            <div class="row">
+                <div class="col-md-4 flex-column d-flex flex-column">
+                    <h5>תוכן</h5>
+                    <a class="mb-2 text-gray" href="/">דף הבית</a>
+
+                    <a class="mb-2 text-gray" href="/אודות">אודות</a>
+
+                    <a class="mb-2 text-gray" href="/מאמרים">מאמרים</a>
+
+                    <a class="mb-2 text-gray" href="/קורסים-והרצאות">קורסים והרצאות</a>
+
+                    <a class="mb-2 text-gray" href="/אירועים">אירועים</a>
+
+                    <a class="mb-2 text-gray" href="/ספרים">ספרים</a>
+
+                    <a class="mb-2 text-gray" href="/צור-קשר">צור קשר</a>
+
+                    <a class="mb-2 text-gray" href="תקנון">תקנון האתר</a>
+
+
+
+                </div>
+                <div class="col-md-4">
+                    <h5>מדיה חברתית</h5>
+                    <a target="_blank" href="https://www.facebook.com/mo6aron"
+                    <button class="btn btn-just-icon  btn-facebook">
+                        <i class="mdi mdi-line-inherit mdi-facebook"> </i>
+                    </button>
+                    </a>
+                    <a target="_blank" href="https://www.instagram.com/mo6aron/">
+                        <button class="btn btn-just-icon instagram">
+                            <i class="mdi mdi-line-inherit mdi-instagram"> </i>
+                            </button>
+                        </a>
+                    <a target="_blank" href="https://www.youtube.com/@MosheSharon6">
+                        <button class="btn btn-just-icon  btn-youtube">
+                            <i class="mdi mdi-line-inherit mdi-youtube"> </i>
+                        </button>
+                    </a>
+                    <a target="_blank" href="https://chat.whatsapp.com/LvFG8ourAf81w2xZ5yswMH">
+                        <button class="btn btn-just-icon  btn-whatsapp">
+                            <i class="mdi mdi-line-inherit mdi-whatsapp"> </i>
+                        </button>
+                    </a>
+                    <a target="_blank" href="https://t.me/joinchat/GnRWhstxsMAWErGC">
+                        <button class="btn btn-just-icon" style="background-color:#2ca5e0;">
+                            <i class="mdi mdi-line-inherit mdi-telegram"> </i>
+                        </button>
+                    </a>
+                    </div>
+                <div class="col-md-4">
+    <h5 data-open-accessibility-text-original="17px" style="font-size: 17px;">הרשמה לניוזלטר</h5>
+    <div id="newsletter-signup-form">
+        <div id="ravcontent">
+            <div class="floatingarea  white" data-floatingalign="middle_middle" data-floatingopencondition="pageload" data-floatingopeneffect="" data-showfloating="true" data-enableoverlay="" data-showfloatingonceperclient="" data-closefloatingonpressoutside="" data-overlayopacity="100" data-floatingopenpageloaddelay="1000" data-floatingperctscroll="50" data-floatingopenfadeinduration="" data-floatingopenenterfromtopduration="" "=" ">  <div class=" floatingareaBackground" style="opacity:1 !important"></div>  <div class="  floatingareaAlignment " style="">
+                <div class=" floatingareaContainerElm floatingareaContainer " style="" data-heighthint="275px" data-widthhint="1232px">
+                    <div class="  closefloating " style=""> </div>   <div class=" multyparent bodyarea_multyelements" style="">
+                        <div class="inner_bodyarea_multyelements">
+                            <div data-responsive_settings="range(0,400) {{{
+setClass(&quot;display_tag_responsive_floatingform_narrow&quot;);
+}}}
+range(401,10000) {{{
+removeClass(&quot;display_tag_responsive_floatingform_narrow&quot;);
+}}}" class="overridestyle t0 t2105 t1504954 multyserial  multy  name_floatingFormContainer name_floatingFormContainer-simple name_floatingFormContainer-simple-inherited name_floatingFormContainer   sonof_ sonof_name_ after_ after_name_ before_ before_name_ display_tag_conf_multy_view_admin paddingInOutsideMulty" style="flex-basis:582px !important; " data-multy-unique-id="">
+                                <div class="multyinner" style="">
+                                    <div class=" multyparent multyelements" style="">
+                                        <div data-responsive_settings="" class="overridestyle t0 t2105 t1504954 multyimage  multy  name_closebutton name_closebutton-basic name_closebutton-basic-new name_closebutton  right sonof_multyserial sonof_name_floatingFormContainer-simple-inherited sonof_name_floatingFormContainer sonof_multyserial  sonof_name_floatingFormContainer sonof_name_floatingFormContainer-simple sonof_name_floatingFormContainer-simple-inherited after_ after_name_ before_multyserial before_name_serial-form_container  before_name_serial before_name_serial-form_container display_tag_multyimage_closepanelbutton display_tag_conf_multy_private" style=" display:none !important" data-multy-unique-id="">  <div class="multyinner" style="">  <div class="inputImageControl imageControl" style="width:38px !important;height:38px !important;">  <a href="#closePopup" target="_blank" data-open-accessibility-text-original="16px" style="font-size: 16px;">  <img src="//simages.ravpages.co.il/xsite_resources/static_images/templates_images/forms/global/closepanel/transparent-regular-white_38X38.png?ver=3.12&amp;rxc=1532355884" class="imageContainer inputImageControl imageControl" style="display:none !important;width:38px !important;" alt="" title=""> </a>  </div>  </div>  </div>  <div data-responsive_settings="" class="overridestyle t0 t2105 t1504954 multyserial  multy  name_serial name_serial-form_container name_serial   sonof_multyserial sonof_name_floatingFormContainer-simple-inherited sonof_name_floatingFormContainer sonof_multyserial  sonof_name_floatingFormContainer sonof_name_floatingFormContainer-simple sonof_name_floatingFormContainer-simple-inherited after_multyimage after_name_closebutton-basic-new  after_name_closebutton after_name_closebutton-basic after_name_closebutton-basic-new before_ before_name_ display_tag_conf_multy_view_all" style=" " data-multy-unique-id="">
+                                            <div class="multyinner" style="">
+                                                <div class=" multyparent multyelements" style="">
+                                                    <div data-responsive_settings="" class="overridestyle t0 t2105 t1504954 multyserial  multy  name_subarea name_subarea-simple name_subarea-simple-black name_subarea  center sonof_multyserial sonof_name_serial-form_container sonof_name_serial sonof_multyserial  sonof_name_serial sonof_name_serial-form_container after_ after_name_ before_multyserial before_name_subarea-simple-white  before_name_subarea before_name_subarea-simple before_name_subarea-simple-white display_tag_conf_multy_view_all backgroundColorInMultyInner paddingInOutsideMulty" style=" " data-multy-unique-id="">  <div class="multyinner" style="">  <div class=" multyparent multyelements" style="">  <div data-responsive_settings="" role="heading" aria-level="1" class="overridestyle t0 t2105 t1504954 multytext  multy  name_text name_text-regular name_text-regular-title_white_assisstant name_text   sonof_multyserial sonof_name_subarea-simple-black sonof_name_subarea sonof_multyserial  sonof_name_subarea sonof_name_subarea-simple sonof_name_subarea-simple-black after_ after_name_ before_multytext before_name_text-regular-subtitle_white_assistant  before_name_text before_name_text-regular before_name_text-regular-subtitle_white_assistant display_tag_multy_text_regular display_tag_conf_multy_view_all" style=" " data-multy-unique-id="">  <div class="multyinner" style=""> <div style="" class=" text_text text text-primary"><p data-open-accessibility-text-original="14px" style="font-size: 14px;"><span class="text-primary" style="font-size: 14px;" data-open-accessibility-text-original="14px">לקבלת מאמרים, הרצאות וקורסים חדשים</span></p></div> </div>  </div>  <div data-responsive_settings="" role="heading" aria-level="1" class="overridestyle t0 t2105 t1504954 multytext  multy  name_text name_text-regular name_text-regular-subtitle_white_assistant name_text   sonof_multyserial sonof_name_subarea-simple-black sonof_name_subarea sonof_multyserial  sonof_name_subarea sonof_name_subarea-simple sonof_name_subarea-simple-black after_multytext after_name_text-regular-title_white_assisstant  after_name_text after_name_text-regular after_name_text-regular-title_white_assisstant before_ before_name_ display_tag_multy_text_regular display_tag_conf_multy_view_all" style=" " data-multy-unique-id="">  <div class="multyinner" style=""> <div style="" class=" text_text text"><p class=" text_text text text-primary" data-open-accessibility-text-original="14px" style="font-size: 14px;">הרשמו עכשיו למגזין השבועי של משה שרון</p></div> </div>  </div>  </div>  </div>  </div>  <div data-responsive_settings="" class="overridestyle t0 t2105 t1504954 multyserial  multy  name_subarea name_subarea-simple name_subarea-simple-white name_subarea  center sonof_multyserial sonof_name_serial-form_container sonof_name_serial sonof_multyserial  sonof_name_serial sonof_name_serial-form_container after_multyserial after_name_subarea-simple-black  after_name_subarea after_name_subarea-simple after_name_subarea-simple-black before_ before_name_ display_tag_conf_multy_view_all backgroundColorInMultyInner paddingInOutsideMulty" style=" " data-multy-unique-id="">
+                                                        <div class="multyinner" style="">
+                                                            <div class=" multyparent multyelements" style="">
+                                                                <div data-responsive_settings="range(0,292) {{{
+                                                                     enableAutoScaler({targetWidth:292});
+                                                                     }}}
+                                                                     range(293,10000) {{{
+                                                                     disableAutoScaler();
+                                                                     }}}
+                                                                     range(0,400) {{{
+                                                                     setClass(&quot;display_tag_multyform_verticalform&quot;);
+                                                                     removeClass(&quot;display_tag_multyform_horizontalform&quot;);
+                                                                     }}}
+                                                                     range(401,10000) {{{
+                                                                     removeClass(&quot;display_tag_multyform_verticalform&quot;);
+                                                                     setClass(&quot;display_tag_multyform_horizontalform&quot;);
+                                                                     }}}
+                                                                     condition(range(0,550) &amp;&amp; formFieldsCount()>
+                                                                    1) {{{
+                                                                    setClass(&quot;display_tag_multyform_verticalform&quot;);
+                                                                    removeClass(&quot;display_tag_multyform_horizontalform&quot;);
+                                                                    }}}
+                                                                    condition(range(0,600) &amp;&amp; formFieldsCount() > 2) {{{
+                                                                    setClass(&quot;display_tag_multyform_verticalform&quot;);
+                                                                    removeClass(&quot;display_tag_multyform_horizontalform&quot;);
+                                                                    }}}
+                                                                    condition(range(0,700) &amp;&amp; formFieldsCount() > 3) {{{
+                                                                    setClass(&quot;display_tag_multyform_verticalform&quot;);
+                                                                    removeClass(&quot;display_tag_multyform_horizontalform&quot;);
+                                                                    }}}
+                                                                    condition(range(0,10000) &amp;&amp; formFieldsCount() > 4) {{{
+                                                                    setClass(&quot;display_tag_multyform_verticalform&quot;);
+                                                                    removeClass(&quot;display_tag_multyform_horizontalform&quot;);
+                                                                    }}}" class="overridestyle t0 t2105 t1504954 multyform  multy  name_form name_form-horizontal_square name_form-horizontal_square-inherited name_form   sonof_multyserial sonof_name_subarea-simple-white sonof_name_subarea sonof_multyserial  sonof_name_subarea sonof_name_subarea-simple sonof_name_subarea-simple-white after_ after_name_ before_ before_name_ display_tag_multyform_horizontalform display_tag_conf_multy_view_all" style=" " data-multy-unique-id="jsid10000001">  <div class="multyinner" style=""> <div class="formBody"> <form field-count="1" class="form" action="https://ravxx-subscriber-v1.ravpage.co.il/" method="post">  <div class=" multyparent multyfields" style="">  <div class="inner_multyfields">  <div data-responsive_settings="" class="overridestyle t0 t2105 t1504954 multyfield  multy  name_ name_   sonof_multyform sonof_name_form-horizontal_square-inherited sonof_name_form sonof_multyform  sonof_name_form sonof_name_form-horizontal_square sonof_name_form-horizontal_square-inherited after_ after_name_ before_ before_name_" style=" " data-multy-unique-id="">  <div class="multyinner" style="">  <div class=" field fieldname_subscribers_email fieldtype_singlelineText nolabel">  <input aria-label="הכנס את כתובת האימייל שלך..." name="fields[subscribers_email]" type="email" placeholder="כתובת האימייל שלך..." class="email required " value="">  </div>  </div>  </div>  </div>  </div>   <div class="submitbuttonbox">  <a href="#" class="submitButton" style="font-size: 16px;" data-open-accessibility-text-original="16px"> <div class="rightPart"></div> <input type="submit" class="btn btn-sm btn-primary" name="none" value="להרשמה"> <div class="leftPart"></div> <div class="clear"></div> </a>  </div> <input type="hidden" name="__ravxx_url__" value="http://form.ravpage.co.il/2ae29537c45e5642924d43bb22570a41657EC158"> <input type="hidden" name="__ravxx_source_info__" value="{&quot;public_id&quot;:&quot;2ae29537c45e5642924d43bb22570a41657EC158&quot;,&quot;normalized_url&quot;:&quot;http:\/\/form.ravpage.co.il\/2ae29537c45e5642924d43bb22570a41657EC158&quot;,&quot;url&quot;:&quot;http:\/\/form.ravpage.co.il\/2ae29537c45e5642924d43bb22570a41657EC158&quot;,&quot;group&quot;:&quot;24a1340d478621780bb8e4b0cad022dc&quot;}"> <input type="hidden" name="form_id" value="2479489"> <input type="hidden" name="encoding" value="utf-8"> </form> <div class="clear"></div> </div> </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>var __ravxxx_captcha__ = true;</script>
+<style>
+    body > div:has(iframe[src*="recaptcha"]) {
+        display: none !important;
+    }</style> <!--FORM_PROTECTION_CAPTCHA--> <script>document.addEventListener('DOMContentLoaded', () => { setTimeout(function () { const parsedURL = new URL(window.location.href); const hostname = parsedURL.hostname; if (window["__ravxxx_captcha__"]) { const scriptTag = document.createElement('script'); scriptTag.src = 'https://www.google.com/recaptcha/api.js?render=6LdUQi4mAAAAAK3x9z3v4BWVLqtHbQxeTn9rsT8b'; scriptTag.async = true; scriptTag.defer = true; document.head.appendChild(scriptTag); } }, 0); });</script>
+<script type="text/javascript">if (typeof console == "undefined") var console = { log: function () { } }; __ravpageContext = { 'locals': {}, 'updates': [] }; cookieStr = __ravpageContext.locals.cookiesStr = "" + document.cookie; publicID = __ravpageContext.locals.publicID = "2ae29537c45e5642924d43bb22570a41657EC158"; tabtype = __ravpageContext.locals.tabtype = "desktop"; analyticsTrackingID = __ravpageContext.locals.analyticsTrackingID = ""; pageURL = __ravpageContext.locals.pageURL = "http://form.ravpage.co.il/2ae29537c45e5642924d43bb22570a41657EC158"; formHandler = __ravpageContext.locals.formHandler = "~~${formHandler}~~"; pageType = __ravpageContext.locals.pageType = "form"; uniqueID = __ravpageContext.locals.uniqueID = "6614674_1702815602";</script>
+<script type="text/javascript">if (typeof (realbeginning) == 'undefined') realbeginning = new Date(); var begin_wrapper_1 = new Date(); if ((typeof (__ravpageContext) != 'undefined') && __ravpageContext.locals.console) __ravpageContext.locals.console.log('time till begin_wrapper_1', begin_wrapper_1 - realbeginning);</script><script type="text/javascript" src="//js.ravpages.co.il/xsite_resources/js/static/cached/xsites/formoutput/122023/xsites__formoutput__6ff6448017b4df3acd1bda5fcda4f5f1_a9400e332f8b92f25620695c49483c46_1702312210.js?rxc=1532355884"></script>
+<script type="text/javascript">if (typeof (realbeginning) == 'undefined') realbeginning = new Date(); if ((typeof (__ravpageContext) != 'undefined') && __ravpageContext.locals.console) __ravpageContext.locals.console.log('time after begin_wrapper_1', (new Date()) - realbeginning, '+(', (new Date()) - begin_wrapper_1, ')');</script>
+<script type="text/javascript">if (typeof (realbeginning) == 'undefined') realbeginning = new Date(); var begin_wrapper_1 = new Date(); if ((typeof (__ravpageContext) != 'undefined') && __ravpageContext.locals.console) __ravpageContext.locals.console.log('time till begin_wrapper_1', begin_wrapper_1 - realbeginning);</script>
+<script type="text/javascript">if (typeof (realbeginning) == 'undefined') realbeginning = new Date(); if ((typeof (__ravpageContext) != 'undefined') && __ravpageContext.locals.console) __ravpageContext.locals.console.log('time after begin_wrapper_1', (new Date()) - realbeginning, '+(', (new Date()) - begin_wrapper_1, ')');</script> <style type="text/css"></style>
+<div data-content-language="" class="RDUI_6614674_1702815602 a RDS100213 RMCONTENT RMFORM RMFORM_2105 entityType_floating_form floating_form desktop    color1  texture1  version4 afterinit" data-embed-type="flex">   </div>
+
+
+            </div>
+        </div>
+        <hr>
+        <div class="copyright float-right">
+            &copy;
+            <script>
+                document.write(new Date().getFullYear())
+            </script>
+            משה שרון
+        </div>
+    </div>
+</footer>
+
+
+<script>
+    $(document).ready(function () {
+
+                        });
+</script>
+
+
+<div id="loginModal" tabindex="-1" role="dialog" class="modal fade" style="display: none;" aria-hidden="true">
+
+    <div class="modal-dialog modal-login" role="document">
+        <div class="modal-content">
+            <div class="card card-signup card-plain">
+                <div class="modal-header">
+                    <div class="card-header card-header-primary text-center">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="material-icons">clear</i></button>
+                        <h3 class="mb-2 card-title">התחברות</h3>
+                    </div>
+                </div>
+                <div id="loginForm">
+
+
+                    <div class="login-form">
+<form action="/%D7%A1%D7%A4%D7%A8%D7%99%D7%9D" enctype="multipart/form-data" id="form4bbaaf0f32ad4ed680c7e24a1b039662" method="post" name="loginForm">                            <div class="modal-body">
+                                <div class="card-body">
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="material-icons">mail</i>
+                                                </span>
+                                            </div>
+                                            <label class="bmd-label-floating login-field">אימייל</label>
+                                            <input data-val-required="נדרש אימייל" class="form-control" type="text" data-val="true" id="loginModel_Username" name="loginModel.Username" value="" />
+                                            <span class="login-error field-validation-valid" data-valmsg-for="loginModel.Username" data-valmsg-replace="true"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="material-icons">password</i>
+                                                </span>
+                                            </div>
+                                            <label class="bmd-label-floating login-field">סיסמא</label>
+                                            <input data-val-required="נדרשת סיסמא" class="form-control" type="password" data-val="true" data-val-length="The field Password must be a string with a maximum length of 256." data-val-length-max="256" id="loginModel_Password" maxlength="256" name="loginModel.Password" />
+                                            <span class="login-error field-validation-valid" data-valmsg-for="loginModel.Password" data-valmsg-replace="true"></span>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group justify-content-center">
+                                            <div class="input-group-prepend">
+                                            </div>
+                                            <input class="mx-2" type="checkbox" data-val="true" data-val-required="The Remember me? field is required." id="loginModel_RememberMe" name="loginModel.RememberMe" value="true">
+                                            <label class="form-check-label" for="loginModel_RememberMe">
+                                                זכור אותי
+                                            </label>
+                                        </div>
+                                    </div>
+
+
+                                    </div>
+                                </div>
+                            <div id="login-message"></div>
+                            <div class="modal-footer justify-content-center">
+                                <input type="hidden" name="captcha" id="captchaInputLogin" data-captcha-login="true" />
+                                <button type="submit" class="btn btn-primary btn-wd mb-4">התחברות</button>
+                            </div>
+<input name="__RequestVerificationToken" type="hidden" value="CfDJ8PhdAR4BIOJNutCsGDRSrnpYztepQkoLYmVwNsd2-uTQpqPDZOtM2npfdYiysqD33fLX_fGYy_0PzAFVw9N4aKHsAsvkuLoNizrt3OFdfQkBeRFN1hZGQOeFqEgpzlLy8rHsRCXn7QED4amGVf8ofdQ" /><input name="ufprt" type="hidden" value="CfDJ8PhdAR4BIOJNutCsGDRSrnrpYXidJ_QnTnfOc1hNPpH-7X7a-9bl5Oa0la_NB5UEp3Rg3zM767XGf7e1jUoFSbLDLV31DV8KmE5hPynwp7eHd0nw_DVtFhdVfX7WsgdWA0uYXT5MTu_IQ3rMK1BP0ps" /><input name="loginModel.RememberMe" type="hidden" value="false"></form>                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    $(document).ready(function () {
+                });
+</script>
+<div id="registerModal" tabindex="-1" role="dialog" class="modal fade" style="display: none;" aria-hidden="true">
+
+    <div class="modal-dialog modal-login" role="document">
+        <div class="modal-content">
+            <div class="card card-signup card-plain">
+                <div class="modal-header">
+                    <div class="card-header card-header-success text-center">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="material-icons">clear</i></button>
+                        <h3 class="mb-2 card-title">הרשמה</h3>
+                    </div>
+                </div>
+
+<form action="/%D7%A1%D7%A4%D7%A8%D7%99%D7%9D" enctype="multipart/form-data" id="form8d4d073d08fb442585f4a2a89feeb161" method="post" name="registerForm">                        <div style="text-align:center">
+                            <h4 class="mt-4">ברוכים הבאים!</h4>
+                            <p class="mx-4 my-3 "> כל אחד יכול להירשם בחינם לאתר שלנו, לכתוב תגובות ולהצטרף לדיונים על התוכן.<br /><br /> לאחר ההרשמה, אתם גם יכולים להפוך למנויים ולהינות מגישה מלאה לכל התכנים המרתקים שלנו בתשלום של 67 ₪ בחודש ברכישת מנוי חודשי מתחדש, או 47 ₪ לחודש ברכישת מנוי לשנה. הצטרפו אלינו וגלו עולם של תוכן משנה חיים!</p>
+                            <button class="btn btn-success btn-link btn-wd btn-lg" data-dismiss="modal" data-toggle="modal" data-target="#registerSubscribeModal">להרשמה עם רכישת מנוי לחצו כאן</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="card-body">
+
+
+
+                                <div class="form-group bmd-form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">
+                                                <i class="material-icons">badge</i>
+                                            </span>
+                                        </div>
+                                        <label class="bmd-label-floating login-field">שם מלא</label>
+                                        <input class="form-control form-control-green" aria-required="true" data-val="true" data-val-required="נדרש שם" data-val-regex="נדרש שם מלא - שם ושם משפחה" data-val-regex-pattern="^\s*\S+(\s+\S+)+\s*$" type="text" id="registerModel_Name" name="registerModel.Name" value="" />
+                                               <span class="login-error field-validation-valid" data-valmsg-for="registerModel.Name" data-valmsg-replace="true"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group bmd-form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">
+                                                <i class="material-icons">email</i>
+                                            </span>
+                                        </div>
+                                        <label class="bmd-label-floating login-field">אימייל</label>
+                                        <input data-val-email="כתובת האימייל אינה חוקית" data-val-required="נדרשת כתובת אימייל" class="form-control form-control-green" autocomplete="username" aria-required="true" type="email" data-val="true" id="registerModel_Email" name="registerModel.Email" value="" />
+                                        <span class="login-error field-validation-valid" data-valmsg-for="registerModel.Email" data-valmsg-replace="true"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group bmd-form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">
+                                                <i class="material-icons">password</i>
+                                            </span>
+                                        </div>
+                                        <label class="bmd-label-floating login-field">סיסמא</label>
+                                        <input data-val-required="נדרשת סיסמא" class="form-control form-control-green" autocomplete="new-password" aria-required="true" type="password" data-val="true" data-val-length="The field Password must be a string with a maximum length of 256." data-val-length-max="256" id="registerModel_Password" maxlength="256" name="registerModel.Password" />
+                                        <span class="login-error field-validation-valid" data-valmsg-for="registerModel.Password" data-valmsg-replace="true"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group bmd-form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">
+                                                <i class="material-icons">done_all</i>
+                                            </span>
+                                        </div>
+                                        <label class="bmd-label-floating login-field">אימות סיסמא</label>
+                                        <input data-val-equalto="הסיסמאות אינן תואמות" data-val-required="נדרשת סיסמא לאימות" class="form-control form-control-green" type="password" data-val="true" data-val-equalto-other="*.Password" id="registerModel_ConfirmPassword" name="registerModel.ConfirmPassword" />
+                                        <span class="login-error field-validation-valid" data-valmsg-for="registerModel.ConfirmPassword" data-valmsg-replace="true"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group bmd-form-group">
+                                    <div class="input-group justify-content-center">
+                                        <div class="input-group-prepend">
+                                        </div>
+                                        <input type="checkbox" name="takanon" class="mx-2" value="true" id="takanonCheckbox">
+                                        <label class="form-check-label" for="takanonCheckbox">
+                                            קראתי ואני מסכים <a class="text-success" href="/תקנון" target="_blank">לתקנון</a> האתר
+                                        </label>
+                                        <!-- Error message span -->
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+                        <div class="modal-footer justify-content-center">
+                            <input type="hidden" name="captcha" id="captchaInputRegister" data-captcha-register="true" />
+                            <button type="submit" class="btn btn-success btn-wd mb-4">הרשמה</button>
+                        </div>
+<input name="__RequestVerificationToken" type="hidden" value="CfDJ8PhdAR4BIOJNutCsGDRSrnpYztepQkoLYmVwNsd2-uTQpqPDZOtM2npfdYiysqD33fLX_fGYy_0PzAFVw9N4aKHsAsvkuLoNizrt3OFdfQkBeRFN1hZGQOeFqEgpzlLy8rHsRCXn7QED4amGVf8ofdQ" /><input name="ufprt" type="hidden" value="CfDJ8PhdAR4BIOJNutCsGDRSrnraAdm6Skfc7a-tzhiau80rgo1Ehol2JS-nCdRp97LJEVeGjFhh0Mee0fyMg3ZLdrqOn60G8I7Ea1oXzm8vjMMSBRx498um0Uy8dXLYX0bP6DXrtWS-NBpfQnJb7xRixILNOcXAgMowOt3P3iVhhEZDgVmOZj4Vw3MJDDJbF4TdXsmyzV3q8aM4PNnuW-xjPJnnyhjfxp64wVh12-X_BShDtoj5k0XMpZdmJA2fkFgyMQ" /></form>            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+                });
+</script>
+<div id="registerSubscribeModal" tabindex="-1" role="dialog" class="modal fade" aria-hidden="true">
+    <!-- Enforce a max width of ~800px on desktop -->
+    <div class="modal-dialog modal-login" role="document" style="max-width: 800px;">
+        <div class="modal-content">
+            <div class="card card-signup card-plain">
+                <div class="modal-header">
+                    <div class="card-header card-header-success text-center">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                            <i class="material-icons">clear</i>
+                        </button>
+                        <h3 class="text-center">הרשמה ורכישת מנוי</h3>
+                        <p class="text-center">הרשמו לאתר ורכשו מנוי בטופס אחד</p>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="card-body">
+<form action="/%D7%A1%D7%A4%D7%A8%D7%99%D7%9D" enctype="multipart/form-data" id="form79819fd6162a43febca7db42afc0b732" method="post">                            <div class="row">
+
+
+                                <div class="col-md-6">
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="material-icons">badge</i>
+                                                </span>
+                                            </div>
+                                            <label class="bmd-label-floating login-field">שם מלא</label>
+                                            <input class="form-control form-control-success" type="text" data-val="true" data-val-regex="&#x5E0;&#x5D3;&#x5E8;&#x5E9; &#x5E9;&#x5DD; &#x5DE;&#x5DC;&#x5D0; - &#x5E9;&#x5DD; &#x5D5;&#x5E9;&#x5DD; &#x5DE;&#x5E9;&#x5E4;&#x5D7;&#x5D4;" data-val-regex-pattern="^\s*\S&#x2B;(\s&#x2B;\S&#x2B;)&#x2B;\s*$" data-val-required="&#x5E0;&#x5D3;&#x5E8;&#x5E9; &#x5E9;&#x5DD;" id="Name" name="Name" value="" />
+                                            <span class="login-error field-validation-valid" data-valmsg-for="Name" data-valmsg-replace="true"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="material-icons">email</i>
+                                                </span>
+                                            </div>
+                                            <label class="bmd-label-floating login-field">אימייל</label>
+                                            <input class="form-control form-control-success" type="email" data-val="true" data-val-email="&#x5DB;&#x5EA;&#x5D5;&#x5D1;&#x5EA; &#x5D4;&#x5D0;&#x5D9;&#x5DE;&#x5D9;&#x5D9;&#x5DC; &#x5D0;&#x5D9;&#x5E0;&#x5D4; &#x5D7;&#x5D5;&#x5E7;&#x5D9;&#x5EA;" data-val-required="&#x5E0;&#x5D3;&#x5E8;&#x5E9;&#x5EA; &#x5DB;&#x5EA;&#x5D5;&#x5D1;&#x5EA; &#x5D0;&#x5D9;&#x5DE;&#x5D9;&#x5D9;&#x5DC;" id="Email" name="Email" value="" />
+                                            <span class="login-error field-validation-valid" data-valmsg-for="Email" data-valmsg-replace="true"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="material-icons">email</i>
+                                                </span>
+                                            </div>
+                                            <label class="bmd-label-floating login-field">אימות אימייל</label>
+                                            <input class="form-control form-control-success" type="text" data-val="true" data-val-equalto="&#x5DB;&#x5EA;&#x5D5;&#x5D1;&#x5D5;&#x5EA; &#x5D4;&#x5D0;&#x5D9;&#x5DE;&#x5D9;&#x5D9;&#x5DC; &#x5D0;&#x5D9;&#x5E0;&#x5DF; &#x5EA;&#x5D5;&#x5D0;&#x5DE;&#x5D5;&#x5EA;" data-val-equalto-other="*.Email" data-val-required="&#x5E0;&#x5D3;&#x5E8;&#x5E9; &#x5D0;&#x5D9;&#x5DE;&#x5D5;&#x5EA; &#x5DC;&#x5DB;&#x5EA;&#x5D5;&#x5D1;&#x5EA; &#x5D0;&#x5D9;&#x5DE;&#x5D9;&#x5D9;&#x5DC;" id="EmailConfirmation" name="EmailConfirmation" value="" />
+                                            <span class="login-error field-validation-valid" data-valmsg-for="EmailConfirmation" data-valmsg-replace="true"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="material-icons">password</i>
+                                                </span>
+                                            </div>
+                                            <label class="bmd-label-floating login-field">סיסמא</label>
+                                            <input type="password" class="form-control form-control-success" data-val="true" data-val-minlength="&#x5E2;&#x5DC; &#x5D4;&#x5E1;&#x5D9;&#x5E1;&#x5DE;&#x5D0; &#x5DC;&#x5D4;&#x5D9;&#x5D5;&#x5EA; &#x5D1;&#x5D0;&#x5D5;&#x5E8;&#x5DA; &#x5E2;&#x5E9;&#x5E8;&#x5D4; &#x5EA;&#x5D5;&#x5D5;&#x5D9;&#x5DD; &#x5DC;&#x5E4;&#x5D7;&#x5D5;&#x5EA;" data-val-minlength-min="10" data-val-required="&#x5E0;&#x5D3;&#x5E8;&#x5E9;&#x5EA; &#x5E1;&#x5D9;&#x5E1;&#x5DE;&#x5D0;" id="Password" name="Password" />
+                                            <span class="login-error field-validation-valid" data-valmsg-for="Password" data-valmsg-replace="true"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="material-icons">done_all</i>
+                                                </span>
+                                            </div>
+                                            <label class="bmd-label-floating login-field">אימות סיסמא</label>
+                                            <input type="password" class="form-control form-control-success" data-val="true" data-val-equalto="&#x5D4;&#x5E1;&#x5D9;&#x5E1;&#x5DE;&#x5D0;&#x5D5;&#x5EA; &#x5D0;&#x5D9;&#x5E0;&#x5DF; &#x5EA;&#x5D5;&#x5D0;&#x5DE;&#x5D5;&#x5EA;" data-val-equalto-other="*.Password" data-val-required="&#x5E0;&#x5D3;&#x5E8;&#x5E9;&#x5EA; &#x5E1;&#x5D9;&#x5E1;&#x5DE;&#x5D0; &#x5DC;&#x5D0;&#x5D9;&#x5DE;&#x5D5;&#x5EA;" id="ConfirmPassword" name="ConfirmPassword" />
+                                            <span class="login-error field-validation-valid" data-valmsg-for="ConfirmPassword" data-valmsg-replace="true"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group bmd-form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="material-icons">phone</i>
+                                                </span>
+                                            </div>
+                                            <label class="bmd-label-floating login-field">מספר טלפון</label>
+                                            <input type="tel" class="form-control form-control-success" data-val="true" data-val-regex="&#x5DE;&#x5E1;&#x5E4;&#x5E8; &#x5D4;&#x5D8;&#x5DC;&#x5E4;&#x5D5;&#x5DF; &#x5D0;&#x5D9;&#x5E0;&#x5D5; &#x5EA;&#x5E7;&#x5D9;&#x5DF;" data-val-regex-pattern="^0\d{8,9}$" data-val-required="&#x5E0;&#x5D3;&#x5E8;&#x5E9; &#x5DE;&#x5E1;&#x5E4;&#x5E8; &#x5D8;&#x5DC;&#x5E4;&#x5D5;&#x5DF;" id="PhoneNumber" name="PhoneNumber" value="" />
+                                            <span class="login-error field-validation-valid" data-valmsg-for="PhoneNumber" data-valmsg-replace="true"></span>
+                                        </div>
+                                    </div>
+
+
+                                </div> <!-- end col-md-6 -->
+
+                                <div class="col-md-6 mt-lg-4">
+                                    <div class="mt-4 mb-3">
+                                        <!-- Existing nested row for the two subscription options -->
+                                        <div class="row justify-content-center">
+                                            <div class="col-md-5 col-sm-12">
+                                                <div class="card card-pricing card-plain" style="margin:0px;">
+                                                    <div class="card-body text-center">
+                                                        <h6 class="card-category text-info">מנוי חודשי</h6>
+                                                        <h2 class="card-title">
+                                                            <small>₪</small>67
+                                                            <small style="font-size: 30%;">/חודש</small>
+                                                        </h2>
+                                                        <ul class="text-right pr-0" style="list-style-type: none;">
+                                                            <li>גישה מלאה לכל התכנים</li>
+                                                            <li>תשלום של ₪67 מדי חודש</li>
+                                                            <li>ביטול באתר בכל עת</li>
+                                                        </ul>
+                                                        <div class="form-check form-check-radio">
+                                                            <label class="form-check-label" for="MonthlySubscription">
+                                                                <input class="form-check-input" type="radio" value="true" id="MonthlySubscription" checked data-val="true" data-val-required="The Monthly field is required." name="Monthly" />
+                                                                בחירה במנוי חודשי
+                                                                <span class="circle">
+                                                                    <span class="check"></span>
+                                                                </span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-5 col-sm-12">
+                                                <div class="card card-pricing card-plain" style="margin:0px;">
+                                                    <div class="card-body text-center">
+                                                        <h6 class="card-category text-info">מנוי שנתי</h6>
+                                                        <h2 class="card-title">
+                                                            <small>₪</small>47
+                                                            <small style="font-size: 30%;">/חודש</small>
+                                                        </h2>
+                                                        <ul class="text-right pr-0" style="list-style-type: none;">
+                                                            <li>גישה מלאה לכל התכנים</li>
+                                                            <li>תשלום חד פעמי של ₪564 לשנה</li>
+                                                            <li>לא מתחדש באופן אוטומטי</li>
+                                                        </ul>
+                                                        <div class="form-check form-check-radio">
+                                                            <label class="form-check-label" for="YearlySubscription">
+                                                                <input class="form-check-input" type="radio" value="false" id="YearlySubscription" name="Monthly" />
+                                                                בחירה במנוי שנתי
+                                                                <span class="circle">
+                                                                    <span class="check"></span>
+                                                                </span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div> <!-- end row -->
+                            <div class="form-group bmd-form-group">
+                                <div class="input-group justify-content-center">
+                                    <input type="checkbox" class="mx-2" id="AcceptTermsCheckbox" data-val="true" data-val-required="&#x5E0;&#x5D3;&#x5E8;&#x5E9;&#x5EA; &#x5D4;&#x5E1;&#x5DB;&#x5DE;&#x5D4; &#x5DC;&#x5EA;&#x5E7;&#x5E0;&#x5D5;&#x5DF;" name="AcceptTerms" value="true" />
+                                    <label class="form-check-label" for="AcceptTermsCheckbox">
+                                        קראתי ואני מסכים
+                                        <a class="text-success" href="/תקנון" target="_blank">לתקנון</a> האתר
+                                    </label>
+                                </div>
+                                <span class="login-error d-block text-center field-validation-valid" data-valmsg-for="AcceptTerms" data-valmsg-replace="true"></span>
+                            </div>
+                            <div class="form-group">
+                                <div class="text-center">
+                                    <input type="hidden" name="captcha" id="captchaInputRegisterSubscribe" data-captcha-register="true" />
+                                    <button type="submit" class="btn btn-success btn-wd">
+                                        הרשמה ותשלום
+                                    </button>
+                                </div>
+                            </div>
+<input name="__RequestVerificationToken" type="hidden" value="CfDJ8PhdAR4BIOJNutCsGDRSrnpYztepQkoLYmVwNsd2-uTQpqPDZOtM2npfdYiysqD33fLX_fGYy_0PzAFVw9N4aKHsAsvkuLoNizrt3OFdfQkBeRFN1hZGQOeFqEgpzlLy8rHsRCXn7QED4amGVf8ofdQ" /><input name="ufprt" type="hidden" value="CfDJ8PhdAR4BIOJNutCsGDRSrnodoZWm0cwEgYAnDLQ-bIVS--rkbtBx445BKa8VxKfkCAZty_22KUlSSq3RsbRqsn9Z003eO4BRS3zFLmxSI5BMhcaffe-6E_tGsukHcnH-4fDqLlVUAoZzD1LjKzz2Clgv6DuuZcLcMRh_y9kYSetx" /><input name="AcceptTerms" type="hidden" value="false" /></form>                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        // Load reCAPTCHA if enabled
+        if (typeof loadRecaptcha === 'function') {
+            loadRecaptcha();
+        }
+    });
+</script>
+
+
+    <div id="appInstallModal" tabindex="-1" role="dialog" class="modal fade" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog modal-login" role="document">
+            <div class="modal-content">
+                <div class="card card-signup card-plain">
+                    <div class="modal-header">
+                        <div class="card-header card-header-primary text-center">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="material-icons">clear</i></button>
+                            <!-- שלב 1: שכנוע עם מסר חזק -->
+                            <h3 class="mb-2 card-title">האפליקציה שלנו</h3>
+                        </div>
+                    </div>
+                    <div id="main-app">
+                        <div class="card-body px-4 py-4 text-center">
+                            <p class="card-description">
+                                התקינו את האפליקציה שלנו!
+                            </p>
+                            <div class="text-center text-primary mb-4">
+                                <img src="/images/icon-app.webp" class="mt-2" alt="Logo" style="width:60px; height:60px;">
+                            </div>
+                            <!-- שלב 2: הסבר על התועלות -->
+                            <p class="card-description">
+                                קבלו גישה מהירה ונוחה לכל התוכן, והורידו שיעורים לצפייה גם כשאין חיבור אינטרנט.
+                            </p>
+                        </div>
+
+                        <div class="px-4 pb-4">
+                            <!-- שלב 3: כפתור פעולה אמין שתואם לדפדפן -->
+                            <button id="install-pwa-btn" class="btn btn-primary btn-lg w-100 m-0">
+                                הוספה למסך הבית
+                            </button>
+                        </div>
+
+                        <div class="text-center mb-4">
+                            <a href="#" data-dismiss="modal" class="text-gray">אולי בפעם אחרת</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+
+
+</html>

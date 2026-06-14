@@ -1,0 +1,52 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+
+<footer class="footer footer-big" style="background-color:#ffffff">
+    <div class="container">
+        <div class="content">
+            <div class="row">
+                <div class="col-md-4 flex-column d-flex flex-column">
+                    <h2 class="h5">תוכן</h2>
+                    <a class="mb-2 text-gray" href="/">דף הבית</a>
+                    <a class="mb-2 text-gray" href="/אודות">אודות</a>
+                    <a class="mb-2 text-gray" href="/מאמרים">מאמרים</a>
+                    <a class="mb-2 text-gray" href="/קורסים-והרצאות">קורסים והרצאות</a>
+                    <a class="mb-2 text-gray" href="/אירועים">אירועים</a>
+                    <a class="mb-2 text-gray" href="/ספרים">ספרים</a>
+                    <a class="mb-2 text-gray" href="/צור-קשר">צור קשר</a>
+                    <a class="mb-2 text-gray" href="/תקנון"><strong>תקנון</strong> האתר</a>
+                    <a class="mb-2 text-gray" href="/הצהרת-נגישות">הצהרת נגישות</a>
+                </div>
+
+                <div class="col-md-4">
+                    <h2 class="h5">מדיה חברתית</h2>
+                    <a target="_blank" rel="noopener" href="https://www.facebook.com/mo6aron" class="btn btn-just-icon btn-facebook" aria-label="משה שרון בפייסבוק">
+                        <i class="mdi mdi-line-inherit mdi-facebook" aria-hidden="true"></i>
+                    </a>
+                    <a target="_blank" rel="noopener" href="https://www.instagram.com/mo6aron/" class="btn btn-just-icon instagram" aria-label="משה שרון באינסטגרם">
+                        <i class="mdi mdi-line-inherit mdi-instagram" aria-hidden="true"></i>
+                    </a>
+                    <a target="_blank" rel="noopener" href="https://www.youtube.com/@@MosheSharon6" class="btn btn-just-icon btn-youtube" aria-label="משה שרון ביוטיוב">
+                        <i class="mdi mdi-line-inherit mdi-youtube" aria-hidden="true"></i>
+                    </a>
+                    <a target="_blank" rel="noopener" href="https://chat.whatsapp.com/LvFG8ourAf81w2xZ5yswMH" class="btn btn-just-icon btn-whatsapp" aria-label="קבוצת הוואטסאפ של משה שרון">
+                        <i class="mdi mdi-line-inherit mdi-whatsapp" aria-hidden="true"></i>
+                    </a>
+                    <a target="_blank" rel="noopener" href="https://t.me/joinchat/GnRWhstxsMAWErGC" class="btn btn-just-icon footer-telegram" aria-label="קבוצת הטלגרם של משה שרון">
+                        <i class="mdi mdi-line-inherit mdi-telegram" aria-hidden="true"></i>
+                    </a>
+                </div>
+
+                @Html.Partial("~/Views/Partials/NewsLetter.cshtml")
+            </div>
+        </div>
+
+        <hr>
+        <div class="copyright float-right">
+            &copy;
+            <script>
+                document.write(new Date().getFullYear())
+            </script>
+            משה שרון
+        </div>
+    </div>
+</footer>

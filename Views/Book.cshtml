@@ -1,0 +1,53 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Book>
+@{
+    Layout = "master.cshtml";
+    dynamic parent = Model.Parent;
+}
+<div class="sec-page-header page-header header-filter clear-filter" style="margin-top:0em;background-image: url('@Url.GetCropUrl(((Books)parent).Image, "full")');">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="text-center">
+                    <img class="img" src="@Url.GetCropUrl(Model.Image, "small")" alt="@Model.ImageAlt" style="width: 250px">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="my-5" itemscope itemtype="https://schema.org/BreadcrumbList">
+
+        <span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <a class="title text-primary" itemprop="item" href="@Model.Parent.Url()">
+                <span itemprop="name">@Model.Parent.Name</span>
+            </a>
+            <meta itemprop="position" content="1" />
+        </span>
+        &nbsp;&gt;&nbsp;
+
+        <span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <a class="title text-primary" itemprop="item" href="@Model.Url()">
+                <span itemprop="name">@Model.Name</span>
+            </a>
+            <meta itemprop="position" content="2" />
+        </span>
+
+    </div>
+    <div class="row article p-md-3">
+        <div class="col-lg-12 p-md-5 p-4 mt-md-0 mt-4">
+            <h3 class="text-center mt-0"><strong>@Model.Title</strong></h3>
+            <div class="mt-5 text-justify">
+
+            @Model.FullDescription
+            </div>
+
+        </div>
+    </div>
+    
+</div>
+@Html.Partial("~/Views/Partials/Share.cshtml")
+@Html.Partial("~/Views/Partials/Comments.cshtml")
+
