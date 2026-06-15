@@ -1,4 +1,4 @@
-﻿@using MyProject12;
+@using MyProject12;
 @using MyProject12.Models;
 @using MyProject12.ViewModels;
 @using Umbraco.Cms.Core.Security;
@@ -23,9 +23,80 @@
 {
     var member = await _memberManager.GetCurrentMemberAsync();
     dynamic account = Umbraco.Content(3738);
-    Membership membership = _db.Memberships.FirstOrDefault(x => x.memberID == member.Id);
+    Membership? membership = _db.Memberships.GetPreferredMembership(member.Id);
 
-    <div class="sec-page-header page-header header-filter clear-filter" style="margin-top:0em;background-image: url('@Url.GetCropUrl(Model.Image, "full")');">
+    <style>
+        .account-renewal-options {
+            row-gap: 1rem;
+        }
+
+        .account-renewal-option {
+            text-align: center;
+        }
+
+        .account-renewal-title,
+        .account-renewal-price {
+            margin-bottom: .5rem;
+            line-height: 1.45;
+        }
+
+        .account-renewal-title {
+            font-weight: 500;
+        }
+
+        .account-renewal-option .btn {
+            white-space: normal;
+            line-height: 1.25;
+            min-height: 44px;
+            padding: 12px 24px;
+        }
+
+        @@media (max-width: 575.98px) {
+            .account-membership-card {
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+                margin-bottom: 5rem !important;
+            }
+
+            .account-membership-card .p-3 {
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
+            }
+
+            .account-renewal-options {
+                margin-left: 0;
+                margin-right: 0;
+            }
+
+            .account-renewal-option {
+                padding-left: 0;
+                padding-right: 0;
+            }
+
+            .account-renewal-option + .account-renewal-option {
+                border-top: 1px solid #eeeeee;
+                padding-top: 1rem;
+            }
+
+            .account-renewal-title {
+                font-size: 1rem;
+            }
+
+            .account-renewal-price {
+                font-size: .95rem;
+            }
+
+            .account-renewal-option .btn {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                max-width: 240px;
+            }
+        }
+    </style>
+
+    <div class="sec-page-header page-header header-filter clear-filter" style="margin-top:0em;background-image: url('@Url.GetOptimizedCropUrl(Model.Image, "full")');">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
@@ -50,7 +121,7 @@
                 <h2 class="text-success text-center m-2">@TempData["SuccessMessagePayment"]</h2>
             </div>
         }
-        <div class="card m-3" style="background-color:white; width:auto">
+        <div class="card m-3 account-membership-card" style="background-color:white; width:auto">
             @if (membership == null && !TempData.ContainsKey("SuccessMessagePayment"))
             {
                 if (!account.MembershipAllowed)
@@ -78,7 +149,7 @@
                                             <li>תשלום של ₪@(Model.SubscriptionDirectDebitPrice) מדי חודש</li>
                                             <li>ביטול באתר בכל עת - מבוטל מהחיוב הבא</li>
                                         </ul>
-                                        <button data-toggle="modal" id="monthlyButton" data-target="#subscription" class="btn btn-primary btn-raised btn-round">לרכישה</button>
+                                        <button type="button" data-toggle="modal" data-subscription-monthly="true" data-target="#subscription" class="btn btn-primary btn-raised btn-round">לרכישה</button>
                                     </div>
                                 </div>
                             </div>
@@ -92,7 +163,7 @@
                                             <li>תשלום חד פעמי מראש לשנה של ₪@(Model.SubscriptionYearlyMonthlyPrice * 12)</li>
                                             <li>לא מתחדש באופן אוטומאטי</li>
                                         </ul>
-                                        <button data-toggle="modal" id="yearlyButton" data-target="#subscription" class="btn btn-primary btn-raised btn-round">לרכישה</button>
+                                        <button type="button" data-toggle="modal" data-subscription-monthly="false" data-target="#subscription" class="btn btn-primary btn-raised btn-round">לרכישה</button>
                                     </div>
                                 </div>
                             </div>
@@ -128,6 +199,10 @@
                                         </div>
                                         <div class="modal-body text-center">
                                             <h5>לבטל את הוראת הקבע?</h5>
+                                            <p class="text-muted mb-0">
+                                                המנוי ימשיך להיות זמין עד לתאריך: @membership.expiration.ToString("dd.MM.yyyy").
+                                                לאחר מכן לא יתבצע חיוב נוסף.
+                                            </p>
                                         </div>
                                         <div class="modal-footer justify-content-center">
                                             <button type="button" class="btn btn-link" data-dismiss="modal">חזרה</button>
@@ -152,16 +227,16 @@
                             {
                                 <h4 class="text-danger">הוראת הקבע בוטלה</h4>
                                 <hr />
-                                <div class="row  justify-content-md-center mt-4">
-                                    <div class="col-4">
-                                        <p>מנוי חודשי בהוראת קבע</p>
-                                        <p><small>₪</small>@(Model.SubscriptionDirectDebitPrice) לחודש</p>
-                                        <button data-toggle="modal" id="monthlyButton" data-target="#subscription" class="btn btn-primary btn-raised btn-round">חידוש המנוי</button>
+                                <div class="row justify-content-center mt-4 account-renewal-options">
+                                    <div class="col-12 col-sm-6 col-md-4 mb-3 account-renewal-option">
+                                        <p class="account-renewal-title">מנוי חודשי בהוראת קבע</p>
+                                        <p class="account-renewal-price"><small>₪</small>@(Model.SubscriptionDirectDebitPrice) לחודש</p>
+                                        <button type="button" data-toggle="modal" data-subscription-monthly="true" data-target="#subscription" class="btn btn-primary btn-raised btn-round">חידוש המנוי</button>
                                     </div>
-                                    <div class="col-4">
-                                        <p>מנוי שנתי תשלום חד פעמי</p>
-                                        <p><small>₪</small>@(Model.SubscriptionYearlyMonthlyPrice * 12) לשנה / <small>₪</small>@(Model.SubscriptionYearlyMonthlyPrice) לחודש</p>
-                                        <button data-toggle="modal" id="yearlyButton" data-target="#subscription" class="btn btn-primary btn-raised btn-round">חידוש המנוי</button>
+                                    <div class="col-12 col-sm-6 col-md-4 mb-3 account-renewal-option">
+                                        <p class="account-renewal-title">מנוי שנתי תשלום חד פעמי</p>
+                                        <p class="account-renewal-price"><small>₪</small>@(Model.SubscriptionYearlyMonthlyPrice * 12) לשנה / <small>₪</small>@(Model.SubscriptionYearlyMonthlyPrice) לחודש</p>
+                                        <button type="button" data-toggle="modal" data-subscription-monthly="false" data-target="#subscription" class="btn btn-primary btn-raised btn-round">חידוש המנוי</button>
                                     </div>
                                 </div>
                             }
@@ -184,16 +259,16 @@
                         <hr />
                         <h3>תוקף המנוי - @membership.expiration.ToString("dd.MM.yyyy")</h3>
                         <hr />
-                        <div class="row  justify-content-md-center mt-4">
-                            <div class="col-4">
-                                <p>מנוי חודשי בהוראת קבע</p>
-                                <p><small>₪</small>@(Model.SubscriptionDirectDebitPrice) לחודש</p>
-                                <button data-toggle="modal" id="monthlyButton" data-target="#subscription" class="btn btn-primary btn-raised btn-round">חידוש המנוי</button>
+                        <div class="row justify-content-center mt-4 account-renewal-options">
+                            <div class="col-12 col-sm-6 col-md-4 mb-3 account-renewal-option">
+                                <p class="account-renewal-title">מנוי חודשי בהוראת קבע</p>
+                                <p class="account-renewal-price"><small>₪</small>@(Model.SubscriptionDirectDebitPrice) לחודש</p>
+                                <button type="button" data-toggle="modal" data-subscription-monthly="true" data-target="#subscription" class="btn btn-primary btn-raised btn-round">חידוש המנוי</button>
                             </div>
-                            <div class="col-4">
-                                <p>מנוי שנתי תשלום חד פעמי</p>
-                                <p><small>₪</small>@(Model.SubscriptionYearlyMonthlyPrice * 12) לשנה / <small>₪</small>@(Model.SubscriptionYearlyMonthlyPrice) לחודש</p>
-                                <button data-toggle="modal" id="yearlyButton" data-target="#subscription" class="btn btn-primary btn-raised btn-round">חידוש המנוי</button>
+                            <div class="col-12 col-sm-6 col-md-4 mb-3 account-renewal-option">
+                                <p class="account-renewal-title">מנוי שנתי תשלום חד פעמי</p>
+                                <p class="account-renewal-price"><small>₪</small>@(Model.SubscriptionYearlyMonthlyPrice * 12) לשנה / <small>₪</small>@(Model.SubscriptionYearlyMonthlyPrice) לחודש</p>
+                                <button type="button" data-toggle="modal" data-subscription-monthly="false" data-target="#subscription" class="btn btn-primary btn-raised btn-round">חידוש המנוי</button>
                             </div>
                         </div>
                     </div>
@@ -221,7 +296,7 @@
                         <div class="image-container" style=" position: relative; display: flex; align-items: center; justify-content: center;">
                             <span class="badge badge-pill badge-primary time">@lesson.Duration</span>
                             <i class="material-icons play" aria-hidden="true" lang="en" translate="no">play_circle_filled</i>
-                            <div><img src="@Url.GetCropUrl(((Lesson)lesson).Image, "small")" alt="@lesson.ImageAlt" class="rounded img-fluid"></div>
+                            <div><img src="@Url.GetOptimizedCropUrl(((Lesson)lesson).Image, "small")" alt="@lesson.ImageAlt" class="rounded img-fluid"></div>
                         </div>
                         <h5 style="line-height: 22px;" class="title m-2" class="title m-2">@lesson.Title</h5>
                     </a>
@@ -445,13 +520,12 @@
                 if (openModalId) {
                     $('#' + openModalId).modal('show');
                 }
-                $('#yearlyButton').click(function () {
-                    $('#Monthly').val('false');
-                    $('#subscriptionTitle').text('תשלום חד פעמי - ' + '@(Model.SubscriptionYearlyMonthlyPrice * 12)' + ' ₪ לשנה');
-                });
-                $('#monthlyButton').click(function () {
-                    $('#Monthly').val('true');
-                    $('#subscriptionTitle').text('הוראת קבע - ' + '@(Model.SubscriptionDirectDebitPrice)' + ' ₪ לחודש');
+                $('[data-subscription-monthly]').click(function () {
+                    var monthly = $(this).attr('data-subscription-monthly') === 'true';
+                    $('#Monthly').val(monthly ? 'true' : 'false');
+                    $('#subscriptionTitle').text(monthly
+                        ? 'הוראת קבע - ' + '@(Model.SubscriptionDirectDebitPrice)' + ' ₪ לחודש'
+                        : 'תשלום חד פעמי - ' + '@(Model.SubscriptionYearlyMonthlyPrice * 12)' + ' ₪ לשנה');
                 });
 
                 initializeOfflineFeatures();
@@ -460,7 +534,7 @@
 }
 else
 {
-    <div class="sec-page-header page-header header-filter clear-filter" style="margin-top:0em;background-image: url('@Url.GetCropUrl(Model.Image, "full")');">
+    <div class="sec-page-header page-header header-filter clear-filter" style="margin-top:0em;background-image: url('@Url.GetOptimizedCropUrl(Model.Image, "full")');">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">

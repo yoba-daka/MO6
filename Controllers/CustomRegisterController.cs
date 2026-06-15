@@ -86,7 +86,7 @@ namespace MyProject12.Controllers
                 {
                     base.ModelState.AddModelError("registerModel", "ההרשמה לאתר סגורה כעת");
                 }
-            bool checkCapthcha = _configuration["googleReCaptcha:OnRegister"].ToLower() == "on";
+            bool checkCapthcha = CaptchaSettings.IsEnabled(_configuration, "OnRegister");
             if (!await _captchaValidator.IsCaptchaPassedAsync(captcha) && checkCapthcha)
             {
                 base.ModelState.AddModelError("registerModel", "אירעה שגיאה, נא לרענן את הדף ולנסות שנית");
@@ -165,7 +165,7 @@ namespace MyProject12.Controllers
             }
 
             // Validate reCAPTCHA
-            bool checkCapthcha = _configuration["googleReCaptcha:OnRegister"].ToLower() == "on";
+            bool checkCapthcha = CaptchaSettings.IsEnabled(_configuration, "OnRegister");
             if (!await _captchaValidator.IsCaptchaPassedAsync(captcha) && checkCapthcha)
             {
                 ModelState.AddModelError("specialOfferLoginModel", "אימות האבטחה נכשל. אנא רענן את הדף ונסה שנית.");
@@ -248,7 +248,7 @@ namespace MyProject12.Controllers
                 return CurrentUmbracoPage();
             }
 
-            bool checkCapthcha = _configuration["googleReCaptcha:OnRegister"].ToLower() == "on";
+            bool checkCapthcha = CaptchaSettings.IsEnabled(_configuration, "OnRegister");
             if (!await _captchaValidator.IsCaptchaPassedAsync(captcha) && checkCapthcha)
             {
                 ModelState.AddModelError("specialOfferModel", "אימות האבטחה נכשל. אנא רענן את הדף ונסה שנית.");

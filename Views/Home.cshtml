@@ -1,4 +1,4 @@
-﻿@using MO6.ViewModels
+@using MO6.ViewModels
 @using Microsoft.Extensions.Caching.Memory;
 @using MyProject12
 @using MyProject12.Models
@@ -19,7 +19,7 @@
     dynamic HomeCards = Umbraco.Content(3762);
 }
 
-<div class="page-header clear-filter" style="background-image: url('@Url.GetCropUrl(Model.Image, "high")');">
+<div class="page-header clear-filter" style="background-image: url('@Url.GetOptimizedCropUrl(Model.Image, "high")');">
     <div class="container">
         <div class="row justify-content-start">
             <div class="col-lg-5">
@@ -209,12 +209,12 @@
                                 @if (hasLink)
                                 {
                                     <a href="@card.CardLink">
-                                        <img class="rounded" style="width:100%;" src="@Url.GetCropUrl(card.Image, "small")" alt="@card.ImageAlt">
+                                        <img class="rounded" style="width:100%;" src="@Url.GetOptimizedCropUrl(card.Image, "small")" alt="@card.ImageAlt">
                                     </a>
                                 }
                                 else
                                 {
-                                    <img class="rounded" style="width:100%;" src="@Url.GetCropUrl(card.Image, "small")" alt="@card.ImageAlt">
+                                    <img class="rounded" style="width:100%;" src="@Url.GetOptimizedCropUrl(card.Image, "small")" alt="@card.ImageAlt">
                                 }
                                 <div class="card-body text-center">
                                     @if (!string.IsNullOrWhiteSpace(subtitle))
@@ -388,7 +388,7 @@ catch
 
 <div class="pb-3 my-0" style="background-color:#fdb88a;"> </div>
 
-<div class="team-4 section-image" style="background-image:url('/holidays.jpg');" >
+<div class="team-4 section-image" style="background-image:url('@Url.GetOptimizedImageUrl("/holidays.jpg")');" >
     <div class="container">
         @{
                     var hebrewCalendar = new HebrewCalendar();
@@ -434,7 +434,7 @@ catch
                             @{
                                 string iconUrl = "/holidays/" + Model.Holiday.Replace("\"", string.Empty) + ".jpg";
                             }
-                            <img class="img p-3" style="background-color:white;" src="@iconUrl" alt="@Model.Holiday" />
+                            <img class="img p-3" style="background-color:white;" src="@Url.GetOptimizedImageUrl(iconUrl)" alt="@Model.Holiday" />
                         </div>
                     </div>
                     <div class="card-body">
@@ -463,7 +463,7 @@ catch
         <div class="container">
             <div class="row" dir="ltr">
                 <div class="col-12 col-md-4">
-                    <img src="~/books.jpg" class="rounded img-fluid mb-4" style="margin-right:150px; width:400px;height:250px; margin-top:-40px;border:solid thick;border-color:white" alt="הספרים של משה שרון" />
+                    <img src="@Url.GetOptimizedImageUrl(Url.Content("~/books.jpg"))" class="rounded img-fluid mb-4" style="margin-right:150px; width:400px;height:250px; margin-top:-40px;border:solid thick;border-color:white" alt="הספרים של משה שרון" />
                 </div>
                 <div class="col-12 col-md-8">
                     <h2 class="text-center text-primary mt-0" style=""><strong> @Model.BooksTitle1 </strong></h2>

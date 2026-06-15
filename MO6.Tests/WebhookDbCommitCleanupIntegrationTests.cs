@@ -77,27 +77,31 @@ public class WebhookDbCommitCleanupIntegrationTests
                 .UseSqlite($"Data Source={dbFile}")
                 .Options;
 
-            await using var db = new TransactionCommitDbContext(options);
-            await db.Database.EnsureCreatedAsync();
+            await using (var db = new TransactionCommitDbContext(options))
+            {
+                await db.Database.EnsureCreatedAsync();
 
-            db.Transactions.Add(transaction);
-            await db.SaveChangesAsync();
+                db.Transactions.Add(transaction);
+                await db.SaveChangesAsync();
 
-            var committed = await db.Transactions
-                .Where(x => x.TransactionToken == transaction.TransactionToken)
-                .ToListAsync();
-            committed.Should().HaveCount(1);
-            committed[0].PayerEmail.Should().Be("afk1281@gmail.com");
+                var committed = await db.Transactions
+                    .Where(x => x.TransactionToken == transaction.TransactionToken)
+                    .ToListAsync();
+                committed.Should().HaveCount(1);
+                committed[0].PayerEmail.Should().Be("afk1281@gmail.com");
 
-            db.Transactions.RemoveRange(committed);
-            await db.SaveChangesAsync();
+                db.Transactions.RemoveRange(committed);
+                await db.SaveChangesAsync();
 
-            var remaining = await db.Transactions
-                .CountAsync(x => x.TransactionToken == transaction.TransactionToken);
-            remaining.Should().Be(0);
+                var remaining = await db.Transactions
+                    .CountAsync(x => x.TransactionToken == transaction.TransactionToken);
+                remaining.Should().Be(0);
+            }
         }
         finally
         {
+            Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
+
             if (File.Exists(dbFile))
             {
                 File.Delete(dbFile);

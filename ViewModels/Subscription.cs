@@ -13,6 +13,7 @@ namespace MyProject12.ViewModels
         [DisplayName("טלפון:")]
         [Required(ErrorMessage = "נדרש מספר פלאפון")]
         [MaxLength(10, ErrorMessage = "ארוך מדי")]
+        [RegularExpression(@"^(05\d{8}|0(?!5)\d{8,9})$", ErrorMessage = "מספר הטלפון אינו תקין")]
         [DataType(DataType.PhoneNumber)]
         public string PhoneNumber { get; set; }
         [Required]

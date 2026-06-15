@@ -1,4 +1,4 @@
-﻿﻿@{
+@{
     // Injections and setup
 }
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
@@ -58,7 +58,7 @@
         if (Model.Url() != "/" && (Model.HasValue("Image") && Model.Value("Image") is ImageCropperValue))
         {
             // GetCropUrl returns relative URL, so prepend domain
-            var relativeImageUrl = Url.GetCropUrl(Model.Value<ImageCropperValue>("Image"), "small");
+            var relativeImageUrl = Url.GetOptimizedCropUrl(Model.Value<ImageCropperValue>("Image"), "small");
 
             ogImage = domain + relativeImageUrl;
         }

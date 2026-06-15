@@ -25,7 +25,7 @@ namespace MO6.ViewModels
         public string ConfirmPassword { get; set; }
 
         [Required(ErrorMessage = "נדרש מספר טלפון")]
-        [RegularExpression(@"^0\d{8,9}$", ErrorMessage = "מספר הטלפון אינו תקין")]
+        [RegularExpression(@"^(05\d{8}|0(?!5)\d{8,9})$", ErrorMessage = "מספר הטלפון אינו תקין")]
         public string PhoneNumber { get; set; }
 
         [Required(ErrorMessage = "נדרשת הסכמה לתקנון")]

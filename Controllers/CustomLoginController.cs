@@ -73,7 +73,7 @@ namespace MyProject12.Controllers
             }
             else ModelState.Remove("verificationCode");
 
-            bool checkCapthcha = _configuration["googleReCaptcha:OnLogin"].ToLower() == "on";
+            bool checkCapthcha = CaptchaSettings.IsEnabled(_configuration, "OnLogin");
             if (!await _captchaValidator.IsCaptchaPassedAsync(captcha) && checkCapthcha)
             {
                 base.ModelState.AddModelError("loginModel", "אירעה שגיאה, נא לרענן את הדף ולנסות שנית") ;
@@ -151,7 +151,7 @@ namespace MyProject12.Controllers
                 return StatusCode(401, "משתמש לא מחובר.");
             }
 
-            var membership = _db.Memberships.FirstOrDefault(x => x.memberID == member.Id);
+            var membership = _db.Memberships.GetPreferredMonthlyMembership(member.Id);
             if (membership == null)
             {
                 return StatusCode(404, "מנוי לא נמצא.");

@@ -302,7 +302,7 @@ namespace MyProject12.Controllers
                     member.Email = email;
                     member.UserName = email;
 
-                    var membership = _db.Memberships.FirstOrDefault(x=>x.memberID == member.Id);
+                    var membership = _db.Memberships.GetPreferredMonthlyMembership(member.Id);
                     if (membership != null && membership.isMonthlyActive)
                     {
                         var transacrtion = _db.Transactions.OrderByDescending(x => x.Created).FirstOrDefault(x => x.PayerEmail == member.Email);

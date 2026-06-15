@@ -1,4 +1,4 @@
-﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@using Umbraco.Cms.Web.Common.PublishedModels;
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Article>
 @{
@@ -41,7 +41,7 @@
     }
 </style>
 
-<div class="sec-page-header page-header header-filter clear-filter" style="margin-top:0em;background-image: url('@Url.GetCropUrl(((Articles)Model.AncestorOrSelf("Articles")).Image, "full")');">
+<div class="sec-page-header page-header header-filter clear-filter" style="margin-top:0em;background-image: url('@Url.GetOptimizedCropUrl(((Articles)Model.AncestorOrSelf("Articles")).Image, "full")');">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">

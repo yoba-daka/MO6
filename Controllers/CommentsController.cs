@@ -17,6 +17,7 @@ using Newtonsoft.Json.Linq;
 using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Web.Common.Security;
 using Umbraco.Cms.Core.Models.ContentEditing;
+using MyProject12.Services;
 
 namespace MyProject12.Controllers
 {
@@ -52,7 +53,7 @@ namespace MyProject12.Controllers
         {
             if (!_memberManager.IsLoggedIn()) return NotFound();
             // Validate the captcha first
-            bool checkCapthcha = _configuration["googleReCaptcha:OnComment"].ToLower() == "on";
+            bool checkCapthcha = CaptchaSettings.IsEnabled(_configuration, "OnComment");
             if (!await _captchaValidator.IsCaptchaPassedAsync(captcha) && checkCapthcha)
             {
                 ModelState.AddModelError("captcha", "Captcha validation failed");

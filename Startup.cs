@@ -110,6 +110,10 @@ namespace MosheSharon
                {
                    u.UseInstallerEndpoints();
                    u.UseBackOfficeEndpoints();
+                   u.EndpointRouteBuilder.MapControllerRoute(
+                       "HlsProxy",
+                       "media/hls/{contentName}/{**blobPath}",
+                       new { controller = "HlsProxy", action = "Get" });
                    u.UseWebsiteEndpoints();
                    u.EndpointRouteBuilder.MapControllerRoute(
                        "PaymentsHarnessPage",

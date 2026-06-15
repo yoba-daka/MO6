@@ -70,6 +70,10 @@
     <Content Remove="MO6.Tests\**\*" />
     <None Remove="MO6.Tests\**\*" />
     <EmbeddedResource Remove="MO6.Tests\**\*" />
+    <Compile Remove="tools\**\*.cs" />
+    <Content Remove="tools\**\*" />
+    <None Remove="tools\**\*" />
+    <EmbeddedResource Remove="tools\**\*" />
   </ItemGroup>
 
   <PropertyGroup>

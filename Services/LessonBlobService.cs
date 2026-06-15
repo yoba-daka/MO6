@@ -157,6 +157,13 @@ namespace MyProject12
             }
         }
 
+        public BlobClient GetBlobClient(string containerName, string blobName)
+        {
+            var blobServiceClient = new BlobServiceClient(_connectionString);
+            var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
+            return blobContainerClient.GetBlobClient(blobName);
+        }
+
         public string GenerateBlobUrl(string containerName,string blobName, string sasToken)
         {
             try

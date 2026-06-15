@@ -86,6 +86,86 @@
         let player;
         let currentLessonData;
         let timeUpdater;
+        let offlineHls = null;
+        let progressStorageKey = null;
+        let legacyProgressStorageKey = null;
+
+        function normalizePlaybackTime(value) {
+            const seconds = Number(value);
+            return Number.isFinite(seconds) && seconds > 0 ? seconds : 0;
+        }
+
+        function getStoredProgress() {
+            if (!progressStorageKey) return null;
+
+            const keys = progressStorageKey === legacyProgressStorageKey
+                ? [progressStorageKey]
+                : [progressStorageKey, legacyProgressStorageKey].filter(Boolean);
+
+            for (const key of keys) {
+                try {
+                    const raw = localStorage.getItem(key);
+                    if (!raw) continue;
+                    const parsed = JSON.parse(raw);
+                    const time = normalizePlaybackTime(parsed?.time);
+                    if (!time) continue;
+                    return { time, isVideo: !!parsed.isVideo, updatedAt: parsed.updatedAt || 0 };
+                } catch {
+                    continue;
+                }
+            }
+
+            return null;
+        }
+
+        function clearLegacyStoredProgress() {
+            if (!legacyProgressStorageKey || legacyProgressStorageKey === progressStorageKey) return;
+
+            try {
+                localStorage.removeItem(legacyProgressStorageKey);
+            } catch {
+            }
+        }
+
+        function saveStoredProgress(time, isVideo) {
+            if (!progressStorageKey) return;
+            const progress = {
+                time: normalizePlaybackTime(time),
+                isVideo: !!isVideo,
+                updatedAt: Date.now()
+            };
+
+            try {
+                localStorage.setItem(progressStorageKey, JSON.stringify(progress));
+                clearLegacyStoredProgress();
+            } catch (error) {
+                console.warn('[OfflineTimekeeping] Local progress save failed.', error);
+            }
+
+            return progress;
+        }
+
+        function getLastKnownProgress() {
+            const candidates = [];
+
+            const indexedProgress = currentLessonData?.lastPlayed;
+            const indexedTime = normalizePlaybackTime(indexedProgress?.time);
+            if (indexedTime) {
+                candidates.push({
+                    time: indexedTime,
+                    isVideo: !!indexedProgress.isVideo,
+                    updatedAt: indexedProgress.updatedAt || 0
+                });
+            }
+
+            const storedProgress = getStoredProgress();
+            if (storedProgress) {
+                candidates.push(storedProgress);
+            }
+
+            candidates.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+            return candidates[0] || null;
+        }
 
         document.addEventListener('DOMContentLoaded', async function () {
             const urlParams = new URLSearchParams(window.location.search);
@@ -104,6 +184,11 @@
                 ]);
 
                 currentLessonData = lessonData;
+                const progressOwner = settings?.memberId
+                    ? `member:${settings.memberId}`
+                    : 'anonymous';
+                legacyProgressStorageKey = `lesson-progress:${contentName}`;
+                progressStorageKey = `lesson-progress:${progressOwner}:${contentName}`;
 
                 if (!currentLessonData) {
                     return showError('שגיאה: לא נמצאו נתונים עבור שיעור זה במכשיר.');
@@ -144,7 +229,8 @@
             if (videoAvailable) $('#videoTab').show();
             if (audioAvailable) $('#audioTab').show();
 
-            const lastPlayedIsVideo = currentLessonData.lastPlayed ? currentLessonData.lastPlayed.isVideo : true;
+            const progress = getLastKnownProgress();
+            const lastPlayedIsVideo = progress?.isVideo ?? true;
             let initialPlayerIsVideo = (lastPlayedIsVideo && videoAvailable) || (!audioAvailable);
 
             if (initialPlayerIsVideo) {
@@ -158,6 +244,7 @@
             $('#videoB').on('click', function (e) {
                 e.preventDefault();
                 if ($(this).hasClass('active')) return;
+                saveCurrentTimestamp();
                 $('#audioB').removeClass('active');
                 $(this).addClass('active');
                 clearPlayer();
@@ -167,6 +254,7 @@
             $('#audioB').on('click', function (e) {
                 e.preventDefault();
                 if ($(this).hasClass('active')) return;
+                saveCurrentTimestamp();
                 $('#videoB').removeClass('active');
                 $(this).addClass('active');
                 clearPlayer();
@@ -197,7 +285,7 @@
 
             let waitingTimer = null;
             let watchdogTimer = null;
-            let lastTime = 0;
+            let lastTime = audioElement.currentTime || 0;
             let stagnantChecks = 0;
             let recovering = false;
             let retries = 0;
@@ -216,7 +304,7 @@
                 lastTime = audioElement.currentTime || 0;
             };
 
-            const attemptRecovery = async reason => {
+            const attemptRecovery = reason => {
                 if (recovering || audioElement.ended) return;
 
                 const now = Date.now();
@@ -230,41 +318,73 @@
                     return;
                 }
 
+                const sourceUrl = (getSourceUrl && getSourceUrl()) || audioElement.currentSrc || audioElement.src;
+                if (!sourceUrl) return;
+
                 recovering = true;
                 retries += 1;
                 clearWaitingTimer();
 
                 const resumeTime = audioElement.currentTime || 0;
                 const shouldResume = !audioElement.paused && !audioElement.ended;
-                const sourceUrl = (getSourceUrl && getSourceUrl()) || audioElement.currentSrc || audioElement.src;
+                let restored = false;
+                let recoveryTimeout = null;
+
+                const cleanupRecoveryListeners = () => {
+                    if (recoveryTimeout) clearTimeout(recoveryTimeout);
+                    audioElement.removeEventListener('loadedmetadata', finishRecovery);
+                    audioElement.removeEventListener('canplay', finishRecovery);
+                    audioElement.removeEventListener('error', failRecovery);
+                };
+
+                const finishRecovery = async () => {
+                    if (restored) return;
+                    restored = true;
+                    cleanupRecoveryListeners();
+
+                    try {
+                        if (resumeTime > 0) {
+                            audioElement.currentTime = resumeTime;
+                        }
+                    } catch (error) {
+                        console.warn('[OfflineAudio] Recovery seek failed.', error);
+                    }
+
+                    if (shouldResume) {
+                        try {
+                            await audioElement.play();
+                        } catch (playError) {
+                            console.warn('[OfflineAudio] Recovery play() failed.', playError);
+                        }
+                    }
+
+                    resetProgressState();
+                    recovering = false;
+                };
+
+                const failRecovery = () => {
+                    cleanupRecoveryListeners();
+                    recovering = false;
+                };
+
+                console.warn(`[OfflineAudio] Attempting recovery. reason=${reason}, retry=${retries}, time=${resumeTime}`);
 
                 try {
-                    if (!sourceUrl) return;
+                    audioElement.addEventListener('loadedmetadata', finishRecovery, { once: true });
+                    audioElement.addEventListener('canplay', finishRecovery, { once: true });
+                    audioElement.addEventListener('error', failRecovery, { once: true });
 
                     audioElement.pause();
-                    audioElement.src = sourceUrl;
                     const sourceNode = audioElement.querySelector('source');
-                    if (sourceNode) sourceNode.src = sourceUrl;
+                    if (sourceNode) {
+                        sourceNode.src = sourceUrl;
+                    }
+                    audioElement.src = sourceUrl;
                     audioElement.load();
-
-                    const restorePlayback = async () => {
-                        audioElement.removeEventListener('canplay', restorePlayback);
-                        audioElement.currentTime = resumeTime;
-                        if (shouldResume) {
-                            try {
-                                await audioElement.play();
-                            } catch (playError) {
-                                console.warn('[OfflineAudio] Recovery play() failed.', playError);
-                            }
-                        }
-                        resetProgressState();
-                        recovering = false;
-                    };
-
-                    audioElement.addEventListener('canplay', restorePlayback, { once: true });
+                    recoveryTimeout = setTimeout(finishRecovery, 5000);
                 } catch (error) {
                     console.error('[OfflineAudio] Recovery failed.', error);
-                    recovering = false;
+                    failRecovery();
                 }
             };
 
@@ -286,7 +406,7 @@
             };
 
             const handleWatchdog = () => {
-                if (audioElement.paused || audioElement.ended || recovering || audioElement.seeking) {
+                if (audioElement.paused || audioElement.ended || recovering || audioElement.seeking || audioElement.readyState < 2) {
                     stagnantChecks = 0;
                     lastTime = audioElement.currentTime || 0;
                     return;
@@ -306,7 +426,6 @@
 
             audioElement.addEventListener('waiting', handleWaiting);
             audioElement.addEventListener('stalled', handleStalled);
-            audioElement.addEventListener('suspend', handleWaiting);
             audioElement.addEventListener('error', handleError);
             audioElement.addEventListener('canplay', resetProgressState);
             audioElement.addEventListener('playing', resetProgressState);
@@ -321,7 +440,6 @@
                 if (watchdogTimer) clearInterval(watchdogTimer);
                 audioElement.removeEventListener('waiting', handleWaiting);
                 audioElement.removeEventListener('stalled', handleStalled);
-                audioElement.removeEventListener('suspend', handleWaiting);
                 audioElement.removeEventListener('error', handleError);
                 audioElement.removeEventListener('canplay', resetProgressState);
                 audioElement.removeEventListener('playing', resetProgressState);
@@ -333,7 +451,8 @@
         function clearPlayer() {
             if (audioRecoveryCleanup) { audioRecoveryCleanup(); audioRecoveryCleanup = null; }
             if (player) { player.destroy(); player = null; }
-            if (timeUpdater) { clearInterval(timeUpdater); }
+            if (offlineHls) { offlineHls.destroy(); offlineHls = null; }
+            if (timeUpdater) { clearInterval(timeUpdater); timeUpdater = null; }
             $('#player-wrapper').empty();
         }
 
@@ -342,12 +461,23 @@
             const qualityPlaylistUrl = currentLessonData.hlsQualityPlaylistUrl;
             if (!qualityPlaylistUrl) { return showError('שגיאה: כתובת הוידאו לא נשמרה כראוי.'); }
             const playlistUrlWithoutSAS = qualityPlaylistUrl.split('?')[0];
-            playerWrapper.innerHTML = `<video poster="${currentLessonData.imageUrl || ''}" id="player" playsinline controls></video>`;
+            playerWrapper.innerHTML = `<video poster="${currentLessonData.imageUrl || ''}" id="player" playsinline preload="metadata" controls></video>`;
             const video = document.querySelector('#player');
-            const hls = new Hls({ debug: false });
-            hls.on(Hls.Events.ERROR, (event, data) => { if (data.fatal) { showError('שגיאה בטעינת הוידאו.'); } });
-            hls.loadSource(playlistUrlWithoutSAS); hls.attachMedia(video);
             player = new Plyr(video, { controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'pip', 'fullscreen', 'settings'], settings: ['speed'], keyboard: { focused: true, global: true } });
+            const canUseNativeHls = video.canPlayType('application/vnd.apple.mpegurl') || video.canPlayType('application/x-mpegURL');
+
+            if (window.Hls && Hls.isSupported()) {
+                offlineHls = new Hls({ debug: false });
+                offlineHls.on(Hls.Events.ERROR, (event, data) => { if (data.fatal) { showError('שגיאה בטעינת הוידאו.'); } });
+                offlineHls.on(Hls.Events.MEDIA_ATTACHED, () => offlineHls.loadSource(playlistUrlWithoutSAS));
+                offlineHls.attachMedia(video);
+            } else if (canUseNativeHls) {
+                video.src = playlistUrlWithoutSAS;
+                video.addEventListener('error', () => showError('שגיאה בטעינת הוידאו.'), { once: true });
+            } else {
+                return showError('הדפדפן אינו תומך בניגון הוידאו.');
+            }
+
             player.once('ready', () => seekToLastKnownTime());
             startSavingTimestamp();
         }
@@ -357,7 +487,7 @@
             const audioUrl = currentLessonData.audioUrl;
             if (!audioUrl) { return showError('שגיאה: כתובת השמע לא נשמרה כראוי.'); }
             const audioUrlWithoutSAS = audioUrl.split('?')[0];
-            playerWrapper.innerHTML = `<audio id="playerA" controls><source src="${audioUrlWithoutSAS}" type="audio/mp3"></audio>`;
+            playerWrapper.innerHTML = `<audio id="playerA" preload="metadata" controls><source src="${audioUrlWithoutSAS}" type="audio/mpeg"></audio>`;
             const audioElement = document.querySelector('#playerA');
             player = new Plyr(audioElement, { controls: ['play', 'progress', 'current-time', 'mute', 'volume', 'settings'], keyboard: { focused: true, global: true } });
             audioRecoveryCleanup = attachAudioRecovery(audioElement, () => audioUrlWithoutSAS);
@@ -366,34 +496,68 @@
         }
 
         function seekPlayerTo(time) {
-            if (!player || !time) return;
-            player.once('canplay', () => setTimeout(() => { player.currentTime = time; }, 50));
-            if (player.ready) player.currentTime = time;
+            const seconds = normalizePlaybackTime(time);
+            if (!player || !seconds) return;
+
+            const media = player.media || document.querySelector('#player, #playerA');
+            const applySeek = () => {
+                try {
+                    player.currentTime = seconds;
+                } catch (error) {
+                    console.warn('[OfflineTimekeeping] Seek failed.', error);
+                }
+            };
+
+            if (media && media.readyState >= 1) {
+                applySeek();
+            } else if (media) {
+                media.addEventListener('loadedmetadata', applySeek, { once: true });
+                media.addEventListener('canplay', applySeek, { once: true });
+            } else {
+                player.once('ready', applySeek);
+            }
         }
 
         function seekToLastKnownTime() {
-            if (player && currentLessonData.lastPlayed && currentLessonData.lastPlayed.time) {
-                seekPlayerTo(currentLessonData.lastPlayed.time);
+            const progress = getLastKnownProgress();
+            if (player && progress?.time) {
+                seekPlayerTo(progress.time);
             }
+        }
+
+        function saveCurrentTimestamp() {
+            if (!player || !currentLessonData) return;
+            const time = normalizePlaybackTime(player.currentTime);
+            if (!time) return;
+
+            const isVideo = $('#videoB').hasClass('active');
+            const progress = saveStoredProgress(time, isVideo);
+            currentLessonData.lastPlayed = progress;
+            offlineContentDB.saveTimestamp(currentLessonData.contentName, time, isVideo)
+                .catch(error => console.warn('[OfflineTimekeeping] IndexedDB progress save failed.', error));
         }
 
         function startSavingTimestamp() {
             if (timeUpdater) clearInterval(timeUpdater);
             timeUpdater = setInterval(() => {
-                if (player && player.currentTime > 0) {
-                    const isVideo = $('#videoB').hasClass('active');
-                    offlineContentDB.saveTimestamp(currentLessonData.contentName, player.currentTime, isVideo);
-                }
+                saveCurrentTimestamp();
             }, 5000);
         }
 
-        window.addEventListener('beforeunload', () => {
-            if (timeUpdater) clearInterval(timeUpdater);
-            if (player && player.currentTime > 0) {
-                const isVideo = $('#videoB').hasClass('active');
-                offlineContentDB.saveTimestamp(currentLessonData.contentName, player.currentTime, isVideo);
+        function flushOfflineProgress(stopUpdater = true) {
+            if (stopUpdater && timeUpdater) { clearInterval(timeUpdater); timeUpdater = null; }
+            saveCurrentTimestamp();
+        }
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') {
+                flushOfflineProgress(false);
+            } else if (!timeUpdater && player) {
+                startSavingTimestamp();
             }
         });
+        window.addEventListener('pagehide', () => flushOfflineProgress(true));
+        window.addEventListener('beforeunload', () => flushOfflineProgress(true));
     </script>
 </body>
 </html>

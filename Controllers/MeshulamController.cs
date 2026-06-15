@@ -826,10 +826,17 @@ namespace MyProject12.Controllers
             bool monthly,
             bool persist)
         {
-            var membership = _db.Memberships.FirstOrDefault(x => x.memberID == existingMember.Id);
+            var memberships = _db.Memberships
+                .Where(x => x.memberID == existingMember.Id)
+                .ToList();
             var transactionRefs = GetTransactionReferenceCandidates(transaction);
-            var transactionRef = GetPrimaryTransactionReference(transaction);
-            var alreadyApplied = membership != null && MembershipContainsTransaction(membership, transaction);
+            var alreadyApplied = memberships.Any(x => MembershipContainsTransaction(x, transaction));
+            var now = DateTime.Now;
+            var membership = memberships
+                .OrderByDescending(x => x.expiration >= now)
+                .ThenByDescending(x => x.expiration)
+                .ThenByDescending(x => x.Id)
+                .FirstOrDefault();
 
             if (membership != null)
             {

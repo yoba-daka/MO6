@@ -1,4 +1,4 @@
-﻿@using Umbraco.Cms.Core.PropertyEditors.ValueConverters;
+@using Umbraco.Cms.Core.PropertyEditors.ValueConverters;
 @using Umbraco.Cms.Web.Common.PublishedModels;
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
 
@@ -21,7 +21,7 @@
                                     </div>
                                 }
                 <a href="@article.Url()">
-                    <img src="@Url.GetCropUrl(article.Image, "small")" alt="@article.ImageAlt" class="rounded img-fluid" loading="lazy" decoding="async">
+                    <img src="@Url.GetOptimizedCropUrl(article.Image, "small")" alt="@article.ImageAlt" class="rounded img-fluid" loading="lazy" decoding="async">
                     <h5 style="line-height: 22px;" class="title m-2">@article.Title</h5>
                 </a>
             </div>
@@ -36,7 +36,7 @@
 
                     <i class="material-icons list" aria-hidden="true" lang="en" translate="no">list</i>
 
-                    <img src="@Url.GetCropUrl(category.Image, "small")" alt="@category.ImageAlt" class="rounded img-fluid" loading="lazy" decoding="async">
+                    <img src="@Url.GetOptimizedCropUrl(category.Image, "small")" alt="@category.ImageAlt" class="rounded img-fluid" loading="lazy" decoding="async">
             </div>
                                 <h5 style="line-height: 22px;" class="title m-2">@category.Title</h5>
 
@@ -71,7 +71,7 @@
     }
 }
 
-<div class="sec-page-header page-header header-filter clear-filter" style="margin-top:0em;background-image: url('@Url.GetCropUrl(((Articles)Model.AncestorOrSelf("Articles")).Image, "full")');">
+<div class="sec-page-header page-header header-filter clear-filter" style="margin-top:0em;background-image: url('@Url.GetOptimizedCropUrl(((Articles)Model.AncestorOrSelf("Articles")).Image, "full")');">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">

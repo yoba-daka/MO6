@@ -25,6 +25,14 @@ const offlineContentDB = {
         });
     },
 
+    _transactionDone(transaction) {
+        return new Promise((resolve, reject) => {
+            transaction.oncomplete = () => resolve();
+            transaction.onerror = () => reject(transaction.error || new Error('IndexedDB transaction failed.'));
+            transaction.onabort = () => reject(transaction.error || new Error('IndexedDB transaction aborted.'));
+        });
+    },
+
     async getMembershipStatus() {
         const db = await this.open();
         const transaction = db.transaction(this.settingsStoreName, 'readonly');
@@ -39,10 +47,20 @@ const offlineContentDB = {
     async saveMembershipStatus(status) {
         const db = await this.open();
         const transaction = db.transaction(this.settingsStoreName, 'readwrite');
+        const done = this._transactionDone(transaction);
         const store = transaction.objectStore(this.settingsStoreName);
         const settings = { id: 'currentUser', ...status };
         store.put(settings);
-        return transaction.complete;
+        return done;
+    },
+
+    async clearMembershipStatus() {
+        const db = await this.open();
+        const transaction = db.transaction(this.settingsStoreName, 'readwrite');
+        const done = this._transactionDone(transaction);
+        const store = transaction.objectStore(this.settingsStoreName);
+        store.delete('currentUser');
+        return done;
     },
 
     async getLesson(contentName) {
@@ -58,76 +76,110 @@ const offlineContentDB = {
 
     async startDownload(metadata, mediaType, resolution = null) {
         const db = await this.open();
-        const transaction = db.transaction(this.storeName, 'readwrite');
-        const store = transaction.objectStore(this.storeName);
-        const existingRecord = await new Promise(resolve => store.get(metadata.contentName).onsuccess = e => resolve(e.target.result));
-        const newRecord = { ...(existingRecord || {}), ...metadata };
-        if (!existingRecord) {
-            newRecord.videoStatus = 'none';
-            newRecord.audioStatus = 'none';
-            newRecord.lastPlayed = null;
-            newRecord.videoResolution = null;
-        }
-        if (mediaType === 'video') {
-            newRecord.videoStatus = 'downloading';
-            newRecord.videoResolution = resolution;
-        } else if (mediaType === 'audio') {
-            newRecord.audioStatus = 'downloading';
-        }
-        store.put(newRecord);
-        return transaction.complete;
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(this.storeName, 'readwrite');
+            transaction.oncomplete = () => resolve();
+            transaction.onerror = () => reject(transaction.error || new Error('IndexedDB transaction failed.'));
+            transaction.onabort = () => reject(transaction.error || new Error('IndexedDB transaction aborted.'));
+
+            const store = transaction.objectStore(this.storeName);
+            const request = store.get(metadata.contentName);
+            request.onsuccess = (event) => {
+                const existingRecord = event.target.result;
+                const newRecord = { ...(existingRecord || {}), ...metadata };
+                if (!existingRecord) {
+                    newRecord.videoStatus = 'none';
+                    newRecord.audioStatus = 'none';
+                    newRecord.lastPlayed = null;
+                    newRecord.videoResolution = null;
+                }
+                if (mediaType === 'video') {
+                    newRecord.videoStatus = 'downloading';
+                    newRecord.videoResolution = resolution;
+                } else if (mediaType === 'audio') {
+                    newRecord.audioStatus = 'downloading';
+                }
+                store.put(newRecord);
+            };
+            request.onerror = () => reject(request.error || new Error('Error fetching lesson.'));
+        });
     },
 
     async updateMediaStatus(contentName, mediaType, status) {
         const db = await this.open();
-        const transaction = db.transaction(this.storeName, 'readwrite');
-        const store = transaction.objectStore(this.storeName);
-        const record = await new Promise(resolve => store.get(contentName).onsuccess = e => resolve(e.target.result));
-        if (record) {
-            if (mediaType === 'video') {
-                record.videoStatus = status;
-                if (status !== 'completed') {
-                    record.videoResolution = null;
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(this.storeName, 'readwrite');
+            transaction.oncomplete = () => resolve();
+            transaction.onerror = () => reject(transaction.error || new Error('IndexedDB transaction failed.'));
+            transaction.onabort = () => reject(transaction.error || new Error('IndexedDB transaction aborted.'));
+
+            const store = transaction.objectStore(this.storeName);
+            const request = store.get(contentName);
+            request.onsuccess = (event) => {
+                const record = event.target.result;
+                if (record) {
+                    if (mediaType === 'video') {
+                        record.videoStatus = status;
+                        if (status !== 'completed') {
+                            record.videoResolution = null;
+                        }
+                    } else if (mediaType === 'audio') {
+                        record.audioStatus = status;
+                    }
+                    store.put(record);
                 }
-            } else if (mediaType === 'audio') {
-                record.audioStatus = status;
-            }
-            store.put(record);
-        }
-        return transaction.complete;
+            };
+            request.onerror = () => reject(request.error || new Error('Error fetching lesson.'));
+        });
     },
     async clearMedia(contentName, mediaType) {
         const db = await this.open();
-        const transaction = db.transaction(this.storeName, 'readwrite');
-        const store = transaction.objectStore(this.storeName);
-        const record = await new Promise(resolve => store.get(contentName).onsuccess = e => resolve(e.target.result));
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(this.storeName, 'readwrite');
+            transaction.oncomplete = () => resolve();
+            transaction.onerror = () => reject(transaction.error || new Error('IndexedDB transaction failed.'));
+            transaction.onabort = () => reject(transaction.error || new Error('IndexedDB transaction aborted.'));
 
-        if (record) {
-            record.lastPlayed = null;
-            if (mediaType === 'video') {
-                record.videoStatus = 'none';
-                record.videoResolution = null;
-            } else if (mediaType === 'audio') {
-                record.audioStatus = 'none';
-            }
-            if (record.videoStatus === 'none' && record.audioStatus === 'none') {
-                store.delete(contentName);
-            } else {
-                store.put(record);
-            }
-        }
-        return transaction.complete;
+            const store = transaction.objectStore(this.storeName);
+            const request = store.get(contentName);
+            request.onsuccess = (event) => {
+                const record = event.target.result;
+                if (record) {
+                    if (mediaType === 'video') {
+                        record.videoStatus = 'none';
+                        record.videoResolution = null;
+                    } else if (mediaType === 'audio') {
+                        record.audioStatus = 'none';
+                    }
+                    if (record.videoStatus === 'none' && record.audioStatus === 'none') {
+                        store.delete(contentName);
+                    } else {
+                        store.put(record);
+                    }
+                }
+            };
+            request.onerror = () => reject(request.error || new Error('Error fetching lesson.'));
+        });
     },
     async saveTimestamp(contentName, time, isVideo) {
         const db = await this.open();
-        const transaction = db.transaction(this.storeName, 'readwrite');
-        const store = transaction.objectStore(this.storeName);
-        const record = await new Promise(resolve => store.get(contentName).onsuccess = e => resolve(e.target.result));
-        if (record) {
-            record.lastPlayed = { time, isVideo };
-            store.put(record);
-        }
-        return transaction.complete;
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(this.storeName, 'readwrite');
+            transaction.oncomplete = () => resolve();
+            transaction.onerror = () => reject(transaction.error || new Error('IndexedDB transaction failed.'));
+            transaction.onabort = () => reject(transaction.error || new Error('IndexedDB transaction aborted.'));
+
+            const store = transaction.objectStore(this.storeName);
+            const request = store.get(contentName);
+            request.onsuccess = (event) => {
+                const record = event.target.result;
+                if (record) {
+                    record.lastPlayed = { time, isVideo, updatedAt: Date.now() };
+                    store.put(record);
+                }
+            };
+            request.onerror = () => reject(request.error || new Error('Error fetching lesson.'));
+        });
     },
     async getAllLessons() {
         const db = await this.open();

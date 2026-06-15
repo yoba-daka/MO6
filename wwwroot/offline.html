@@ -222,7 +222,7 @@
                     const isLocked = lesson.requiresMembership && isMembershipExpired;
 
                     // Prepare variables based on the lock status
-                    const offlineUrl = isLocked ? '#' : `/offline-lesson.html?contentName=${lesson.contentName}`;
+                    const offlineUrl = isLocked ? '#' : `/offline-lesson.html?contentName=${encodeURIComponent(lesson.contentName)}`;
                     const lockedClass = isLocked ? 'locked' : '';
                     const clickAction = isLocked ? `onclick="alert('לא זוהה מנוי בתוקף. יש להתחבר לאינטרנט כדי לחדש.'); return false;"` : '';
                     const playIcon = isLocked ? 'lock' : 'play_arrow';

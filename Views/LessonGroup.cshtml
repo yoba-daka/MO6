@@ -1,4 +1,4 @@
-﻿@using MyProject12;
+@using MyProject12;
 @using Umbraco.Cms.Core.Security;
 @using Umbraco.Cms.Web.Common.PublishedModels;
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
@@ -22,7 +22,7 @@
     }
 
 
-<div class="sec-page-header page-header header-filter clear-filter" style="margin-top:0em;background-image: url('@Url.GetCropUrl(((Lessons)parent.Parent).Image, "full")');">
+<div class="sec-page-header page-header header-filter clear-filter" style="margin-top:0em;background-image: url('@Url.GetOptimizedCropUrl(((Lessons)parent.Parent).Image, "full")');">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
@@ -91,7 +91,7 @@
                     {
                         <i class="material-icons play" aria-hidden="true" lang="en" translate="no">play_circle_filled</i>
                     }
-                    <img src="@Url.GetCropUrl(lesson.Image, "small")" alt="@lesson.ImageAlt" class="rounded img-fluid">
+                    <img src="@Url.GetOptimizedCropUrl(lesson.Image, "small")" alt="@lesson.ImageAlt" class="rounded img-fluid">
                 </div>
 
             </div>

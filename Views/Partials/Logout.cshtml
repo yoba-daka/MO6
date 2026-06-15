@@ -24,3 +24,16 @@
         </div>
     </div>
 </div>
+<script>
+    document.getElementById('logoutModal')?.addEventListener('submit', function (event) {
+        const form = event.target;
+        if (!form || form.dataset.offlineMembershipCleared === 'true') return;
+        if (typeof offlineContentDB === 'undefined' || !offlineContentDB.clearMembershipStatus) return;
+
+        event.preventDefault();
+        form.dataset.offlineMembershipCleared = 'true';
+        offlineContentDB.clearMembershipStatus()
+            .catch(error => console.warn('[Logout] Failed to clear offline membership status.', error))
+            .finally(() => HTMLFormElement.prototype.submit.call(form));
+    });
+</script>

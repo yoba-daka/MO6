@@ -90,12 +90,27 @@ namespace MyProject12.Services
         }
         public (int, string) MapCPP(string jsonString)
         {
-            var jObject = JObject.Parse(jsonString);
+            var parsed = MeshulamCreatePaymentResponseParser.Parse(jsonString);
+            if (!parsed.IsSuccess)
+            {
+                _logger.LogWarning(
+                    "Meshulam createPaymentProcess failed or returned no checkout URL. status={Status}, error={Error}, response={Response}",
+                    parsed.Status,
+                    parsed.Error,
+                    TrimMeshulamResponseForLog(parsed.RawResponse));
+            }
 
-            int status = (int)jObject["status"];
-            string url = (string)jObject["data"]["url"];
+            return (parsed.Status, parsed.IsSuccess ? parsed.Url : parsed.Error);
+        }
 
-            return (status, url);
+        private static string TrimMeshulamResponseForLog(string? raw, int maxLength = 500)
+        {
+            if (string.IsNullOrWhiteSpace(raw))
+            {
+                return string.Empty;
+            }
+
+            return raw.Length <= maxLength ? raw : raw[..maxLength] + "...";
         }
 
         public static bool MapStatus(string jsonString)
@@ -482,28 +497,15 @@ namespace MyProject12.Services
             bool success = false;
             try
             {
-                var response = JObject.Parse(rawResponse);
-                var status = (int?)response["status"] ?? 0;
-                var err = ((string)response["err"] ?? (string)response["error"] ?? string.Empty).Trim();
-                success = status == 1 && string.IsNullOrEmpty(err);
+                var parsed = MeshulamDirectDebitResponseParser.ParseUpdateDirectDebit(rawResponse, disableDirectDebit);
+                success = parsed.ProviderSuccess;
 
-                if (success)
+                if (success && !parsed.IsExpectedChangeStatus)
                 {
-                    var changedStatus = (string)response["data"]?["changeStatus"];
-                    if (!string.IsNullOrWhiteSpace(changedStatus))
-                    {
-                        var allowedStatuses = disableDirectDebit
-                            ? new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "2", "0" } // observed legacy + current provider values
-                            : new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "1" };
-
-                        if (!allowedStatuses.Contains(changedStatus))
-                        {
-                            _logger.LogWarning("UpdateDirectDebit returned unexpected changeStatus value. changeStatus={ChangeStatus}, disable={Disable}, response={RawResponse}",
-                                changedStatus,
-                                disableDirectDebit,
-                                rawResponse);
-                        }
-                    }
+                    _logger.LogWarning("UpdateDirectDebit returned unexpected changeStatus value. changeStatus={ChangeStatus}, disable={Disable}, response={RawResponse}",
+                        parsed.ChangeStatus,
+                        disableDirectDebit,
+                        rawResponse);
                 }
             }
             catch (Exception ex)
@@ -600,14 +602,8 @@ namespace MyProject12.Services
             bool success = false;
             try
             {
-                var response = JObject.Parse(rawResponse);
-                var status = (int?)response["status"] ?? 0;
-                var err = ((string)response["err"] ?? (string)response["error"] ?? string.Empty).Trim();
-                var changedStatus = ((string)response["data"]?["changeStatus"] ?? string.Empty).Trim();
-
-                success = status == 1 &&
-                          string.IsNullOrEmpty(err) &&
-                          (string.IsNullOrWhiteSpace(changedStatus) || changedStatus == "2" || changedStatus == "0");
+                var parsed = MeshulamDirectDebitResponseParser.ParseUpdateDirectDebit(rawResponse, disableDirectDebit: true);
+                success = parsed.IsStrictSuccess;
             }
             catch (Exception ex)
             {

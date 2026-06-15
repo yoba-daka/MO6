@@ -186,12 +186,13 @@ namespace MyProject12.Services
 
             try
             {
-                var json = JObject.Parse(raw);
-                var status = ParseInt(json["status"]);
-                var err = ReadTokenAsString(json["err"], json["error"]).Trim();
-                var changed = ReadTokenAsString(json["data"]?["changeStatus"]).Trim();
-                result.Success = status == 1 && string.IsNullOrWhiteSpace(err) && (string.IsNullOrWhiteSpace(changed) || changed == "2");
-                result.Error = result.Success ? string.Empty : string.IsNullOrWhiteSpace(err) ? "updateDirectDebit failed" : err;
+                var parsed = MeshulamDirectDebitResponseParser.ParseUpdateDirectDebit(raw, disableDirectDebit: true);
+                result.Success = parsed.IsStrictSuccess;
+                result.Error = result.Success
+                    ? string.Empty
+                    : string.IsNullOrWhiteSpace(parsed.Err)
+                        ? $"updateDirectDebit failed ({parsed.FailureSummary})"
+                        : parsed.Err;
             }
             catch (Exception ex)
             {

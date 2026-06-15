@@ -31,7 +31,12 @@
     <Compile Include="..\Services\MeshulamWebhookPayloadReader.cs" Link="Source\Services\MeshulamWebhookPayloadReader.cs" />
     <Compile Include="..\Services\MeshulamTransactionMapper.cs" Link="Source\Services\MeshulamTransactionMapper.cs" />
     <Compile Include="..\Services\MembershipCancellationHelper.cs" Link="Source\Services\MembershipCancellationHelper.cs" />
+    <Compile Include="..\Services\MeshulamCreatePaymentResponseParser.cs" Link="Source\Services\MeshulamCreatePaymentResponseParser.cs" />
+    <Compile Include="..\Services\MeshulamDirectDebitResponseParser.cs" Link="Source\Services\MeshulamDirectDebitResponseParser.cs" />
+    <Compile Include="..\Services\OptimizedImageUrl.cs" Link="Source\Services\OptimizedImageUrl.cs" />
     <Compile Include="..\Services\PaymentsHarnessStore.cs" Link="Source\Services\PaymentsHarnessStore.cs" />
     <Compile Include="..\Services\PaymentsHarnessSandboxClient.cs" Link="Source\Services\PaymentsHarnessSandboxClient.cs" />
+    <Compile Include="..\ViewModels\RegisterAndSubscribeViewModel.cs" Link="Source\ViewModels\RegisterAndSubscribeViewModel.cs" />
+    <Compile Include="..\ViewModels\Subscription.cs" Link="Source\ViewModels\Subscription.cs" />
   </ItemGroup>
 </Project>

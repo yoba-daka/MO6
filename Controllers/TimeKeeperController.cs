@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using MyProject12.Models;
+using System.Globalization;
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Logging;
 using Umbraco.Cms.Core.Routing;
@@ -12,7 +13,6 @@ using Umbraco.Cms.Infrastructure.Persistence;
 using Umbraco.Cms.Web.Common.Filters;
 using Umbraco.Cms.Web.Common.Security;
 using Umbraco.Cms.Web.Website.Controllers;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MyProject12.Controllers
 {
@@ -36,22 +36,31 @@ namespace MyProject12.Controllers
         [ValidateAntiForgeryToken]
         [ValidateUmbracoFormRouteString]
         [HttpPost]
-        public async Task<IActionResult> Set(int lessonId, string time, bool isVideo)
+        public async Task<IActionResult> Set(int lessonId, string time, bool isVideo, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrEmpty(time))
+            if (lessonId <= 0 || string.IsNullOrWhiteSpace(time))
             {
                 return BadRequest("Invalid input parameters.");
             }
 
+            if (!double.TryParse(time, NumberStyles.Float, CultureInfo.InvariantCulture, out var seconds) ||
+                double.IsNaN(seconds) ||
+                double.IsInfinity(seconds))
+            {
+                return BadRequest("Invalid time value.");
+            }
+
+            var normalizedTime = Math.Max(0, seconds).ToString("0.###", CultureInfo.InvariantCulture);
+
             if (!_memberManager.IsLoggedIn())
             {
-                return NotFound();
+                return Unauthorized();
             }
 
             var member = await _memberManager.GetCurrentMemberAsync();
-            if (member.Id == null)
+            if (member == null || member.Id == null)
             {
-                return NotFound();
+                return Unauthorized();
             }
 
             var timeKeeper = _db.TimeKeepers
@@ -59,17 +68,17 @@ namespace MyProject12.Controllers
 
             if (timeKeeper == null)
             {
-                _db.TimeKeepers.Add(new TimeKeeper { lessonId = lessonId, time = time, memberID = member.Id, isVideo = isVideo, date = DateTime.Now });
+                _db.TimeKeepers.Add(new TimeKeeper { lessonId = lessonId, time = normalizedTime, memberID = member.Id, isVideo = isVideo, date = DateTime.UtcNow });
             }
             else
             {
                 timeKeeper.isVideo = isVideo;
-                timeKeeper.time = time;
-                timeKeeper.date = DateTime.Now;
+                timeKeeper.time = normalizedTime;
+                timeKeeper.date = DateTime.UtcNow;
                 _db.TimeKeepers.Update(timeKeeper);
             }
 
-            _db.SaveChanges(); // Consider async SaveChanges if using EF Core
+            await _db.SaveChangesAsync(cancellationToken);
 
             return Ok();
         }

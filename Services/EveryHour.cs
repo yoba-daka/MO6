@@ -369,9 +369,17 @@ namespace MyProject12.Services
             bool monthly,
             CancellationToken stoppingToken)
         {
-            var membership = await db.Memberships.FirstOrDefaultAsync(x => x.memberID == member.Id, stoppingToken);
+            var memberships = await db.Memberships
+                .Where(x => x.memberID == member.Id)
+                .ToListAsync(stoppingToken);
             var transactionRefs = GetTransactionReferenceCandidates(transaction);
-            var alreadyApplied = membership != null && MembershipContainsTransaction(membership, transaction);
+            var alreadyApplied = memberships.Any(x => MembershipContainsTransaction(x, transaction));
+            var now = DateTime.Now;
+            var membership = memberships
+                .OrderByDescending(x => x.expiration >= now)
+                .ThenByDescending(x => x.expiration)
+                .ThenByDescending(x => x.Id)
+                .FirstOrDefault();
 
             if (membership != null)
             {

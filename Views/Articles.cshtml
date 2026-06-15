@@ -1,10 +1,10 @@
-﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@using Umbraco.Cms.Web.Common.PublishedModels;
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Articles>
 @{
     Layout = "master.cshtml";
 }
-<div class="sec-page-header page-header header-filter clear-filter" style="margin-top:0em;background-image: url('@Url.GetCropUrl(Model.Image, "full")');">
+<div class="sec-page-header page-header header-filter clear-filter" style="margin-top:0em;background-image: url('@Url.GetOptimizedCropUrl(Model.Image, "full")');">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
@@ -66,7 +66,7 @@
                                         <div class="new-text">חדש</div>
                                     </div>
                                 }
-                                <img src="@Url.GetCropUrl(actualArticle.Image, "small")" alt="@actualArticle.ImageAlt" class="rounded img-fluid" loading="lazy" decoding="async">
+                                <img src="@Url.GetOptimizedCropUrl(actualArticle.Image, "small")" alt="@actualArticle.ImageAlt" class="rounded img-fluid" loading="lazy" decoding="async">
                                 <h5 style="line-height: 22px;" class="title m-2" class="title m-2">@actualArticle.Title</h5>
                             </a>
                         </div>
@@ -83,7 +83,7 @@
 
                             <i class="material-icons list" aria-hidden="true" lang="en" translate="no">list</i>
 
-                                <img src="@Url.GetCropUrl(actualArticleCategory.Image, "small")" alt="@actualArticleCategory.ImageAlt" class="rounded img-fluid" loading="lazy" decoding="async">
+                                <img src="@Url.GetOptimizedCropUrl(actualArticleCategory.Image, "small")" alt="@actualArticleCategory.ImageAlt" class="rounded img-fluid" loading="lazy" decoding="async">
                             </div>
                                                             <h5 style="line-height: 22px;" class="title m-2" class="title m-2">@actualArticleCategory.Title</h5>
 

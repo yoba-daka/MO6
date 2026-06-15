@@ -1,4 +1,4 @@
-﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@using Umbraco.Cms.Web.Common.PublishedModels;
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
 @using System.Text.Json
 
@@ -11,7 +11,7 @@
 
 
 
-<div class="sec-page-header page-header header-filter clear-filter" style="margin-top:0em;background-image: url('@Url.GetCropUrl(Model.Image, "full")');">
+<div class="sec-page-header page-header header-filter clear-filter" style="margin-top:0em;background-image: url('@Url.GetOptimizedCropUrl(Model.Image, "full")');">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
@@ -78,7 +78,7 @@
 
                             <div class="row justify-content-md-start justify-content-center">
                                 <div class="col-md-6" style="flex:0;">
-                                    <img class="mt-4 mb-4 rounded img" style="width:300px;height:190px;" src="@Url.GetCropUrl(evt.Image, "small")" alt="@(evt.ImageAlt!=null?evt.ImageAlt:"")">
+                                    <img class="mt-4 mb-4 rounded img" style="width:300px;height:190px;" src="@Url.GetOptimizedCropUrl(evt.Image, "small")" alt="@(evt.ImageAlt!=null?evt.ImageAlt:"")">
                                 </div>
                                 <div class="col-md-6 mt-md-5">
                                     <p>
