@@ -1,5 +1,4 @@
 using Azure;
-using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -9,6 +8,7 @@ using System.Text.RegularExpressions;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Security;
+using Umbraco.Cms.Core.Web;
 using Umbraco.Extensions;
 
 namespace MyProject12.Controllers
@@ -19,7 +19,7 @@ namespace MyProject12.Controllers
         private static readonly TimeSpan LessonMetadataCacheDuration = TimeSpan.FromMinutes(5);
 
         private readonly LessonBlobService _blobService;
-        private readonly IPublishedContentQuery _contentQuery;
+        private readonly IUmbracoContextFactory _umbracoContextFactory;
         private readonly IMemberManager _memberManager;
         private readonly DB _db;
         private readonly IMemoryCache _cache;
@@ -27,14 +27,14 @@ namespace MyProject12.Controllers
 
         public HlsProxyController(
             LessonBlobService blobService,
-            IPublishedContentQuery contentQuery,
+            IUmbracoContextFactory umbracoContextFactory,
             IMemberManager memberManager,
             DB db,
             IMemoryCache cache,
             ILogger<HlsProxyController> logger)
         {
             _blobService = blobService;
-            _contentQuery = contentQuery;
+            _umbracoContextFactory = umbracoContextFactory;
             _memberManager = memberManager;
             _db = db;
             _cache = cache;
@@ -61,33 +61,34 @@ namespace MyProject12.Controllers
                 return NotFound();
             }
 
-            if (!await IsAuthorizedForLessonAsync(lesson, cancellationToken))
+            if (!IsPlaylist(blobPath))
+            {
+                return NotFound();
+            }
+
+            var access = await ResolvePlaylistAccessAsync(lesson, cancellationToken);
+            if (!access.Allowed)
             {
                 return lesson.MembersOnly ? StatusCode(StatusCodes.Status403Forbidden) : Unauthorized();
             }
 
             try
             {
-                var blobClient = _blobService.GetBlobClient(contentName, blobPath);
+                var blobClient = _blobService.GetBlobClient(lesson.ContentName, blobPath);
                 if (!await blobClient.ExistsAsync(cancellationToken))
                 {
                     return NotFound();
                 }
 
-                if (IsPlaylist(blobPath))
-                {
-                    var download = await blobClient.DownloadContentAsync(cancellationToken);
-                    var playlist = download.Value.Content.ToString();
-                    var rewritten = RewritePlaylist(contentName, blobPath, playlist);
+                var download = await blobClient.DownloadContentAsync(cancellationToken);
+                var playlist = download.Value.Content.ToString();
+                var rewritten = RewritePlaylist(lesson.ContentName, blobPath, playlist, access.SasToken);
 
-                    Response.Headers.CacheControl = lesson.MembersOnly
-                        ? "private, no-store"
-                        : "public, max-age=60";
+                Response.Headers.CacheControl = lesson.MembersOnly
+                    ? "private, no-store"
+                    : "public, max-age=60";
 
-                    return Content(rewritten, "application/vnd.apple.mpegurl; charset=utf-8");
-                }
-
-                return await StreamBlobAsync(blobPath, blobClient, lesson.MembersOnly, cancellationToken);
+                return Content(rewritten, "application/vnd.apple.mpegurl; charset=utf-8");
             }
             catch (RequestFailedException ex) when (ex.Status == StatusCodes.Status404NotFound)
             {
@@ -106,8 +107,10 @@ namespace MyProject12.Controllers
             {
                 entry.AbsoluteExpirationRelativeToNow = LessonMetadataCacheDuration;
 
-                var lesson = _contentQuery
-                    .ContentAtRoot()
+                using var umbracoContextReference = _umbracoContextFactory.EnsureUmbracoContext();
+                var contentCache = umbracoContextReference.UmbracoContext.Content;
+                var lesson = contentCache?
+                    .GetAtRoot()
                     .SelectMany(root => root.DescendantsOrSelf())
                     .FirstOrDefault(content =>
                         content.ContentType.Alias == "lesson" &&
@@ -125,66 +128,39 @@ namespace MyProject12.Controllers
             });
         }
 
-        private async Task<bool> IsAuthorizedForLessonAsync(LessonMetadata lesson, CancellationToken cancellationToken)
+        private async Task<PlaylistAccess> ResolvePlaylistAccessAsync(LessonMetadata lesson, CancellationToken cancellationToken)
         {
             if (!lesson.MembersOnly)
             {
-                return true;
+                return new PlaylistAccess(true, _blobService.GenerateUnlimitedSas(lesson.ContentName, "*"));
             }
 
             if (!_memberManager.IsLoggedIn())
             {
-                return false;
+                return PlaylistAccess.Denied;
             }
 
             var member = await _memberManager.GetCurrentMemberAsync();
             if (member?.Id == null)
             {
-                return false;
+                return PlaylistAccess.Denied;
             }
 
-            return await _db.Memberships
+            var membership = await _db.Memberships
                 .AsNoTracking()
-                .AnyAsync(x => x.memberID == member.Id && x.expiration >= DateTime.Now, cancellationToken);
-        }
-
-        private async Task<IActionResult> StreamBlobAsync(string blobPath, Azure.Storage.Blobs.BlobClient blobClient, bool isProtected, CancellationToken cancellationToken)
-        {
-            var properties = await blobClient.GetPropertiesAsync(cancellationToken: cancellationToken);
-            var totalLength = properties.Value.ContentLength;
-            var contentType = GetContentType(blobPath, properties.Value.ContentType);
-
-            Response.Headers.AcceptRanges = "bytes";
-            Response.Headers.CacheControl = isProtected
-                ? "private, no-store"
-                : "public, max-age=300";
-
-            if (TryParseRange(Request.Headers.Range.ToString(), totalLength, out var start, out var end))
+                .GetPreferredMembershipAsync(member.Id, cancellationToken);
+            if (membership == null || membership.expiration < DateTime.Now)
             {
-                var length = end - start + 1;
-                var download = await blobClient.DownloadStreamingAsync(
-                    new BlobDownloadOptions { Range = new HttpRange(start, length) },
-                    cancellationToken);
-
-                Response.StatusCode = StatusCodes.Status206PartialContent;
-                Response.Headers.ContentRange = $"bytes {start}-{end}/{totalLength}";
-                Response.ContentLength = length;
-
-                return File(download.Value.Content, contentType, enableRangeProcessing: false);
+                return PlaylistAccess.Denied;
             }
 
-            if (!string.IsNullOrWhiteSpace(Request.Headers.Range))
-            {
-                Response.Headers.ContentRange = $"bytes */{totalLength}";
-                return StatusCode(StatusCodes.Status416RangeNotSatisfiable);
-            }
-
-            var fullDownload = await blobClient.DownloadStreamingAsync(cancellationToken: cancellationToken);
-            Response.ContentLength = totalLength;
-            return File(fullDownload.Value.Content, contentType, enableRangeProcessing: false);
+            var sasToken = _blobService.GenerateMemberContainerSas(lesson.ContentName, member.Id, membership.expiration);
+            return string.IsNullOrWhiteSpace(sasToken)
+                ? PlaylistAccess.Denied
+                : new PlaylistAccess(true, sasToken);
         }
 
-        private string RewritePlaylist(string contentName, string playlistPath, string playlist)
+        private string RewritePlaylist(string contentName, string playlistPath, string playlist, string sasToken)
         {
             var lines = playlist.Split('\n');
             for (var i = 0; i < lines.Length; i++)
@@ -203,18 +179,18 @@ namespace MyProject12.Controllers
                     lines[i] = PlaylistUriAttributeRegex.Replace(line, match =>
                     {
                         var uri = match.Groups["uri"].Value;
-                        return $"URI=\"{BuildProxyUrl(contentName, playlistPath, uri)}\"";
+                        return $"URI=\"{BuildPlaylistReferenceUrl(contentName, playlistPath, uri, sasToken)}\"";
                     });
                     continue;
                 }
 
-                lines[i] = BuildProxyUrl(contentName, playlistPath, trimmed);
+                lines[i] = BuildPlaylistReferenceUrl(contentName, playlistPath, trimmed, sasToken);
             }
 
             return string.Join('\n', lines);
         }
 
-        private string BuildProxyUrl(string contentName, string currentBlobPath, string reference)
+        private string BuildPlaylistReferenceUrl(string contentName, string currentBlobPath, string reference, string sasToken)
         {
             var resolvedPath = ResolveReferencedBlobPath(contentName, currentBlobPath, reference);
             if (resolvedPath == null)
@@ -222,7 +198,13 @@ namespace MyProject12.Controllers
                 return reference;
             }
 
-            return $"/media/hls/{Uri.EscapeDataString(contentName)}/{EncodeBlobPath(resolvedPath)}";
+            if (IsPlaylist(resolvedPath))
+            {
+                return $"/media/hls/{Uri.EscapeDataString(contentName)}/{EncodeBlobPath(resolvedPath)}";
+            }
+
+            var blobUrl = _blobService.GenerateBlobUrl(contentName, resolvedPath, sasToken);
+            return string.IsNullOrWhiteSpace(blobUrl) ? reference : blobUrl;
         }
 
         private static string? ResolveReferencedBlobPath(string contentName, string currentBlobPath, string reference)
@@ -315,76 +297,9 @@ namespace MyProject12.Controllers
             return blobPath.EndsWith(".m3u8", StringComparison.OrdinalIgnoreCase);
         }
 
-        private static bool TryParseRange(string? rangeHeader, long totalLength, out long start, out long end)
+        private sealed record PlaylistAccess(bool Allowed, string SasToken)
         {
-            start = 0;
-            end = totalLength - 1;
-
-            if (string.IsNullOrWhiteSpace(rangeHeader))
-            {
-                return false;
-            }
-
-            var match = Regex.Match(rangeHeader, @"^bytes=(\d*)-(\d*)$", RegexOptions.IgnoreCase);
-            if (!match.Success)
-            {
-                return false;
-            }
-
-            var startValue = match.Groups[1].Value;
-            var endValue = match.Groups[2].Value;
-
-            if (string.IsNullOrEmpty(startValue))
-            {
-                if (!long.TryParse(endValue, out var suffixLength) || suffixLength <= 0)
-                {
-                    return false;
-                }
-
-                start = Math.Max(totalLength - suffixLength, 0);
-                end = totalLength - 1;
-                return totalLength > 0;
-            }
-
-            if (!long.TryParse(startValue, out start))
-            {
-                return false;
-            }
-
-            if (!string.IsNullOrEmpty(endValue) && !long.TryParse(endValue, out end))
-            {
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(endValue) || end >= totalLength)
-            {
-                end = totalLength - 1;
-            }
-
-            return start >= 0 && start < totalLength && end >= start;
-        }
-
-        private static string GetContentType(string blobPath, string? blobContentType)
-        {
-            if (!string.IsNullOrWhiteSpace(blobContentType) &&
-                !string.Equals(blobContentType, "application/octet-stream", StringComparison.OrdinalIgnoreCase))
-            {
-                return blobContentType;
-            }
-
-            return Path.GetExtension(blobPath).ToLowerInvariant() switch
-            {
-                ".m3u8" => "application/vnd.apple.mpegurl",
-                ".ts" => "video/mp2t",
-                ".m4s" => "video/iso.segment",
-                ".mp4" => "video/mp4",
-                ".m4a" => "audio/mp4",
-                ".aac" => "audio/aac",
-                ".mp3" => "audio/mpeg",
-                ".vtt" or ".webvtt" => "text/vtt",
-                ".key" => "application/octet-stream",
-                _ => "application/octet-stream"
-            };
+            public static readonly PlaylistAccess Denied = new(false, string.Empty);
         }
 
         private sealed record LessonMetadata(int Id, string ContentName, bool MembersOnly);

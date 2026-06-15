@@ -15,8 +15,7 @@
     if (memberLogged)
     {
         var member = await _memberManager.GetCurrentMemberAsync();
-        var membership = db.Memberships.FirstOrDefault(x => x.memberID == member.Id);
-        if (membership != null) hasActiveMembership = !membership.Expired;
+        if (member != null) hasActiveMembership = db.Memberships.HasActiveMembership(member.Id);
     }
 
     }

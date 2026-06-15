@@ -185,6 +185,27 @@
             });
         });
 
+        function parseExplicitExpirationDate(value) {
+            if (typeof value !== 'string') return null;
+
+            const trimmed = value.trim();
+            if (!trimmed || !/(?:z|[+-]\d{2}:?\d{2})$/i.test(trimmed)) {
+                return null;
+            }
+
+            const parsed = Date.parse(trimmed);
+            return Number.isFinite(parsed) ? parsed : null;
+        }
+
+        function resolveMembershipExpirationMs(settings) {
+            const timestamp = Number(settings?.expirationUnixMs);
+            if (Number.isFinite(timestamp)) {
+                return timestamp;
+            }
+
+            return parseExplicitExpirationDate(settings?.expiration);
+        }
+
         async function loadOfflineLessons() {
             const container = document.getElementById('offline-lessons-container');
             if (!container) return;
@@ -197,11 +218,11 @@
                 ]);
 
                 // 2. Determine if membership is expired
-                const expirationDate = settings ? new Date(settings.expiration) : null;
-                const isMembershipExpired = expirationDate ? new Date() > expirationDate : true; // Default to expired if no data
+                const expirationMs = resolveMembershipExpirationMs(settings);
+                const isMembershipExpired = !Number.isFinite(expirationMs) || Date.now() > expirationMs; // Default to expired if no data
 
                 // Display a status message if membership is expired
-                if (isMembershipExpired && expirationDate) {
+                if (isMembershipExpired) {
                     const statusContainer = document.querySelector('.offline-header');
                     const warning = document.createElement('p');
                     warning.className = 'lead text-warning';

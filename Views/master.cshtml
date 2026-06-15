@@ -184,6 +184,11 @@
     <script>
         // --- Global PWA Flags and Install Logic ---
         let deferredPrompt;
+        window.deferredPrompt = null;
+        window.setDeferredPrompt = function (prompt) {
+          deferredPrompt = prompt;
+          window.deferredPrompt = prompt;
+        };
 
         const isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
         let hasPWA = false;
@@ -237,7 +242,7 @@
 
         window.addEventListener('beforeinstallprompt', (e) => {
           e.preventDefault();
-          deferredPrompt = e;
+          window.setDeferredPrompt(e);
         });
 
         let installing = false;
@@ -343,7 +348,7 @@
           const mainAppDiv = document.getElementById('main-app');
           deferredPrompt.prompt();
           const { outcome } = await deferredPrompt.userChoice.catch(() => ({ outcome: 'dismissed' }));
-          deferredPrompt = null;
+          window.setDeferredPrompt(null);
 
           if (outcome !== 'accepted') {
             installing = false;
@@ -448,14 +453,27 @@
         var currentMember = await _memberManager.GetCurrentMemberAsync();
         if (currentMember != null)
         {
-            var membership = db.Memberships.FirstOrDefault(x => x.memberID == currentMember.Id);
+            var membership = db.Memberships.GetPreferredMembership(currentMember.Id);
             var expirationDate = membership?.expiration ?? new DateTime(1970, 1, 1);
-            var expirationDateISO = expirationDate.ToString("o");
+            var expirationDateOffset = expirationDate.Kind switch
+            {
+                DateTimeKind.Utc => new DateTimeOffset(expirationDate, TimeSpan.Zero),
+                DateTimeKind.Local => new DateTimeOffset(expirationDate),
+                _ => new DateTimeOffset(DateTime.SpecifyKind(expirationDate, DateTimeKind.Local))
+            };
+            var expirationDateISO = expirationDateOffset.ToString("o");
+            var expirationUnixMs = expirationDateOffset.ToUnixTimeMilliseconds();
+            var expirationDateJson = System.Text.Json.JsonSerializer.Serialize(expirationDateISO);
+            var memberIdJson = System.Text.Json.JsonSerializer.Serialize(currentMember.Id);
 
             <script>
                 if (navigator.onLine && typeof offlineContentDB !== 'undefined') {
                     console.log('[Sync] Updating offline membership expiration date.');
-                    offlineContentDB.saveMembershipStatus({ expiration: '@expirationDateISO' })
+                    offlineContentDB.saveMembershipStatus({
+                        expiration: @Html.Raw(expirationDateJson),
+                        expirationUnixMs: @expirationUnixMs,
+                        memberId: @Html.Raw(memberIdJson)
+                    })
                         .then(() => console.log('[Sync] Expiration date saved successfully.'))
                         .catch(err => console.error('[Sync] Failed to save expiration date:', err));
                 }

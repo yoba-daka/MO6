@@ -89,10 +89,61 @@
         let offlineHls = null;
         let progressStorageKey = null;
         let legacyProgressStorageKey = null;
+        const pageLoadedAt = Date.now();
+        const progressSaveMinDeltaSeconds = 1;
+        const progressActivityGraceMs = 30000;
+        let lastPlaybackActivityAt = 0;
 
         function normalizePlaybackTime(value) {
             const seconds = Number(value);
             return Number.isFinite(seconds) && seconds > 0 ? seconds : 0;
+        }
+
+        function markPlaybackActivity() {
+            lastPlaybackActivityAt = Date.now();
+        }
+
+        function hasRecentPlaybackActivity() {
+            return lastPlaybackActivityAt > 0 && Date.now() - lastPlaybackActivityAt < progressActivityGraceMs;
+        }
+
+        function isPlayerActivelyPlaying() {
+            return !!player && !player.paused && !player.ended;
+        }
+
+        function hasMeaningfulProgressChange(existing, time, isVideo) {
+            if (!existing) return true;
+            return existing.isVideo !== !!isVideo || Math.abs(normalizePlaybackTime(existing.time) - normalizePlaybackTime(time)) >= progressSaveMinDeltaSeconds;
+        }
+
+        function parseExplicitExpirationDate(value) {
+            if (typeof value !== 'string') return null;
+
+            const trimmed = value.trim();
+            if (!trimmed || !/(?:z|[+-]\d{2}:?\d{2})$/i.test(trimmed)) {
+                return null;
+            }
+
+            const parsed = Date.parse(trimmed);
+            return Number.isFinite(parsed) ? parsed : null;
+        }
+
+        function resolveMembershipExpirationMs(settings) {
+            const timestamp = Number(settings?.expirationUnixMs);
+            if (Number.isFinite(timestamp)) {
+                return timestamp;
+            }
+
+            return parseExplicitExpirationDate(settings?.expiration);
+        }
+
+        function attachProgressActivityListeners() {
+            if (!player || player.__mo6ProgressActivityAttached || typeof player.on !== 'function') return;
+
+            ['play', 'playing', 'timeupdate', 'seeked'].forEach(eventName => {
+                player.on(eventName, markPlaybackActivity);
+            });
+            player.__mo6ProgressActivityAttached = true;
         }
 
         function getStoredProgress() {
@@ -127,10 +178,18 @@
             }
         }
 
-        function saveStoredProgress(time, isVideo) {
+        function saveStoredProgress(time, isVideo, force = false) {
             if (!progressStorageKey) return;
+            const normalizedTime = normalizePlaybackTime(time);
+            if (!normalizedTime) return null;
+
+            const existingProgress = getStoredProgress();
+            if (!force && existingProgress && !hasMeaningfulProgressChange(existingProgress, normalizedTime, isVideo)) {
+                return { ...existingProgress, changed: false };
+            }
+
             const progress = {
-                time: normalizePlaybackTime(time),
+                time: normalizedTime,
                 isVideo: !!isVideo,
                 updatedAt: Date.now()
             };
@@ -142,7 +201,7 @@
                 console.warn('[OfflineTimekeeping] Local progress save failed.', error);
             }
 
-            return progress;
+            return { ...progress, changed: true };
         }
 
         function getLastKnownProgress() {
@@ -176,6 +235,31 @@
                 return showError('שגיאה: לא זוהה שיעור בכתובת.');
             }
 
+            const offlineMediaMessagePayload = { contentName };
+            function postOfflineMediaState(type) {
+                try {
+                    navigator.serviceWorker?.controller?.postMessage({
+                        type,
+                        payload: offlineMediaMessagePayload
+                    });
+                } catch (error) {
+                    console.warn('[OfflineMedia] Failed to update service worker media state.', error);
+                }
+            }
+
+            postOfflineMediaState('ENABLE_OFFLINE_MEDIA');
+            window.addEventListener('pageshow', () => {
+                postOfflineMediaState('ENABLE_OFFLINE_MEDIA');
+            });
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    postOfflineMediaState('ENABLE_OFFLINE_MEDIA');
+                });
+            }
+            window.addEventListener('pagehide', () => {
+                postOfflineMediaState('DISABLE_OFFLINE_MEDIA');
+            });
+
             try {
                 // 1. Fetch both the lesson data and the user settings in parallel.
                 const [lessonData, settings] = await Promise.all([
@@ -199,11 +283,12 @@
                 document.getElementById('lessonTitle').textContent = currentLessonData.title;
 
                 // 2. Perform the critical access check.
-                const expirationDate = settings ? new Date(settings.expiration) : null;
-                const isMembershipExpired = expirationDate ? new Date() > expirationDate : true;
+                const expirationMs = resolveMembershipExpirationMs(settings);
+                const isMembershipExpired = !Number.isFinite(expirationMs) || Date.now() > expirationMs;
 
                 if (currentLessonData.requiresMembership && isMembershipExpired) {
-                    console.log(`[Access Denied] Lesson requires membership, but offline membership is expired (Expiration: ${expirationDate}).`);
+                    const expirationLabel = Number.isFinite(expirationMs) ? new Date(expirationMs).toISOString() : 'invalid';
+                    console.log(`[Access Denied] Lesson requires membership, but offline membership is expired or invalid (Expiration: ${expirationLabel}).`);
                     // Show a specific, clear error message for expired membership.
                     return showError('המנוי שלך פג תוקף ולכן שיעור זה אינו זמין. יש להתחבר לאינטרנט ולחדש את המנוי כדי לקבל גישה.');
                 }
@@ -244,7 +329,7 @@
             $('#videoB').on('click', function (e) {
                 e.preventDefault();
                 if ($(this).hasClass('active')) return;
-                saveCurrentTimestamp();
+                saveCurrentTimestamp(true);
                 $('#audioB').removeClass('active');
                 $(this).addClass('active');
                 clearPlayer();
@@ -254,7 +339,7 @@
             $('#audioB').on('click', function (e) {
                 e.preventDefault();
                 if ($(this).hasClass('active')) return;
-                saveCurrentTimestamp();
+                saveCurrentTimestamp(true);
                 $('#videoB').removeClass('active');
                 $(this).addClass('active');
                 clearPlayer();
@@ -325,7 +410,8 @@
                 retries += 1;
                 clearWaitingTimer();
 
-                const resumeTime = audioElement.currentTime || 0;
+                const currentTime = normalizePlaybackTime(audioElement.currentTime);
+                const resumeTime = normalizePlaybackTime(lastTime) > currentTime + 1 ? normalizePlaybackTime(lastTime) : currentTime;
                 const shouldResume = !audioElement.paused && !audioElement.ended;
                 let restored = false;
                 let recoveryTimeout = null;
@@ -388,18 +474,20 @@
                 }
             };
 
-            const handleWaiting = () => {
+            const scheduleRecovery = (reason, delayMs = 4000) => {
                 clearWaitingTimer();
                 waitingTimer = setTimeout(() => {
-                    if (!audioElement.paused && !audioElement.ended) {
-                        attemptRecovery('waiting-timeout');
+                    if (!audioElement.paused && !audioElement.ended && audioElement.readyState < 3) {
+                        attemptRecovery(reason);
                     }
-                }, 4000);
+                }, delayMs);
             };
 
-            const handleStalled = () => attemptRecovery('stalled-event');
+            const handleWaiting = () => scheduleRecovery('waiting-timeout');
+            const handleStalled = () => scheduleRecovery('stalled-event');
             const handleError = () => attemptRecovery('error-event');
             const handleTimeUpdate = () => {
+                markPlaybackActivity();
                 lastTime = audioElement.currentTime || 0;
                 stagnantChecks = 0;
                 clearWaitingTimer();
@@ -466,14 +554,25 @@
             player = new Plyr(video, { controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'pip', 'fullscreen', 'settings'], settings: ['speed'], keyboard: { focused: true, global: true } });
             const canUseNativeHls = video.canPlayType('application/vnd.apple.mpegurl') || video.canPlayType('application/x-mpegURL');
 
-            if (window.Hls && Hls.isSupported()) {
-                offlineHls = new Hls({ debug: false });
-                offlineHls.on(Hls.Events.ERROR, (event, data) => { if (data.fatal) { showError('שגיאה בטעינת הוידאו.'); } });
-                offlineHls.on(Hls.Events.MEDIA_ATTACHED, () => offlineHls.loadSource(playlistUrlWithoutSAS));
-                offlineHls.attachMedia(video);
-            } else if (canUseNativeHls) {
+            if (canUseNativeHls) {
                 video.src = playlistUrlWithoutSAS;
                 video.addEventListener('error', () => showError('שגיאה בטעינת הוידאו.'), { once: true });
+            } else if (window.Hls && Hls.isSupported()) {
+                offlineHls = new Hls({ debug: false });
+                offlineHls.on(Hls.Events.ERROR, (event, data) => {
+                    if (!data?.fatal) return;
+
+                    console.warn('[OfflineHLS] Fatal playback error.', data);
+                    if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+                        offlineHls.startLoad();
+                    } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+                        offlineHls.recoverMediaError();
+                    } else {
+                        showError('שגיאה בטעינת הוידאו.');
+                    }
+                });
+                offlineHls.on(Hls.Events.MEDIA_ATTACHED, () => offlineHls.loadSource(playlistUrlWithoutSAS));
+                offlineHls.attachMedia(video);
             } else {
                 return showError('הדפדפן אינו תומך בניגון הוידאו.');
             }
@@ -525,13 +624,25 @@
             }
         }
 
-        function saveCurrentTimestamp() {
+        function saveCurrentTimestamp(force = false) {
             if (!player || !currentLessonData) return;
             const time = normalizePlaybackTime(player.currentTime);
             if (!time) return;
 
             const isVideo = $('#videoB').hasClass('active');
-            const progress = saveStoredProgress(time, isVideo);
+            const latestBeforeSave = getLastKnownProgress();
+            const latestIsNewerThanThisPage = (latestBeforeSave?.updatedAt || 0) > pageLoadedAt + 1000;
+            const activeOrRecent = isPlayerActivelyPlaying() || hasRecentPlaybackActivity();
+            const materialChange = hasMeaningfulProgressChange(latestBeforeSave, time, isVideo);
+
+            if (!force) {
+                if (latestIsNewerThanThisPage && !activeOrRecent) return;
+                if (!activeOrRecent && !materialChange) return;
+            }
+
+            const progress = saveStoredProgress(time, isVideo, force);
+            if (!progress || !progress.changed) return;
+
             currentLessonData.lastPlayed = progress;
             offlineContentDB.saveTimestamp(currentLessonData.contentName, time, isVideo)
                 .catch(error => console.warn('[OfflineTimekeeping] IndexedDB progress save failed.', error));
@@ -539,6 +650,7 @@
 
         function startSavingTimestamp() {
             if (timeUpdater) clearInterval(timeUpdater);
+            attachProgressActivityListeners();
             timeUpdater = setInterval(() => {
                 saveCurrentTimestamp();
             }, 5000);

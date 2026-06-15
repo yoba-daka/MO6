@@ -3,7 +3,7 @@
  */
 importScripts('/js/db-helper.js');
 
-const APP_VERSION = '20260614-2';
+const APP_VERSION = '20260615-4';
 const APP_SHELL_CACHE_PREFIX = 'app-shell-cache-';
 const APP_SHELL_CACHE_NAME = `${APP_SHELL_CACHE_PREFIX}${APP_VERSION}`;
 const APP_SHELL_LOCAL_URLS = [
@@ -27,6 +27,7 @@ const broadcast = 'BroadcastChannel' in self ? new BroadcastChannel('download_ch
 const cancellationMap = new Map();
 const abortControllerMap = new Map();
 const progressMap = new Map();
+const offlineMediaClientIds = new Set();
 let downloadMessageSequence = 0;
 const CACHEABLE_MEDIA_EXTENSIONS = ['.m3u8', '.ts', '.m4s', '.mp4', '.aac', '.m4a', '.mp3', '.vtt', '.webvtt', '.key'];
 
@@ -109,6 +110,105 @@ function isCacheableMediaPath(pathname) {
     return CACHEABLE_MEDIA_EXTENSIONS.some(extension => pathname.endsWith(extension));
 }
 
+function safeDecode(value) {
+    try {
+        return decodeURIComponent(value);
+    } catch {
+        return value;
+    }
+}
+
+function getMediaContentName(urlObj) {
+    const appMediaMatch = /^\/media\/(?:hls|audio)\/([^/]+)/i.exec(urlObj.pathname);
+    if (appMediaMatch) {
+        return safeDecode(appMediaMatch[1]);
+    }
+
+    if (urlObj.hostname.endsWith('.blob.core.windows.net')) {
+        const firstPathPart = urlObj.pathname.split('/').filter(Boolean)[0];
+        return firstPathPart ? safeDecode(firstPathPart) : null;
+    }
+
+    return null;
+}
+
+function getPathExtension(pathname) {
+    const fileName = pathname.split('/').pop() || '';
+    const dotIndex = fileName.lastIndexOf('.');
+    return dotIndex >= 0 ? fileName.slice(dotIndex).toLowerCase() : '';
+}
+
+function getMediaCacheNames(urlObj) {
+    const contentName = getMediaContentName(urlObj);
+    if (!contentName) {
+        return [];
+    }
+
+    const extension = getPathExtension(urlObj.pathname);
+    const isAudioPath = /^\/media\/audio\//i.test(urlObj.pathname) || extension === '.mp3';
+    const cacheNames = [];
+
+    if (isAudioPath) {
+        cacheNames.push(`audio-cache-${contentName}`);
+    }
+
+    if (!isAudioPath) {
+        cacheNames.push(`video-cache-${contentName}`);
+    }
+
+    return [...new Set(cacheNames)];
+}
+
+async function matchCachedMediaResponse(request, urlObj) {
+    const urlWithoutSas = stripSasToken(request.url);
+    const cacheNames = getMediaCacheNames(urlObj);
+
+    for (const cacheName of cacheNames) {
+        if (!await caches.has(cacheName)) {
+            continue;
+        }
+
+        const cache = await caches.open(cacheName);
+        const cachedResponse = await cache.match(urlWithoutSas);
+        if (cachedResponse) {
+            return cachedResponse;
+        }
+    }
+
+    return null;
+}
+
+function hasOfflineLessonReferrer(request) {
+    if (!request.referrer) {
+        return false;
+    }
+
+    try {
+        return new URL(request.referrer).pathname === '/offline-lesson.html';
+    } catch {
+        return false;
+    }
+}
+
+function shouldHandleCachedMediaRequest(event, urlObj) {
+    if (event.clientId && offlineMediaClientIds.has(event.clientId)) {
+        return true;
+    }
+
+    if (hasOfflineLessonReferrer(event.request)) {
+        return true;
+    }
+
+    return false;
+}
+
+function clearOfflineMediaClient(event) {
+    const clientId = event.clientId || event.resultingClientId;
+    if (clientId) {
+        offlineMediaClientIds.delete(clientId);
+    }
+}
+
 async function createRangedResponse(request, response) {
     const rangeHeader = request.headers.get('range');
     if (!rangeHeader || response.status === 206) {
@@ -126,19 +226,17 @@ async function createRangedResponse(request, response) {
         return response;
     }
 
-    const sourceBlob = await response.blob();
-    const totalLength = sourceBlob.size;
-    if (totalLength <= 0) {
-        return new Response(null, {
-            status: 416,
-            statusText: 'Range Not Satisfiable',
-            headers: {
-                'Content-Range': `bytes */${totalLength}`,
-                'Accept-Ranges': 'bytes'
-            }
-        });
+    const headerLength = parseInt(response.headers.get('Content-Length'), 10);
+    if (Number.isFinite(headerLength) && headerLength > 0 && response.body && typeof ReadableStream !== 'undefined') {
+        return createStreamingRangedResponse(response, match, headerLength);
     }
 
+    return createBlobRangedResponse(response, match);
+}
+
+function getSatisfiableRange(match, totalLength) {
+    const startValue = match[1];
+    const endValue = match[2];
     let start;
     let end;
 
@@ -158,6 +256,15 @@ async function createRangedResponse(request, response) {
     }
 
     if (Number.isNaN(start) || Number.isNaN(end) || start < 0 || start >= totalLength || end < start) {
+        return null;
+    }
+
+    return { start, end };
+}
+
+async function createStreamingRangedResponse(response, match, totalLength) {
+    const range = getSatisfiableRange(match, totalLength);
+    if (!range) {
         return new Response(null, {
             status: 416,
             statusText: 'Range Not Satisfiable',
@@ -168,6 +275,84 @@ async function createRangedResponse(request, response) {
         });
     }
 
+    const { start, end } = range;
+    const length = end - start + 1;
+    const reader = response.body.getReader();
+    let bytesSeen = 0;
+
+    const stream = new ReadableStream({
+        async start(controller) {
+            try {
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    if (!value) continue;
+
+                    const chunkStart = bytesSeen;
+                    const chunkEnd = bytesSeen + value.byteLength - 1;
+                    bytesSeen += value.byteLength;
+
+                    if (chunkEnd < start) continue;
+                    if (chunkStart > end) break;
+
+                    const sliceStart = Math.max(0, start - chunkStart);
+                    const sliceEnd = Math.min(value.byteLength, end - chunkStart + 1);
+                    controller.enqueue(value.slice(sliceStart, sliceEnd));
+
+                    if (chunkEnd >= end) break;
+                }
+
+                controller.close();
+            } catch (error) {
+                controller.error(error);
+            } finally {
+                try {
+                    await reader.cancel();
+                } catch {
+                }
+            }
+        }
+    });
+
+    const headers = new Headers(response.headers);
+    headers.set('Accept-Ranges', 'bytes');
+    headers.set('Content-Length', String(length));
+    headers.set('Content-Range', `bytes ${start}-${end}/${totalLength}`);
+
+    return new Response(stream, {
+        status: 206,
+        statusText: 'Partial Content',
+        headers
+    });
+}
+
+async function createBlobRangedResponse(response, match) {
+    const sourceBlob = await response.blob();
+    const totalLength = sourceBlob.size;
+    if (totalLength <= 0) {
+        return new Response(null, {
+            status: 416,
+            statusText: 'Range Not Satisfiable',
+            headers: {
+                'Content-Range': `bytes */${totalLength}`,
+                'Accept-Ranges': 'bytes'
+            }
+        });
+    }
+
+    const range = getSatisfiableRange(match, totalLength);
+    if (!range) {
+        return new Response(null, {
+            status: 416,
+            statusText: 'Range Not Satisfiable',
+            headers: {
+                'Content-Range': `bytes */${totalLength}`,
+                'Accept-Ranges': 'bytes'
+            }
+        });
+    }
+
+    const { start, end } = range;
     const slicedBlob = sourceBlob.slice(start, end + 1);
     const headers = new Headers(response.headers);
     headers.set('Accept-Ranges', 'bytes');
@@ -194,14 +379,29 @@ async function cacheWithoutSas(cache, urlWithSas, downloadKey, signal) {
     const urlWithoutSas = stripSasToken(urlWithSas);
     console.log(`[SW] Caching without SAS: ${urlWithoutSas}`);
 
-    await cache.put(urlWithoutSas, response.clone());
+    await cache.put(urlWithoutSas, response);
     throwIfDownloadCancelled(downloadKey);
-    return response;
 }
 
 self.addEventListener('message', event => {
     const { type, payload } = event.data || {};
-    if (!type || !payload) return;
+    if (!type) return;
+
+    if (type === 'ENABLE_OFFLINE_MEDIA') {
+        if (event.source?.id) {
+            offlineMediaClientIds.add(event.source.id);
+        }
+        return;
+    }
+
+    if (type === 'DISABLE_OFFLINE_MEDIA') {
+        if (event.source?.id) {
+            offlineMediaClientIds.delete(event.source.id);
+        }
+        return;
+    }
+
+    if (!payload) return;
 
     if (type === 'CANCEL_DOWNLOAD') {
         for (const downloadKey of getPayloadDownloadKeys(payload)) {
@@ -301,58 +501,7 @@ async function handleSingleFileDownload(url, cache, metadata, signal, downloadKe
     throwIfDownloadCancelled(downloadKey);
 
     const urlWithoutSas = stripSasToken(url);
-    const totalSize = parseInt(response.headers.get('Content-Length'), 10);
-    const reader = response.body?.getReader();
-
-    if (!reader) {
-        await cache.put(urlWithoutSas, response.clone());
-        throwIfDownloadCancelled(downloadKey);
-        progressMap.set(downloadKey, 100);
-        await postDownloadMessage({ type: 'DOWNLOAD_PROGRESS', payload: { ...metadata, progress: 100 } });
-        return;
-    }
-
-    let loaded = 0;
-    const chunks = [];
-
-    try {
-        while (true) {
-            throwIfDownloadCancelled(downloadKey);
-
-            const { done, value } = await reader.read();
-            if (done) break;
-            if (!value) continue;
-
-            chunks.push(value);
-            loaded += value.byteLength || value.length || 0;
-
-            if (totalSize > 0) {
-                const progress = Math.min(99, Math.round((loaded / totalSize) * 100));
-                if (progress > (progressMap.get(downloadKey) || 0)) {
-                    progressMap.set(downloadKey, progress);
-                    await postDownloadMessage({ type: 'DOWNLOAD_PROGRESS', payload: { ...metadata, progress } });
-                }
-            }
-        }
-    } catch (error) {
-        try {
-            await reader.cancel();
-        } catch {
-        }
-
-        throw error;
-    }
-
-    throwIfDownloadCancelled(downloadKey);
-
-    const headers = new Headers(response.headers);
-    const fullResponse = new Response(new Blob(chunks), {
-        status: response.status,
-        statusText: response.statusText,
-        headers
-    });
-
-    await cache.put(urlWithoutSas, fullResponse);
+    await cache.put(urlWithoutSas, response);
     throwIfDownloadCancelled(downloadKey);
 
     if ((progressMap.get(downloadKey) || 0) < 100) {
@@ -377,6 +526,10 @@ self.addEventListener('fetch', event => {
 
     // Handle navigation requests
     if (event.request.mode === 'navigate') {
+        if (url.pathname !== '/offline-lesson.html') {
+            clearOfflineMediaClient(event);
+        }
+
         event.respondWith(
             fetch(event.request).catch(async () => {
 
@@ -409,23 +562,14 @@ self.addEventListener('fetch', event => {
     }
 
     if (isCacheableMediaPath(url.pathname)) {
+        if (!shouldHandleCachedMediaRequest(event, url)) {
+            return;
+        }
+
         event.respondWith(
             (async () => {
                 const isRangeRequest = event.request.headers.has('range');
-                let cachedResponse = await caches.match(event.request);
-
-                if (!cachedResponse) {
-                    const urlWithoutSas = stripSasToken(event.request.url);
-
-                    const cacheNames = await caches.keys();
-                    for (const cacheName of cacheNames) {
-                        const cache = await caches.open(cacheName);
-                        cachedResponse = await cache.match(urlWithoutSas);
-                        if (cachedResponse) {
-                            break;
-                        }
-                    }
-                }
+                const cachedResponse = await matchCachedMediaResponse(event.request, url);
 
                 if (cachedResponse) {
                     return isRangeRequest
@@ -433,16 +577,11 @@ self.addEventListener('fetch', event => {
                         : cachedResponse;
                 }
 
-                try {
-                    console.log('[SW] Not cached, fetching from network:', event.request.url);
-                    return await fetch(event.request);
-                } catch (error) {
-                    console.error('[SW] Media not found in cache and network fetch failed:', event.request.url, error);
-                    return new Response('Media not available offline', {
-                        status: 404,
-                        statusText: 'Not Found'
-                    });
-                }
+                console.warn('[SW] Cached media request was not found:', event.request.url);
+                return new Response('Media not available offline', {
+                    status: 404,
+                    statusText: 'Not Found'
+                });
             })()
         );
         return;

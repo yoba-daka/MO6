@@ -114,6 +114,10 @@ namespace MosheSharon
                        "HlsProxy",
                        "media/hls/{contentName}/{**blobPath}",
                        new { controller = "HlsProxy", action = "Get" });
+                   u.EndpointRouteBuilder.MapControllerRoute(
+                       "LessonAudio",
+                       "media/audio/{contentName}/{**blobPath}",
+                       new { controller = "LessonMedia", action = "Audio" });
                    u.UseWebsiteEndpoints();
                    u.EndpointRouteBuilder.MapControllerRoute(
                        "PaymentsHarnessPage",

@@ -36,7 +36,7 @@ namespace MyProject12.Controllers
         [ValidateAntiForgeryToken]
         [ValidateUmbracoFormRouteString]
         [HttpPost]
-        public async Task<IActionResult> Set(int lessonId, string time, bool isVideo, CancellationToken cancellationToken)
+        public async Task<IActionResult> Set(int lessonId, string time, bool isVideo, long? clientUpdatedAt, CancellationToken cancellationToken)
         {
             if (lessonId <= 0 || string.IsNullOrWhiteSpace(time))
             {
@@ -63,24 +63,67 @@ namespace MyProject12.Controllers
                 return Unauthorized();
             }
 
+            var hasValidClientUpdatedUtc = TryResolveClientUpdatedUtc(clientUpdatedAt, out var clientUpdatedUtc);
             var timeKeeper = _db.TimeKeepers
                                  .FirstOrDefault(x => x.memberID == member.Id && x.lessonId == lessonId);
 
             if (timeKeeper == null)
             {
-                _db.TimeKeepers.Add(new TimeKeeper { lessonId = lessonId, time = normalizedTime, memberID = member.Id, isVideo = isVideo, date = DateTime.UtcNow });
+                if (!hasValidClientUpdatedUtc)
+                {
+                    clientUpdatedUtc = DateTime.UtcNow;
+                }
+
+                _db.TimeKeepers.Add(new TimeKeeper { lessonId = lessonId, time = normalizedTime, memberID = member.Id, isVideo = isVideo, date = clientUpdatedUtc });
             }
             else
             {
+                if (!hasValidClientUpdatedUtc)
+                {
+                    return Ok();
+                }
+
+                if (timeKeeper.date > clientUpdatedUtc.AddSeconds(1))
+                {
+                    return Ok();
+                }
+
                 timeKeeper.isVideo = isVideo;
                 timeKeeper.time = normalizedTime;
-                timeKeeper.date = DateTime.UtcNow;
+                timeKeeper.date = clientUpdatedUtc;
                 _db.TimeKeepers.Update(timeKeeper);
             }
 
             await _db.SaveChangesAsync(cancellationToken);
 
             return Ok();
+        }
+
+        private static bool TryResolveClientUpdatedUtc(long? clientUpdatedAt, out DateTime clientUpdatedUtc)
+        {
+            var now = DateTime.UtcNow;
+            clientUpdatedUtc = now;
+
+            if (!clientUpdatedAt.HasValue || clientUpdatedAt.Value <= 0)
+            {
+                return false;
+            }
+
+            try
+            {
+                var resolvedClientUpdatedUtc = DateTimeOffset.FromUnixTimeMilliseconds(clientUpdatedAt.Value).UtcDateTime;
+                if (resolvedClientUpdatedUtc < now.AddDays(-30) || resolvedClientUpdatedUtc > now.AddMinutes(10))
+                {
+                    return false;
+                }
+
+                clientUpdatedUtc = resolvedClientUpdatedUtc;
+                return true;
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                return false;
+            }
         }
     }
 }

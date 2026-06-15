@@ -12,6 +12,11 @@ namespace MyProject12
 {
     public class LessonBlobService
     {
+        private static readonly TimeSpan DefaultMemberSasMaxLifetime = TimeSpan.FromHours(12);
+        private static readonly TimeSpan SasClockSkewBuffer = TimeSpan.FromMinutes(5);
+        private static readonly TimeSpan SasRefreshBuffer = TimeSpan.FromMinutes(30);
+        private static readonly TimeSpan SasExpirationReuseTolerance = TimeSpan.FromSeconds(30);
+
         private readonly string _connectionString;
         private readonly string accountName;
         private readonly DB _dbService;
@@ -71,7 +76,7 @@ namespace MyProject12
             {
                 BlobContainerName = blobContainerClient.Name,
                 Resource = blobName == "*" ? "c" : "b", // "c" for container and "b" for blob
-                StartsOn = DateTimeOffset.UtcNow,
+                StartsOn = DateTimeOffset.UtcNow.Subtract(SasClockSkewBuffer),
                 ExpiresOn = expirationTime
             };
 
@@ -90,13 +95,37 @@ namespace MyProject12
 
         public string GenerateMemberContainerSas(string containerName, string memberId)
         {
+            return GenerateMemberContainerSas(containerName, memberId, DateTimeOffset.UtcNow.Add(DefaultMemberSasMaxLifetime).UtcDateTime);
+        }
+
+        public string GenerateMemberContainerSas(string containerName, string memberId, DateTime membershipExpiration)
+        {
             var existingToken = _dbService.GetValidToken(containerName,"*", memberId);
-            if (existingToken != null)
+            var now = DateTimeOffset.UtcNow;
+            var membershipExpiresAt = NormalizeMembershipExpiration(membershipExpiration);
+            var expirationTime = MinDateTimeOffset(now.Add(DefaultMemberSasMaxLifetime), membershipExpiresAt);
+
+            if (expirationTime <= now)
+            {
+                return "";
+            }
+
+            var existingTokenExpiration = existingToken == null
+                ? (DateTimeOffset?)null
+                : ToUtc(existingToken.TokenExpiration);
+            var refreshBoundary = now.Add(SasRefreshBuffer);
+            var existingTokenAlreadyReachesRequestedLimit =
+                existingTokenExpiration.HasValue &&
+                existingTokenExpiration.Value >= expirationTime.Subtract(SasExpirationReuseTolerance);
+
+            if (existingTokenExpiration.HasValue &&
+                existingTokenExpiration.Value > now &&
+                existingTokenExpiration.Value <= expirationTime &&
+                (existingTokenExpiration.Value > refreshBoundary || existingTokenAlreadyReachesRequestedLimit))
             {
                 return existingToken.Token;
             }
 
-            var expirationTime = DateTimeOffset.UtcNow.AddHours(3);
             var permissions = BlobSasPermissions.Read;
 
             var sasToken = GenerateSasToken(containerName, "*", expirationTime, permissions);
@@ -104,7 +133,7 @@ namespace MyProject12
             var tokenEntity = new SasToken
             {
                 MemberId = memberId,
-                TokenExpiration = expirationTime.DateTime,
+                TokenExpiration = expirationTime.UtcDateTime,
                 Token = sasToken,
                 ContainerName = containerName,
                 BlobName = "*"
@@ -118,19 +147,20 @@ namespace MyProject12
         public string GenerateUnlimitedSas(string containerName, string blobName)
         {
             var existingToken = _dbService.GetValidToken(containerName, blobName, "*");
-            if (existingToken != null)
+            var now = DateTimeOffset.UtcNow;
+            if (existingToken != null && ToUtc(existingToken.TokenExpiration) > now.Add(SasRefreshBuffer))
             {
                 return existingToken.Token;
             }
 
-            var expirationTime = DateTimeOffset.UtcNow.AddDays(2);
+            var expirationTime = now.AddDays(2);
             var permissions = BlobSasPermissions.Read;
 
             var sasToken = GenerateSasToken(containerName, blobName, expirationTime, permissions);
 
             var tokenEntity = new SasToken
             {
-                TokenExpiration = expirationTime.DateTime,
+                TokenExpiration = expirationTime.UtcDateTime,
                 Token = sasToken,
                 ContainerName = containerName,
                 BlobName = blobName,
@@ -168,19 +198,63 @@ namespace MyProject12
         {
             try
             {
-                var token = sasToken.Split('?')[1];
-                return $"https://{accountName}.blob.core.windows.net/{containerName}/{blobName}?{token}";
+                var token = GetTokenOnly(sasToken);
+                if (string.IsNullOrWhiteSpace(token))
+                {
+                    return "";
+                }
+
+                var encodedContainerName = Uri.EscapeDataString(containerName);
+                var encodedBlobName = string.Join('/',
+                    blobName
+                        .Replace('\\', '/')
+                        .Split('/', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(Uri.EscapeDataString));
+
+                return $"https://{accountName}.blob.core.windows.net/{encodedContainerName}/{encodedBlobName}?{token}";
             }
             catch { return ""; }
         }
 
         public string GetTokenOnly(string sasToken)
         {
-            try
+            if (string.IsNullOrWhiteSpace(sasToken))
             {
-                return sasToken.Split('?')[1];
+                return "";
             }
-            catch { return ""; }
+
+            var queryIndex = sasToken.IndexOf('?');
+            if (queryIndex >= 0 && queryIndex < sasToken.Length - 1)
+            {
+                return sasToken[(queryIndex + 1)..];
+            }
+
+            return sasToken.TrimStart('?');
+        }
+
+        private static DateTimeOffset NormalizeMembershipExpiration(DateTime membershipExpiration)
+        {
+            return membershipExpiration.Kind switch
+            {
+                DateTimeKind.Utc => new DateTimeOffset(membershipExpiration, TimeSpan.Zero),
+                DateTimeKind.Local => new DateTimeOffset(membershipExpiration).ToUniversalTime(),
+                _ => new DateTimeOffset(DateTime.SpecifyKind(membershipExpiration, DateTimeKind.Local)).ToUniversalTime()
+            };
+        }
+
+        private static DateTimeOffset ToUtc(DateTime dateTime)
+        {
+            return dateTime.Kind switch
+            {
+                DateTimeKind.Utc => new DateTimeOffset(dateTime, TimeSpan.Zero),
+                DateTimeKind.Local => new DateTimeOffset(dateTime).ToUniversalTime(),
+                _ => new DateTimeOffset(DateTime.SpecifyKind(dateTime, DateTimeKind.Utc), TimeSpan.Zero)
+            };
+        }
+
+        private static DateTimeOffset MinDateTimeOffset(DateTimeOffset first, DateTimeOffset second)
+        {
+            return first <= second ? first : second;
         }
     }
 }

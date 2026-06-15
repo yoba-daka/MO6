@@ -451,10 +451,10 @@
                             html += `<button class="btn btn-danger btn-sm btn-round delete-offline-btn" data-content-name="${lesson.contentName}" data-media-type="audio"><i class="fa fa-trash"></i> מחק אודיו</button>`;
                         }
                         if (lesson.videoStatus === 'downloading') {
-                            html += `<button class="btn btn-warning btn-sm btn-round cancel-offline-btn" data-content-name="${lesson.contentName}"><i class="fa fa-times"></i> בטל וידאו</button> `;
+                            html += `<button class="btn btn-warning btn-sm btn-round cancel-offline-btn" data-content-name="${lesson.contentName}" data-media-type="video"><i class="fa fa-times"></i> בטל וידאו</button> `;
                         }
                         if (lesson.audioStatus === 'downloading') {
-                            html += `<button class="btn btn-warning btn-sm btn-round cancel-offline-btn" data-content-name="${lesson.contentName}"><i class="fa fa-times"></i> בטל אודיו</button>`;
+                            html += `<button class="btn btn-warning btn-sm btn-round cancel-offline-btn" data-content-name="${lesson.contentName}" data-media-type="audio"><i class="fa fa-times"></i> בטל אודיו</button>`;
                         }
                         html += `</div>`;
                         html += `</div>`;
@@ -486,18 +486,36 @@
                             navigator.serviceWorker.controller?.postMessage({ type: 'DELETE_MEDIA_CACHE', payload: { contentName, mediaType } });
                         }
                     } else if (btn.hasClass('cancel-offline-btn')) {
-                        navigator.serviceWorker.controller?.postMessage({ type: 'CANCEL_DOWNLOAD', payload: { contentName } });
+                        const mediaType = btn.data('media-type');
+                        navigator.serviceWorker.controller?.postMessage({ type: 'CANCEL_DOWNLOAD', payload: { contentName, mediaType } });
                     }
                 });
 
-                const broadcast = new BroadcastChannel('download_channel');
-                broadcast.onmessage = (event) => { handleServiceWorkerMessage(event.data); };
-                navigator.serviceWorker.addEventListener('message', (event) => { handleServiceWorkerMessage(event.data); });
+                if ('BroadcastChannel' in window) {
+                    const broadcast = new BroadcastChannel('download_channel');
+                    broadcast.onmessage = (event) => { handleServiceWorkerMessage(event.data); };
+                }
+
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.addEventListener('message', (event) => { handleServiceWorkerMessage(event.data); });
+                }
             }
 
             // SIMPLIFIED: This handler now only reacts to messages and redraws the UI.
+            const handledDownloadMessageIds = [];
+            function isDuplicateDownloadMessage(data) {
+                if (!data?.messageId) return false;
+                if (handledDownloadMessageIds.includes(data.messageId)) return true;
+                handledDownloadMessageIds.push(data.messageId);
+                if (handledDownloadMessageIds.length > 50) handledDownloadMessageIds.shift();
+                return false;
+            }
+
             async function handleServiceWorkerMessage(data) {
-                const { type, payload } = data;
+                if (isDuplicateDownloadMessage(data)) return;
+
+                const { type, payload } = data || {};
+                if (!payload?.contentName) return;
                 console.log(`[Account PWA] SW Event '${type}' received for ${payload.contentName}.`);
 
                 if (type === 'DOWNLOAD_PROGRESS') {
