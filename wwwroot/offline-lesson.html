@@ -52,6 +52,19 @@
             border-radius: 4px;
             margin: 20px 0;
         }
+
+        #media-player .plyr__progress,
+        #media-player .plyr__progress input[type="range"],
+        #media-player .plyr__volume input[type="range"] {
+            direction: ltr;
+        }
+
+        #media-player .plyr__progress,
+        #media-player .plyr__progress input[type="range"],
+        #media-player .plyr__volume input[type="range"] {
+            -ms-touch-action: none;
+            touch-action: none;
+        }
     </style>
 </head>
 <body style="padding:0px;">
@@ -89,6 +102,9 @@
         let offlineHls = null;
         let progressStorageKey = null;
         let legacyProgressStorageKey = null;
+        let mediaPreferenceStorageKey = null;
+        let legacyMediaPreferenceStorageKey = null;
+        let scrubberCleanup = null;
         const pageLoadedAt = Date.now();
         const progressSaveMinDeltaSeconds = 1;
         const progressActivityGraceMs = 30000;
@@ -114,6 +130,226 @@
         function hasMeaningfulProgressChange(existing, time, isVideo) {
             if (!existing) return true;
             return existing.isVideo !== !!isVideo || Math.abs(normalizePlaybackTime(existing.time) - normalizePlaybackTime(time)) >= progressSaveMinDeltaSeconds;
+        }
+
+        function installTouchScrubberFix() {
+            const progress = player?.elements?.progress;
+            const seekInput = player?.elements?.inputs?.seek;
+            const media = player?.media || document.querySelector('#player, #playerA');
+            if (!progress || !seekInput || !media) return null;
+
+            let dragging = false;
+            let wasPlaying = false;
+            let activePointerId = null;
+            let activeTouchId = null;
+            let lastClientX = null;
+            let lastSeekAppliedAt = 0;
+            const listeners = [];
+            const supportsPointerEvents = 'PointerEvent' in window;
+
+            const addListener = (target, eventName, handler, options) => {
+                target.addEventListener(eventName, handler, options);
+                listeners.push(() => target.removeEventListener(eventName, handler, options));
+            };
+
+            const stopEvent = event => {
+                if (!event) return;
+                if (event.cancelable !== false) {
+                    event.preventDefault();
+                }
+                event.stopPropagation();
+            };
+
+            const getDuration = () => {
+                const duration = Number(player?.duration || media.duration || 0);
+                return Number.isFinite(duration) && duration > 0 ? duration : 0;
+            };
+
+            const setRangeValue = percent => {
+                const normalizedPercent = Math.max(0, Math.min(100, percent));
+                const value = normalizedPercent.toFixed(2);
+                seekInput.value = value;
+                seekInput.setAttribute('aria-valuenow', value);
+                seekInput.style.setProperty('--value', `${value}%`);
+            };
+
+            const applyCurrentTime = targetTime => {
+                try {
+                    player.currentTime = targetTime;
+                    return true;
+                } catch (error) {
+                    console.warn('[OfflinePlayer] Scrub seek failed.', error);
+                    return false;
+                }
+            };
+
+            const scrubToClientX = (clientX, forceSeek = false) => {
+                const x = Number.isFinite(clientX) ? clientX : lastClientX;
+                if (!Number.isFinite(x)) return false;
+
+                lastClientX = x;
+                const rect = progress.getBoundingClientRect();
+                const duration = getDuration();
+                if (!rect.width || !duration) return false;
+
+                const ratio = Math.max(0, Math.min(1, (x - rect.left) / rect.width));
+                setRangeValue(ratio * 100);
+                markPlaybackActivity();
+
+                const now = Date.now();
+                if (!forceSeek && now - lastSeekAppliedAt < 120) return true;
+
+                lastSeekAppliedAt = now;
+                return applyCurrentTime(duration * ratio);
+            };
+
+            const beginScrub = (event, clientX, pointerId = null, touchId = null) => {
+                stopEvent(event);
+                dragging = true;
+                wasPlaying = isPlayerActivelyPlaying();
+                activePointerId = pointerId;
+                activeTouchId = touchId;
+                lastClientX = clientX;
+                lastSeekAppliedAt = 0;
+                if (activePointerId !== null && progress.setPointerCapture) {
+                    try {
+                        progress.setPointerCapture(activePointerId);
+                    } catch {
+                    }
+                }
+                if (wasPlaying) {
+                    player.pause();
+                }
+                scrubToClientX(clientX, true);
+            };
+
+            const continueScrub = (event, clientX) => {
+                if (!dragging) return;
+                stopEvent(event);
+                scrubToClientX(clientX, false);
+            };
+
+            const endScrub = (event, clientX = null) => {
+                if (!dragging) return;
+                stopEvent(event);
+                dragging = false;
+
+                try {
+                    scrubToClientX(clientX, true);
+                } finally {
+                    if (activePointerId !== null && progress.releasePointerCapture) {
+                        try {
+                            progress.releasePointerCapture(activePointerId);
+                        } catch {
+                        }
+                    }
+                    activePointerId = null;
+                    activeTouchId = null;
+                    lastClientX = null;
+                    if (wasPlaying) {
+                        const playResult = player.play();
+                        if (playResult?.catch) {
+                            playResult.catch(error => console.warn('[OfflinePlayer] Resume after scrub failed.', error));
+                        }
+                    }
+                    wasPlaying = false;
+                }
+            };
+
+            const shouldHandlePointerEvent = event => (
+                dragging &&
+                (activePointerId === null || event.pointerId === activePointerId) &&
+                event.pointerType !== 'mouse'
+            );
+
+            const getActiveTouch = touchList => {
+                const touches = Array.from(touchList || []);
+                if (!touches.length) return null;
+                if (activeTouchId === null) return touches[0];
+                return touches.find(touch => touch.identifier === activeTouchId) || null;
+            };
+
+            const getFinishedTouch = event => {
+                const changedTouch = getActiveTouch(event.changedTouches);
+                if (changedTouch) {
+                    return { shouldEnd: true, clientX: changedTouch.clientX };
+                }
+
+                if (activeTouchId === null) {
+                    const fallbackTouch = getActiveTouch(event.touches);
+                    return { shouldEnd: true, clientX: fallbackTouch?.clientX ?? lastClientX };
+                }
+
+                const activeTouchStillDown = Array.from(event.touches || [])
+                    .some(touch => touch.identifier === activeTouchId);
+                return {
+                    shouldEnd: !activeTouchStillDown,
+                    clientX: lastClientX
+                };
+            };
+
+            if (supportsPointerEvents) {
+                addListener(progress, 'pointerdown', event => {
+                    if (event.pointerType === 'mouse') return;
+                    beginScrub(event, event.clientX, event.pointerId ?? null, null);
+                }, { passive: false, capture: true });
+                addListener(window, 'pointermove', event => {
+                    if (!shouldHandlePointerEvent(event)) return;
+                    continueScrub(event, event.clientX);
+                }, { passive: false, capture: true });
+                addListener(window, 'pointerup', event => {
+                    if (!shouldHandlePointerEvent(event)) return;
+                    endScrub(event, event.clientX);
+                }, { passive: false, capture: true });
+                addListener(window, 'pointercancel', event => {
+                    if (!shouldHandlePointerEvent(event)) return;
+                    endScrub(event, Number.isFinite(event.clientX) ? event.clientX : lastClientX);
+                }, { passive: false, capture: true });
+            } else {
+                addListener(progress, 'touchstart', event => {
+                    const touch = event.touches?.[0];
+                    if (touch) beginScrub(event, touch.clientX, null, touch.identifier ?? null);
+                }, { passive: false, capture: true });
+                addListener(window, 'touchmove', event => {
+                    const touch = getActiveTouch(event.touches);
+                    if (touch) continueScrub(event, touch.clientX);
+                }, { passive: false, capture: true });
+                addListener(window, 'touchend', event => {
+                    const finishedTouch = getFinishedTouch(event);
+                    if (finishedTouch.shouldEnd) endScrub(event, finishedTouch.clientX);
+                }, { passive: false, capture: true });
+                addListener(window, 'touchcancel', event => {
+                    const finishedTouch = getFinishedTouch(event);
+                    if (finishedTouch.shouldEnd) endScrub(event, finishedTouch.clientX);
+                }, { passive: false, capture: true });
+            }
+
+            addListener(window, 'blur', event => endScrub(event, lastClientX), { capture: true });
+            addListener(document, 'visibilitychange', event => {
+                if (document.visibilityState === 'hidden') {
+                    endScrub(event, lastClientX);
+                }
+            }, { capture: true });
+
+            return () => {
+                listeners.forEach(removeListener => removeListener());
+            };
+        }
+
+        function attachTouchScrubberFix() {
+            if (scrubberCleanup) {
+                scrubberCleanup();
+                scrubberCleanup = null;
+            }
+
+            scrubberCleanup = installTouchScrubberFix();
+            if (!scrubberCleanup && player?.once) {
+                player.once('ready', () => {
+                    if (!scrubberCleanup) {
+                        scrubberCleanup = installTouchScrubberFix();
+                    }
+                });
+            }
         }
 
         function parseExplicitExpirationDate(value) {
@@ -178,6 +414,85 @@
             }
         }
 
+        function getStoredMediaPreference() {
+            if (!mediaPreferenceStorageKey) return null;
+
+            const keys = mediaPreferenceStorageKey === legacyMediaPreferenceStorageKey
+                ? [mediaPreferenceStorageKey]
+                : [mediaPreferenceStorageKey, legacyMediaPreferenceStorageKey].filter(Boolean);
+
+            for (const key of keys) {
+                try {
+                    const raw = localStorage.getItem(key);
+                    if (!raw) continue;
+                    const parsed = JSON.parse(raw);
+                    if (parsed?.isVideo === undefined || parsed?.isVideo === null) continue;
+                    return { isVideo: !!parsed.isVideo, updatedAt: parsed.updatedAt || 0 };
+                } catch {
+                    continue;
+                }
+            }
+
+            return null;
+        }
+
+        function clearLegacyStoredMediaPreference() {
+            if (!legacyMediaPreferenceStorageKey || legacyMediaPreferenceStorageKey === mediaPreferenceStorageKey) return;
+
+            try {
+                localStorage.removeItem(legacyMediaPreferenceStorageKey);
+            } catch {
+            }
+        }
+
+        function saveMediaPreference(isVideo, force = false, updatedAt = Date.now()) {
+            if (!mediaPreferenceStorageKey) return null;
+
+            const normalizedIsVideo = !!isVideo;
+            const existingPreference = getStoredMediaPreference();
+            const existingProgress = getStoredProgress();
+            if (!force && existingPreference && existingPreference.isVideo === normalizedIsVideo) {
+                return { ...existingPreference, changed: false };
+            }
+
+            const preference = {
+                isVideo: normalizedIsVideo,
+                updatedAt: Math.trunc(updatedAt || Date.now())
+            };
+
+            try {
+                localStorage.setItem(mediaPreferenceStorageKey, JSON.stringify(preference));
+                clearLegacyStoredMediaPreference();
+            } catch (error) {
+                console.warn('[OfflineTimekeeping] Local media preference save failed.', error);
+            }
+
+            const existingTime = normalizePlaybackTime(currentLessonData?.lastPlayed?.time) || normalizePlaybackTime(existingProgress?.time);
+            if (existingTime) {
+                try {
+                    localStorage.setItem(progressStorageKey, JSON.stringify({
+                        time: existingTime,
+                        isVideo: normalizedIsVideo,
+                        updatedAt: preference.updatedAt
+                    }));
+                    clearLegacyStoredProgress();
+                } catch (error) {
+                    console.warn('[OfflineTimekeeping] Local progress media preference update failed.', error);
+                }
+            }
+
+            if (currentLessonData) {
+                currentLessonData.lastPlayed = {
+                    ...(currentLessonData.lastPlayed || {}),
+                    time: existingTime,
+                    isVideo: normalizedIsVideo,
+                    updatedAt: preference.updatedAt
+                };
+            }
+
+            return { ...preference, changed: true };
+        }
+
         function saveStoredProgress(time, isVideo, force = false) {
             if (!progressStorageKey) return;
             const normalizedTime = normalizePlaybackTime(time);
@@ -204,6 +519,34 @@
             return { ...progress, changed: true };
         }
 
+        function getLastKnownMediaPreference() {
+            const candidates = [];
+
+            const indexedPreference = currentLessonData?.lastPlayed;
+            if (indexedPreference?.isVideo !== undefined && indexedPreference?.isVideo !== null) {
+                candidates.push({
+                    isVideo: !!indexedPreference.isVideo,
+                    updatedAt: indexedPreference.updatedAt || 0
+                });
+            }
+
+            const storedProgress = getStoredProgress();
+            if (storedProgress) {
+                candidates.push({
+                    isVideo: storedProgress.isVideo,
+                    updatedAt: storedProgress.updatedAt || 0
+                });
+            }
+
+            const storedPreference = getStoredMediaPreference();
+            if (storedPreference) {
+                candidates.push(storedPreference);
+            }
+
+            candidates.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+            return candidates[0] || null;
+        }
+
         function getLastKnownProgress() {
             const candidates = [];
 
@@ -226,9 +569,76 @@
             return candidates[0] || null;
         }
 
+        let onlineRedirectStarted = false;
+        let onlineProbeTimer = null;
+        let onlineLessonContentName = null;
+        let offlineLessonRecordRead = false;
+
+        function getOnlineLessonUrl() {
+            if (currentLessonData?.url) {
+                return currentLessonData.url;
+            }
+
+            if (onlineLessonContentName) {
+                return `/שיעור-${encodeURIComponent(onlineLessonContentName)}/`;
+            }
+
+            return '/';
+        }
+
+        function startOnlineLessonRedirect() {
+            if (onlineRedirectStarted) return;
+
+            if (!offlineLessonRecordRead && onlineLessonContentName) {
+                scheduleOnlineLessonProbe(500);
+                return;
+            }
+
+            onlineRedirectStarted = true;
+            try {
+                flushOfflineProgress(false);
+            } catch (error) {
+                console.warn('[OfflineLesson] Failed to flush progress before online redirect.', error);
+            }
+            window.location.href = getOnlineLessonUrl();
+        }
+
+        async function probeOnlineStatus() {
+            try {
+                const response = await fetch(`/sw.js?onlineProbe=${Date.now()}`, {
+                    cache: 'no-store',
+                    credentials: 'same-origin'
+                });
+                return response.ok;
+            } catch {
+                return false;
+            }
+        }
+
+        function scheduleOnlineLessonProbe(delayMs = 3000) {
+            if (onlineRedirectStarted) return;
+            if (onlineProbeTimer) {
+                clearTimeout(onlineProbeTimer);
+            }
+            onlineProbeTimer = setTimeout(() => {
+                onlineProbeTimer = null;
+                runOnlineLessonProbe();
+            }, delayMs);
+        }
+
+        async function runOnlineLessonProbe() {
+            if (onlineRedirectStarted) return;
+            if (await probeOnlineStatus()) {
+                startOnlineLessonRedirect();
+                return;
+            }
+            scheduleOnlineLessonProbe();
+        }
+
         document.addEventListener('DOMContentLoaded', async function () {
             const urlParams = new URLSearchParams(window.location.search);
             const contentName = urlParams.get('contentName');
+            onlineLessonContentName = contentName;
 
             if (!contentName) {
                 // Use the new showError to replace the entire player container.
@@ -236,12 +646,43 @@
             }
 
             const offlineMediaMessagePayload = { contentName };
-            function postOfflineMediaState(type) {
+            async function getServiceWorkerMessageTarget() {
+                if (!('serviceWorker' in navigator)) {
+                    return null;
+                }
+
+                if (navigator.serviceWorker.controller) {
+                    return navigator.serviceWorker.controller;
+                }
+
                 try {
-                    navigator.serviceWorker?.controller?.postMessage({
-                        type,
-                        payload: offlineMediaMessagePayload
-                    });
+                    const registration = await navigator.serviceWorker.ready;
+                    return navigator.serviceWorker.controller || registration.active || null;
+                } catch (error) {
+                    console.warn('[OfflineMedia] Service worker registration is not ready.', error);
+                    return null;
+                }
+            }
+
+            function postOfflineMediaState(type) {
+                const message = {
+                    type,
+                    payload: offlineMediaMessagePayload
+                };
+
+                try {
+                    if (navigator.serviceWorker?.controller) {
+                        navigator.serviceWorker.controller.postMessage(message);
+                        return;
+                    }
+
+                    getServiceWorkerMessageTarget()
+                        .then(serviceWorker => {
+                            serviceWorker?.postMessage(message);
+                        })
+                        .catch(error => {
+                            console.warn('[OfflineMedia] Failed to resolve service worker media target.', error);
+                        });
                 } catch (error) {
                     console.warn('[OfflineMedia] Failed to update service worker media state.', error);
                 }
@@ -259,24 +700,57 @@
             window.addEventListener('pagehide', () => {
                 postOfflineMediaState('DISABLE_OFFLINE_MEDIA');
             });
+            window.addEventListener('online', () => scheduleOnlineLessonProbe(0));
+            window.addEventListener('pageshow', () => scheduleOnlineLessonProbe(500));
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden) {
+                    scheduleOnlineLessonProbe(500);
+                }
+            });
+            scheduleOnlineLessonProbe(1000);
 
             try {
                 // 1. Fetch both the lesson data and the user settings in parallel.
-                const [lessonData, settings] = await Promise.all([
-                    offlineContentDB.getLesson(contentName),
+                const lessonDataRequest = typeof offlineContentDB.normalizeLesson === 'function'
+                    ? offlineContentDB.normalizeLesson(contentName)
+                    : offlineContentDB.getLesson(contentName);
+                const [lessonDataResult, settings] = await Promise.all([
+                    lessonDataRequest,
                     offlineContentDB.getMembershipStatus()
                 ]);
 
+                const isNormalizedLessonResult = lessonDataResult
+                    && typeof lessonDataResult === 'object'
+                    && Object.prototype.hasOwnProperty.call(lessonDataResult, 'record');
+                if (isNormalizedLessonResult &&
+                    lessonDataResult.removedMediaTypes?.length &&
+                    typeof offlineContentDB.cleanupRemovedMedia === 'function') {
+                    try {
+                        await offlineContentDB.cleanupRemovedMedia(lessonDataResult.removedMediaTypes.map(mediaType => ({
+                            contentName,
+                            mediaType
+                        })));
+                    } catch (cleanupError) {
+                        console.warn('[OfflineLesson] Failed to clean normalized media caches.', cleanupError);
+                    }
+                }
+
+                const lessonData = isNormalizedLessonResult ? lessonDataResult.record : lessonDataResult;
                 currentLessonData = lessonData;
                 const progressOwner = settings?.memberId
                     ? `member:${settings.memberId}`
                     : 'anonymous';
                 legacyProgressStorageKey = `lesson-progress:${contentName}`;
                 progressStorageKey = `lesson-progress:${progressOwner}:${contentName}`;
+                legacyMediaPreferenceStorageKey = `lesson-media-preference:${contentName}`;
+                mediaPreferenceStorageKey = `lesson-media-preference:${progressOwner}:${contentName}`;
 
                 if (!currentLessonData) {
+                    offlineLessonRecordRead = true;
                     return showError('שגיאה: לא נמצאו נתונים עבור שיעור זה במכשיר.');
                 }
+
+                offlineLessonRecordRead = true;
 
                 // Set the page title and lesson title immediately.
                 document.title = currentLessonData.title;
@@ -298,6 +772,7 @@
                 setupTabsAndPlayer();
 
             } catch (error) {
+                offlineLessonRecordRead = true;
                 console.error("Error loading lesson:", error);
                 showError('שגיאה קריטית בטעינת השיעור.');
             }
@@ -314,8 +789,8 @@
             if (videoAvailable) $('#videoTab').show();
             if (audioAvailable) $('#audioTab').show();
 
-            const progress = getLastKnownProgress();
-            const lastPlayedIsVideo = progress?.isVideo ?? true;
+            const mediaPreference = getLastKnownMediaPreference();
+            const lastPlayedIsVideo = mediaPreference?.isVideo ?? true;
             let initialPlayerIsVideo = (lastPlayedIsVideo && videoAvailable) || (!audioAvailable);
 
             if (initialPlayerIsVideo) {
@@ -330,6 +805,7 @@
                 e.preventDefault();
                 if ($(this).hasClass('active')) return;
                 saveCurrentTimestamp(true);
+                saveMediaPreference(true, true);
                 $('#audioB').removeClass('active');
                 $(this).addClass('active');
                 clearPlayer();
@@ -340,6 +816,7 @@
                 e.preventDefault();
                 if ($(this).hasClass('active')) return;
                 saveCurrentTimestamp(true);
+                saveMediaPreference(false, true);
                 $('#videoB').removeClass('active');
                 $(this).addClass('active');
                 clearPlayer();
@@ -537,6 +1014,7 @@
         }
 
         function clearPlayer() {
+            if (scrubberCleanup) { scrubberCleanup(); scrubberCleanup = null; }
             if (audioRecoveryCleanup) { audioRecoveryCleanup(); audioRecoveryCleanup = null; }
             if (player) { player.destroy(); player = null; }
             if (offlineHls) { offlineHls.destroy(); offlineHls = null; }
@@ -552,6 +1030,7 @@
             playerWrapper.innerHTML = `<video poster="${currentLessonData.imageUrl || ''}" id="player" playsinline preload="metadata" controls></video>`;
             const video = document.querySelector('#player');
             player = new Plyr(video, { controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'pip', 'fullscreen', 'settings'], settings: ['speed'], keyboard: { focused: true, global: true } });
+            attachTouchScrubberFix();
             const canUseNativeHls = video.canPlayType('application/vnd.apple.mpegurl') || video.canPlayType('application/x-mpegURL');
 
             if (canUseNativeHls) {
@@ -589,6 +1068,7 @@
             playerWrapper.innerHTML = `<audio id="playerA" preload="metadata" controls><source src="${audioUrlWithoutSAS}" type="audio/mpeg"></audio>`;
             const audioElement = document.querySelector('#playerA');
             player = new Plyr(audioElement, { controls: ['play', 'progress', 'current-time', 'mute', 'volume', 'settings'], keyboard: { focused: true, global: true } });
+            attachTouchScrubberFix();
             audioRecoveryCleanup = attachAudioRecovery(audioElement, () => audioUrlWithoutSAS);
             player.once('ready', () => seekToLastKnownTime());
             startSavingTimestamp();
@@ -599,19 +1079,75 @@
             if (!player || !seconds) return;
 
             const media = player.media || document.querySelector('#player, #playerA');
-            const applySeek = () => {
-                try {
-                    player.currentTime = seconds;
-                } catch (error) {
-                    console.warn('[OfflineTimekeeping] Seek failed.', error);
+            let applied = false;
+            let retryTimer = null;
+            let attempts = 0;
+            const seekEvents = ['loadedmetadata', 'durationchange', 'loadeddata', 'canplay'];
+
+            const cleanup = () => {
+                if (retryTimer) {
+                    clearTimeout(retryTimer);
+                    retryTimer = null;
+                }
+                if (media) {
+                    seekEvents.forEach(eventName => media.removeEventListener(eventName, applySeek));
                 }
             };
 
-            if (media && media.readyState >= 1) {
-                applySeek();
-            } else if (media) {
-                media.addEventListener('loadedmetadata', applySeek, { once: true });
-                media.addEventListener('canplay', applySeek, { once: true });
+            const scheduleRetry = () => {
+                if (retryTimer || applied || attempts >= 6) return;
+                retryTimer = setTimeout(() => {
+                    retryTimer = null;
+                    applySeek();
+                }, 500);
+            };
+
+            const hasMetadata = () => {
+                if (!media) return true;
+                return media.readyState >= 1 || Number.isFinite(media.duration);
+            };
+
+            const applySeek = () => {
+                if (applied || !player) return;
+                attempts += 1;
+
+                if (!hasMetadata()) {
+                    scheduleRetry();
+                    return;
+                }
+
+                try {
+                    player.currentTime = seconds;
+                    applied = true;
+                    cleanup();
+                } catch (error) {
+                    if (attempts < 6) {
+                        scheduleRetry();
+                    } else {
+                        cleanup();
+                        console.warn('[OfflineTimekeeping] Initial seek failed.', error);
+                    }
+                }
+            };
+
+            if (media) {
+                seekEvents.forEach(eventName => media.addEventListener(eventName, applySeek));
+
+                if (media.readyState >= 1 || Number.isFinite(media.duration)) {
+                    applySeek();
+                } else {
+                    try {
+                        if (media.tagName === 'AUDIO' && media.preload !== 'metadata') {
+                            media.preload = 'metadata';
+                        }
+                        if (media.tagName === 'AUDIO' && media.readyState === 0) {
+                            media.load();
+                        }
+                    } catch (error) {
+                        console.warn('[OfflineTimekeeping] Metadata load request failed.', error);
+                    }
+                    scheduleRetry();
+                }
             } else {
                 player.once('ready', applySeek);
             }

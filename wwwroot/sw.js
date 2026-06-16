@@ -3,11 +3,10 @@
  */
 importScripts('/js/db-helper.js');
 
-const APP_VERSION = '20260615-4';
+const APP_VERSION = '20260615-22';
 const APP_SHELL_CACHE_PREFIX = 'app-shell-cache-';
 const APP_SHELL_CACHE_NAME = `${APP_SHELL_CACHE_PREFIX}${APP_VERSION}`;
 const APP_SHELL_LOCAL_URLS = [
-    '/',
     '/offline.html',
     '/offline-lesson.html',
     '/js/db-helper.js',
@@ -28,8 +27,12 @@ const cancellationMap = new Map();
 const abortControllerMap = new Map();
 const progressMap = new Map();
 const offlineMediaClientIds = new Set();
+const persistedMediaPreferenceMap = new Map();
 let downloadMessageSequence = 0;
 const CACHEABLE_MEDIA_EXTENSIONS = ['.m3u8', '.ts', '.m4s', '.mp4', '.aac', '.m4a', '.mp3', '.vtt', '.webvtt', '.key'];
+const STALE_DOWNLOAD_GRACE_MS = 30000;
+const HLS_DOWNLOAD_CONCURRENCY = 4;
+const PERSISTED_MEDIA_PREFERENCE_TTL_MS = 15000;
 
 function getDownloadKey(contentName, mediaType) {
     return `${contentName || ''}::${mediaType || 'unknown'}`;
@@ -41,6 +44,66 @@ function getPayloadDownloadKeys(payload) {
     }
 
     return ['video', 'audio', 'unknown'].map(mediaType => getDownloadKey(payload?.contentName, mediaType));
+}
+
+function getPayloadMediaTypes(payload) {
+    if (payload?.mediaType) {
+        return [payload.mediaType];
+    }
+
+    return ['video', 'audio'];
+}
+
+function getMediaCacheName(contentName, mediaType) {
+    return `${mediaType}-cache-${contentName}`;
+}
+
+function getMediaStatus(record, mediaType) {
+    if (!record) return 'none';
+    return mediaType === 'video'
+        ? (record.videoStatus || 'none')
+        : (record.audioStatus || 'none');
+}
+
+function getMediaPreferenceCacheKey(contentName, mediaType) {
+    return `${contentName || ''}::${mediaType || 'unknown'}`;
+}
+
+function setPersistedMediaPreference(contentName, mediaType, value) {
+    if (!contentName || !mediaType) return;
+    persistedMediaPreferenceMap.set(getMediaPreferenceCacheKey(contentName, mediaType), {
+        value: !!value,
+        expiresAt: Date.now() + PERSISTED_MEDIA_PREFERENCE_TTL_MS
+    });
+}
+
+function clearPersistedMediaPreference(contentName, mediaType = null) {
+    if (!contentName) return;
+
+    if (mediaType) {
+        persistedMediaPreferenceMap.delete(getMediaPreferenceCacheKey(contentName, mediaType));
+        return;
+    }
+
+    ['video', 'audio'].forEach(type => {
+        persistedMediaPreferenceMap.delete(getMediaPreferenceCacheKey(contentName, type));
+    });
+}
+
+function getMediaDownloadStartedAt(record, mediaType) {
+    return Math.max(
+        Number(record?.[`${mediaType}DownloadStartedAt`] || 0),
+        Number(record?.[`${mediaType}StatusUpdatedAt`] || 0)
+    );
+}
+
+function isStaleDownloadingRecord(record, mediaType) {
+    if (getMediaStatus(record, mediaType) !== 'downloading') {
+        return false;
+    }
+
+    const startedAt = getMediaDownloadStartedAt(record, mediaType);
+    return !startedAt || Date.now() - startedAt > STALE_DOWNLOAD_GRACE_MS;
 }
 
 async function postDownloadMessage(message) {
@@ -69,6 +132,16 @@ function isDownloadCancelledError(error) {
     return error?.message === 'Download cancelled by user' || error?.name === 'AbortError';
 }
 
+async function postDownloadProgress(downloadKey, metadata, progress) {
+    const normalizedProgress = Math.max(0, Math.min(100, Math.round(progress)));
+    if (normalizedProgress <= (progressMap.get(downloadKey) || 0)) {
+        return;
+    }
+
+    progressMap.set(downloadKey, normalizedProgress);
+    await postDownloadMessage({ type: 'DOWNLOAD_PROGRESS', payload: { ...metadata, progress: normalizedProgress } });
+}
+
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(APP_SHELL_CACHE_NAME)
@@ -93,10 +166,41 @@ self.addEventListener('activate', event => {
                         .filter(key => key.startsWith(APP_SHELL_CACHE_PREFIX) && key !== APP_SHELL_CACHE_NAME)
                         .map(key => caches.delete(key))
                 )),
+            normalizeOfflineMediaRecords(),
             clients.claim()
         ])
     );
 });
+
+async function deleteMediaCache(contentName, mediaType) {
+    try {
+        await caches.delete(getMediaCacheName(contentName, mediaType));
+    } catch (error) {
+        console.warn('[SW] Failed to delete media cache:', contentName, mediaType, error);
+    }
+}
+
+async function cleanupRemovedMedia(removedMedia) {
+    const removals = Array.isArray(removedMedia) ? removedMedia : [];
+    await Promise.all(removals.map(item => {
+        if (!item?.contentName || !item?.mediaType) return null;
+        setPersistedMediaPreference(item.contentName, item.mediaType, false);
+        return deleteMediaCache(item.contentName, item.mediaType);
+    }));
+}
+
+async function normalizeOfflineMediaRecords() {
+    if (typeof offlineContentDB?.normalizeAllLessons !== 'function') {
+        return;
+    }
+
+    try {
+        const normalized = await offlineContentDB.normalizeAllLessons();
+        await cleanupRemovedMedia(normalized?.removedMedia);
+    } catch (error) {
+        console.warn('[SW] Offline media normalization failed:', error);
+    }
+}
 
 function stripSasToken(url) {
     const urlObj = new URL(url, self.location.origin);
@@ -108,6 +212,33 @@ function stripSasToken(url) {
 
 function isCacheableMediaPath(pathname) {
     return CACHEABLE_MEDIA_EXTENSIONS.some(extension => pathname.endsWith(extension));
+}
+
+function getAudioAppCacheKey(urlObj) {
+    const contentName = getMediaContentName(urlObj);
+    if (!contentName) {
+        return null;
+    }
+
+    const fileName = urlObj.pathname.split('/').pop() || '';
+    if (!/^(?:audio|audio-short)\.mp3$/i.test(fileName)) {
+        return null;
+    }
+
+    return `${self.location.origin}/media/audio/${encodeURIComponent(contentName)}/${encodeURIComponent(fileName)}`;
+}
+
+function getMediaCacheStorageKey(url) {
+    const urlObj = new URL(url, self.location.origin);
+    return getAudioAppCacheKey(urlObj) || stripSasToken(url);
+}
+
+function getMediaCacheLookupKeys(url) {
+    const urlObj = new URL(url, self.location.origin);
+    return [...new Set([
+        stripSasToken(url),
+        getAudioAppCacheKey(urlObj)
+    ].filter(Boolean))];
 }
 
 function safeDecode(value) {
@@ -159,8 +290,44 @@ function getMediaCacheNames(urlObj) {
     return [...new Set(cacheNames)];
 }
 
+function getMediaTypeFromUrl(urlObj) {
+    const extension = getPathExtension(urlObj.pathname);
+    if (/^\/media\/audio\//i.test(urlObj.pathname) || extension === '.mp3') {
+        return 'audio';
+    }
+
+    return getMediaContentName(urlObj) && isCacheableMediaPath(urlObj.pathname)
+        ? 'video'
+        : null;
+}
+
+async function shouldPreferPersistedCachedMedia(urlObj) {
+    const contentName = getMediaContentName(urlObj);
+    const mediaType = getMediaTypeFromUrl(urlObj);
+    if (!contentName || !mediaType || typeof offlineContentDB?.getLesson !== 'function') {
+        return false;
+    }
+
+    const cacheKey = getMediaPreferenceCacheKey(contentName, mediaType);
+    const cachedPreference = persistedMediaPreferenceMap.get(cacheKey);
+    if (cachedPreference && cachedPreference.expiresAt > Date.now()) {
+        return cachedPreference.value;
+    }
+
+    try {
+        const record = await offlineContentDB.getLesson(contentName);
+        const shouldPreferCache = getMediaStatus(record, mediaType) === 'completed';
+        setPersistedMediaPreference(contentName, mediaType, shouldPreferCache);
+        return shouldPreferCache;
+    } catch (error) {
+        console.warn('[SW] Failed to read persisted media preference:', contentName, mediaType, error);
+        persistedMediaPreferenceMap.delete(cacheKey);
+        return false;
+    }
+}
+
 async function matchCachedMediaResponse(request, urlObj) {
-    const urlWithoutSas = stripSasToken(request.url);
+    const lookupKeys = getMediaCacheLookupKeys(request.url);
     const cacheNames = getMediaCacheNames(urlObj);
 
     for (const cacheName of cacheNames) {
@@ -169,9 +336,11 @@ async function matchCachedMediaResponse(request, urlObj) {
         }
 
         const cache = await caches.open(cacheName);
-        const cachedResponse = await cache.match(urlWithoutSas);
-        if (cachedResponse) {
-            return cachedResponse;
+        for (const cacheKey of lookupKeys) {
+            const cachedResponse = await cache.match(cacheKey);
+            if (cachedResponse) {
+                return cachedResponse;
+            }
         }
     }
 
@@ -376,16 +545,257 @@ async function cacheWithoutSas(cache, urlWithSas, downloadKey, signal) {
 
     throwIfDownloadCancelled(downloadKey);
 
-    const urlWithoutSas = stripSasToken(urlWithSas);
-    console.log(`[SW] Caching without SAS: ${urlWithoutSas}`);
+    const cacheKey = getMediaCacheStorageKey(urlWithSas);
+    console.log(`[SW] Caching media: ${cacheKey}`);
 
-    await cache.put(urlWithoutSas, response);
+    await cache.put(cacheKey, response);
     throwIfDownloadCancelled(downloadKey);
+}
+
+async function cacheMediaUrlsConcurrently(urls, cache, metadata, downloadKey, signal) {
+    const totalFiles = urls.length;
+    if (!totalFiles) return;
+
+    let nextIndex = 0;
+    let completedFiles = 0;
+    let stopped = false;
+    let firstError = null;
+    const workerCount = Math.min(HLS_DOWNLOAD_CONCURRENCY, totalFiles);
+
+    const cacheNextUrl = async () => {
+        while (!stopped) {
+            const currentIndex = nextIndex++;
+            if (currentIndex >= totalFiles) {
+                return;
+            }
+
+            try {
+                throwIfDownloadCancelled(downloadKey);
+                await cacheWithoutSas(cache, urls[currentIndex], downloadKey, signal);
+                throwIfDownloadCancelled(downloadKey);
+
+                completedFiles += 1;
+                const progress = Math.round((completedFiles / totalFiles) * 100);
+                await postDownloadProgress(downloadKey, metadata, progress);
+            } catch (error) {
+                stopped = true;
+                firstError = firstError || error;
+                return;
+            }
+        }
+    };
+
+    await Promise.all(Array.from({ length: workerCount }, () => cacheNextUrl()));
+
+    if (firstError) {
+        throw firstError;
+    }
+}
+
+async function cacheLessonImage(cache, metadata, signal, downloadKey) {
+    const imageUrl = metadata?.imageUrl;
+    if (!imageUrl) return;
+
+    try {
+        throwIfDownloadCancelled(downloadKey);
+
+        const imageCacheKey = new URL(imageUrl, self.location.origin).href;
+        const response = await fetch(imageCacheKey, signal ? { signal } : undefined);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch lesson image ${imageCacheKey}: ${response.status}`);
+        }
+
+        throwIfDownloadCancelled(downloadKey);
+        await cache.put(imageCacheKey, response);
+    } catch (error) {
+        if (isDownloadCancelledError(error)) {
+            throw error;
+        }
+
+        console.warn('[SW] Lesson image was not cached for offline use:', imageUrl, error);
+    }
+}
+
+async function reportSingleFileDownloadProgress(response, metadata, downloadKey, signal) {
+    const totalBytes = parseInt(response.headers.get('Content-Length') || '', 10);
+    const hasKnownLength = Number.isFinite(totalBytes) && totalBytes > 0;
+
+    await postDownloadProgress(downloadKey, metadata, hasKnownLength ? 1 : 5);
+
+    if (!response.body || typeof response.body.getReader !== 'function') {
+        return;
+    }
+
+    const reader = response.body.getReader();
+    let loadedBytes = 0;
+    let lastPostedAt = 0;
+
+    try {
+        while (true) {
+            throwIfDownloadCancelled(downloadKey);
+            if (signal?.aborted) {
+                throw new DOMException('Download aborted', 'AbortError');
+            }
+
+            const { done, value } = await reader.read();
+            if (done) {
+                break;
+            }
+
+            loadedBytes += value?.byteLength || 0;
+            const now = Date.now();
+            let progress;
+
+            if (hasKnownLength) {
+                progress = Math.min(99, Math.floor((loadedBytes / totalBytes) * 99));
+            } else {
+                const loadedMegabytes = loadedBytes / (1024 * 1024);
+                progress = Math.min(95, 5 + Math.floor(loadedMegabytes * 2));
+            }
+
+            if (progress > (progressMap.get(downloadKey) || 0) && (now - lastPostedAt >= 250 || progress >= 99)) {
+                lastPostedAt = now;
+                await postDownloadProgress(downloadKey, metadata, progress);
+            }
+        }
+    } finally {
+        try {
+            reader.releaseLock();
+        } catch {
+        }
+    }
+}
+
+async function clearInactiveDownload(payload, mediaType, messageType) {
+    const contentName = payload?.contentName;
+    if (!contentName || !mediaType) return;
+
+    setPersistedMediaPreference(contentName, mediaType, false);
+    await offlineContentDB.clearMedia(contentName, mediaType);
+    await deleteMediaCache(contentName, mediaType);
+    await postDownloadMessage({
+        type: messageType,
+        payload: { ...payload, mediaType }
+    });
+}
+
+async function normalizeLessonMedia(contentName, preferredMediaType = null) {
+    if (!contentName || typeof offlineContentDB?.normalizeLesson !== 'function') {
+        return { record: null, removedMediaTypes: [] };
+    }
+
+    const normalized = await offlineContentDB.normalizeLesson(contentName, preferredMediaType);
+    await Promise.all((normalized?.removedMediaTypes || [])
+        .map(mediaType => {
+            setPersistedMediaPreference(contentName, mediaType, false);
+            return deleteMediaCache(contentName, mediaType);
+        }));
+    return normalized || { record: null, removedMediaTypes: [] };
+}
+
+function isDownloadedLessonRecord(record) {
+    return record?.videoStatus === 'completed' || record?.audioStatus === 'completed';
+}
+
+function normalizeNavigationPath(pathname) {
+    const decodedPathname = safeDecode(pathname || '/');
+    return decodedPathname.replace(/\/+$/, '') || '/';
+}
+
+async function findOfflineLessonForNavigation(url) {
+    const decodedPathname = safeDecode(url.pathname);
+    const lessonMatch = decodedPathname.match(/\/שיעור-([^/?#]+)\/?/);
+
+    if (lessonMatch?.[1]) {
+        try {
+            const contentName = lessonMatch[1];
+            const lessonData = await offlineContentDB.getLesson(contentName);
+            if (isDownloadedLessonRecord(lessonData)) {
+                return lessonData;
+            }
+        } catch (error) {
+            console.warn('[SW] Failed to read offline lesson by content name:', error);
+        }
+    }
+
+    try {
+        const targetPath = normalizeNavigationPath(url.pathname);
+        const lessons = await offlineContentDB.getAllLessons();
+        return (Array.isArray(lessons) ? lessons : []).find(lesson => {
+            if (!isDownloadedLessonRecord(lesson) || !lesson.url) return false;
+            try {
+                const lessonUrl = new URL(lesson.url, self.location.origin);
+                return normalizeNavigationPath(lessonUrl.pathname) === targetPath;
+            } catch {
+                return false;
+            }
+        }) || null;
+    } catch (error) {
+        console.warn('[SW] Failed to find offline lesson by URL:', error);
+        return null;
+    }
+}
+
+async function handleCancelDownload(payload) {
+    let activeDownloadFound = false;
+    for (const downloadKey of getPayloadDownloadKeys(payload)) {
+        if (progressMap.has(downloadKey) || abortControllerMap.has(downloadKey)) {
+            activeDownloadFound = true;
+        }
+        cancellationMap.set(downloadKey, true);
+        abortControllerMap.get(downloadKey)?.abort();
+    }
+
+    if (activeDownloadFound) {
+        return;
+    }
+
+    const mediaTypes = getPayloadMediaTypes(payload);
+    const normalized = await normalizeLessonMedia(payload.contentName, payload.mediaType || null);
+    const record = normalized?.record || await offlineContentDB.getLesson(payload.contentName);
+    const cancellableMediaTypes = mediaTypes.filter(mediaType => getMediaStatus(record, mediaType) === 'downloading');
+
+    await Promise.all(cancellableMediaTypes.map(mediaType =>
+        clearInactiveDownload(payload, mediaType, 'DOWNLOAD_CANCELLED')
+            .catch(error => console.warn('[SW] Failed to clear inactive cancelled download:', error))
+    ));
+}
+
+async function handleDownloadStatusQuery(event, payload) {
+    let activeProgressFound = false;
+    const mediaTypes = getPayloadMediaTypes(payload);
+
+    for (const mediaType of mediaTypes) {
+        const downloadKey = getDownloadKey(payload.contentName, mediaType);
+        if (progressMap.has(downloadKey)) {
+            activeProgressFound = true;
+            const progress = progressMap.get(downloadKey);
+            event.source?.postMessage({ type: 'DOWNLOAD_PROGRESS', payload: { ...payload, mediaType, progress } });
+        }
+    }
+
+    if (activeProgressFound) {
+        return;
+    }
+
+    const normalized = await normalizeLessonMedia(payload.contentName, payload.mediaType || null);
+    const record = normalized?.record || await offlineContentDB.getLesson(payload.contentName);
+    const staleMediaTypes = mediaTypes.filter(mediaType => isStaleDownloadingRecord(record, mediaType));
+
+    await Promise.all(staleMediaTypes.map(mediaType =>
+        clearInactiveDownload(payload, mediaType, 'DOWNLOAD_FAILED')
+            .catch(error => console.warn('[SW] Failed to clear stale download:', error))
+    ));
 }
 
 self.addEventListener('message', event => {
     const { type, payload } = event.data || {};
     if (!type) return;
+
+    if (type === 'SKIP_WAITING') {
+        event.waitUntil(self.skipWaiting());
+        return;
+    }
 
     if (type === 'ENABLE_OFFLINE_MEDIA') {
         if (event.source?.id) {
@@ -404,40 +814,33 @@ self.addEventListener('message', event => {
     if (!payload) return;
 
     if (type === 'CANCEL_DOWNLOAD') {
-        for (const downloadKey of getPayloadDownloadKeys(payload)) {
-            cancellationMap.set(downloadKey, true);
-            abortControllerMap.get(downloadKey)?.abort();
-        }
+        event.waitUntil(handleCancelDownload(payload));
         return;
     }
 
     if (type === 'QUERY_DOWNLOAD_STATUS') {
-        const downloadKeys = getPayloadDownloadKeys(payload);
-        for (const downloadKey of downloadKeys) {
-            if (progressMap.has(downloadKey)) {
-                const progress = progressMap.get(downloadKey);
-                event.source?.postMessage({ type: 'DOWNLOAD_PROGRESS', payload: { ...payload, progress } });
-                break;
-            }
-        }
+        event.waitUntil(handleDownloadStatusQuery(event, payload));
         return;
     }
 
     if (type === 'CACHE_MEDIA') {
         event.waitUntil(handleMediaCache(payload));
+        return;
     }
 
     if (type === 'DELETE_MEDIA_CACHE') {
         event.waitUntil(handleMediaDelete(payload));
+        return;
     }
 });
 
 async function handleMediaCache(payload) {
     const { urls, metadata } = payload;
     const { contentName, mediaType, resolution } = metadata;
-    const cacheName = `${mediaType}-cache-${contentName}`;
+    const cacheName = getMediaCacheName(contentName, mediaType);
     const downloadKey = getDownloadKey(contentName, mediaType);
 
+    clearPersistedMediaPreference(contentName, mediaType);
     cancellationMap.set(downloadKey, false);
     progressMap.set(downloadKey, 0);
     const abortController = new AbortController();
@@ -452,27 +855,23 @@ async function handleMediaCache(payload) {
         if (mediaType === 'audio' && urls.length === 1) {
             await handleSingleFileDownload(urls[0], cache, metadata, abortController.signal, downloadKey);
         } else {
-            const totalFiles = urls.length;
-            for (let i = 0; i < totalFiles; i++) {
-                throwIfDownloadCancelled(downloadKey);
-
-                await cacheWithoutSas(cache, urls[i], downloadKey, abortController.signal);
-                throwIfDownloadCancelled(downloadKey);
-
-                const progress = Math.round(((i + 1) / totalFiles) * 100);
-                if (progress > progressMap.get(downloadKey)) {
-                    progressMap.set(downloadKey, progress);
-                    await postDownloadMessage({ type: 'DOWNLOAD_PROGRESS', payload: { ...metadata, progress } });
-                }
-            }
+            await cacheMediaUrlsConcurrently(urls, cache, metadata, downloadKey, abortController.signal);
         }
 
+        await cacheLessonImage(cache, metadata, abortController.signal, downloadKey);
+
         await offlineContentDB.updateMediaStatus(contentName, mediaType, 'completed');
+        setPersistedMediaPreference(contentName, mediaType, true);
         await postDownloadMessage({ type: 'DOWNLOAD_COMPLETE', payload: metadata });
     } catch (error) {
         console.error('[SW] Download error:', error);
         await caches.delete(cacheName);
-        await offlineContentDB.updateMediaStatus(contentName, mediaType, 'none');
+        setPersistedMediaPreference(contentName, mediaType, false);
+        try {
+            await offlineContentDB.updateMediaStatus(contentName, mediaType, 'none');
+        } catch (dbError) {
+            console.warn('[SW] Download failed but IndexedDB status reset failed:', dbError);
+        }
         const messageType = isDownloadCancelledError(error) ? 'DOWNLOAD_CANCELLED' : 'DOWNLOAD_FAILED';
         await postDownloadMessage({ type: messageType, payload: metadata });
     } finally {
@@ -484,10 +883,16 @@ async function handleMediaCache(payload) {
 
 async function handleMediaDelete(payload) {
     const { contentName, mediaType } = payload;
-    const cacheName = `${mediaType}-cache-${contentName}`;
-    await caches.delete(cacheName);
-    await offlineContentDB.clearMedia(contentName, mediaType);
-    await postDownloadMessage({ type: 'DELETE_MEDIA_CACHE_COMPLETE', payload });
+
+    try {
+        setPersistedMediaPreference(contentName, mediaType, false);
+        await offlineContentDB.clearMedia(contentName, mediaType);
+        await deleteMediaCache(contentName, mediaType);
+        await postDownloadMessage({ type: 'DELETE_MEDIA_CACHE_COMPLETE', payload });
+    } catch (error) {
+        console.error('[SW] Media delete failed:', error);
+        await postDownloadMessage({ type: 'DELETE_MEDIA_CACHE_FAILED', payload });
+    }
 }
 
 async function handleSingleFileDownload(url, cache, metadata, signal, downloadKey) {
@@ -500,14 +905,23 @@ async function handleSingleFileDownload(url, cache, metadata, signal, downloadKe
 
     throwIfDownloadCancelled(downloadKey);
 
-    const urlWithoutSas = stripSasToken(url);
-    await cache.put(urlWithoutSas, response);
+    const progressResponse = response.clone();
+    const progressTask = reportSingleFileDownloadProgress(progressResponse, metadata, downloadKey, signal)
+        .catch(error => {
+            if (isDownloadCancelledError(error)) {
+                throw error;
+            }
+
+            console.warn('[SW] Single file progress reporting failed:', error);
+        });
+
+    await Promise.all([
+        cache.put(getMediaCacheStorageKey(url), response),
+        progressTask
+    ]);
     throwIfDownloadCancelled(downloadKey);
 
-    if ((progressMap.get(downloadKey) || 0) < 100) {
-        progressMap.set(downloadKey, 100);
-        await postDownloadMessage({ type: 'DOWNLOAD_PROGRESS', payload: { ...metadata, progress: 100 } });
-    }
+    await postDownloadProgress(downloadKey, metadata, 100);
 }
 
 // --- 5. Network Interception and Offline Fallback ---
@@ -538,17 +952,10 @@ self.addEventListener('fetch', event => {
                     return caches.match('/offline-lesson.html');
                 }
 
-                // Handle lesson URLs
-                const decodedPathname = decodeURIComponent(url.pathname);
-                const lessonMatch = decodedPathname.match(/\/שיעור-([^/?#]+)\/?/);
-                if (lessonMatch && lessonMatch[1]) {
-                    const contentName = lessonMatch[1];
-                    const lessonData = await offlineContentDB.getLesson(contentName);
-
-                    if (lessonData && (lessonData.videoStatus === 'completed' || lessonData.audioStatus === 'completed')) {
-                        console.log(`[SW] Offline lesson "${contentName}" found. Redirecting to offline player.`);
-                        return Response.redirect(`/offline-lesson.html?contentName=${encodeURIComponent(contentName)}`, 302);
-                    }
+                const offlineLesson = await findOfflineLessonForNavigation(url);
+                if (offlineLesson?.contentName) {
+                    console.log(`[SW] Offline lesson "${offlineLesson.contentName}" found. Redirecting to offline player.`);
+                    return Response.redirect(`/offline-lesson.html?contentName=${encodeURIComponent(offlineLesson.contentName)}`, 302);
                 }
 
                 // Default offline page
@@ -562,19 +969,42 @@ self.addEventListener('fetch', event => {
     }
 
     if (isCacheableMediaPath(url.pathname)) {
-        if (!shouldHandleCachedMediaRequest(event, url)) {
-            return;
-        }
-
         event.respondWith(
             (async () => {
                 const isRangeRequest = event.request.headers.has('range');
+                const isOffline = self.navigator?.onLine === false;
+                const shouldPreferCachedMediaFromClient = shouldHandleCachedMediaRequest(event, url);
+                const shouldPreferCachedMediaFromStore = shouldPreferCachedMediaFromClient || !isOffline
+                    ? false
+                    : await shouldPreferPersistedCachedMedia(url);
+                const shouldPreferCachedMedia = shouldPreferCachedMediaFromClient || shouldPreferCachedMediaFromStore;
+
+                if (shouldPreferCachedMediaFromStore && event.clientId) {
+                    offlineMediaClientIds.add(event.clientId);
+                }
+
+                if (!shouldPreferCachedMedia && !isOffline) {
+                    try {
+                        return await fetch(event.request);
+                    } catch (error) {
+                        console.warn('[SW] Media network request failed, trying cache:', event.request.url, error);
+                    }
+                }
+
                 const cachedResponse = await matchCachedMediaResponse(event.request, url);
 
                 if (cachedResponse) {
                     return isRangeRequest
                         ? createRangedResponse(event.request, cachedResponse)
                         : cachedResponse;
+                }
+
+                if (!isOffline) {
+                    try {
+                        return await fetch(event.request);
+                    } catch (error) {
+                        console.warn('[SW] Media network fallback failed:', event.request.url, error);
+                    }
                 }
 
                 console.warn('[SW] Cached media request was not found:', event.request.url);

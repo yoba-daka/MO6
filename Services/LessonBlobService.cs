@@ -17,21 +17,22 @@ namespace MyProject12
         private static readonly TimeSpan SasRefreshBuffer = TimeSpan.FromMinutes(30);
         private static readonly TimeSpan SasExpirationReuseTolerance = TimeSpan.FromSeconds(30);
 
-        private readonly string _connectionString;
         private readonly string accountName;
         private readonly DB _dbService;
         private readonly IConfiguration _configuration;
         private readonly IContentService _contentService;
+        private readonly BlobServiceClient _blobServiceClient;
 
         public LessonBlobService(DB dbService, IConfiguration configuration, IContentService contentService)
         {
             _configuration = configuration;
             _contentService = contentService;
-            _connectionString = configuration.GetValue<string>("BlobStorage:ConnectionString");
-            var builder = new DbConnectionStringBuilder { ConnectionString = _connectionString };
+            var connectionString = configuration.GetValue<string>("BlobStorage:ConnectionString");
+            var builder = new DbConnectionStringBuilder { ConnectionString = connectionString };
             accountName = (string)builder["AccountName"];
 
             _dbService = dbService;
+            _blobServiceClient = new BlobServiceClient(connectionString);
         }
 
         public void setDuration(dynamic ls)
@@ -40,8 +41,7 @@ namespace MyProject12
             {
                 string durationBlobName = $"duration.txt";
 
-                var blobServiceClient = new BlobServiceClient(_connectionString);
-                var blobContainerClient = blobServiceClient.GetBlobContainerClient(ls.ContentName);
+                var blobContainerClient = _blobServiceClient.GetBlobContainerClient(ls.ContentName);
 
                 var durationBlobClient = blobContainerClient.GetBlobClient(durationBlobName);
 
@@ -69,8 +69,7 @@ namespace MyProject12
 
         private string GenerateSasToken(string containerName, string blobName, DateTimeOffset expirationTime, BlobSasPermissions permissions)
         {
-            var blobServiceClient = new BlobServiceClient(_connectionString);
-            var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
+            var blobContainerClient = _blobServiceClient.GetBlobContainerClient(containerName);
 
             var blobSasBuilder = new BlobSasBuilder
             {
@@ -176,8 +175,7 @@ namespace MyProject12
         {
             try
             {
-                var blobServiceClient = new BlobServiceClient(_connectionString);
-                var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
+                var blobContainerClient = _blobServiceClient.GetBlobContainerClient(containerName);
                 var blobClient = blobContainerClient.GetBlobClient(blobName);
                 return blobClient.Exists();
             }
@@ -187,11 +185,40 @@ namespace MyProject12
             }
         }
 
+        public async Task<bool> BlobExistsAsync(string containerName, string blobName, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(containerName) || string.IsNullOrWhiteSpace(blobName))
+            {
+                return false;
+            }
+
+            try
+            {
+                var blobContainerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+                var blobClient = blobContainerClient.GetBlobClient(blobName);
+                return await blobClient.ExistsAsync(cancellationToken);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public BlobClient GetBlobClient(string containerName, string blobName)
         {
-            var blobServiceClient = new BlobServiceClient(_connectionString);
-            var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
+            var blobContainerClient = _blobServiceClient.GetBlobContainerClient(containerName);
             return blobContainerClient.GetBlobClient(blobName);
+        }
+
+        public string GetBlobServiceOrigin()
+        {
+            return string.IsNullOrWhiteSpace(accountName)
+                ? ""
+                : $"https://{accountName}.blob.core.windows.net";
         }
 
         public string GenerateBlobUrl(string containerName,string blobName, string sasToken)

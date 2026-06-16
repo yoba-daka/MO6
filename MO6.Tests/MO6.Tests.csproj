@@ -24,6 +24,7 @@
   <ItemGroup>
     <Compile Include="..\Services\DB.cs" Link="Source\Services\DB.cs" />
     <Compile Include="..\Services\TemporaryMemberResolver.cs" Link="Source\Services\TemporaryMemberResolver.cs" />
+    <Compile Include="..\Models\MembershipSelectionHelper.cs" Link="Source\Models\MembershipSelectionHelper.cs" />
     <Compile Include="..\Models\Transaction.cs" Link="Source\Models\Transaction.cs" />
     <Compile Include="..\Models\TemporaryMember.cs" Link="Source\Models\TemporaryMember.cs" />
     <Compile Include="..\Services\MeshulamWebhookPayload.cs" Link="Source\Services\MeshulamWebhookPayload.cs" />

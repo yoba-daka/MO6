@@ -703,6 +703,12 @@ namespace MyProject12.Controllers
                 return CurrentUmbracoPage();
             }
 
+            if (_db.Memberships.HasActiveMembership(member.Id, DateTime.Now))
+            {
+                ModelState.AddModelError("Subscribe", "לא ניתן לחדש מנוי לפני תום תקופת המנוי הנוכחית.");
+                return CurrentUmbracoPage();
+            }
+
             int sum = subscription.Monthly ? meshulamService.monthlyPrice : meshulamService.yearlyPrice;
             string pageCode = subscription.Monthly ? meshulamService.MonthlyPageCode : meshulamService.YearlyPageCode;
 

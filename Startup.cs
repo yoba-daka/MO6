@@ -17,6 +17,15 @@ namespace MosheSharon
 {
     public class Startup
     {
+        private static readonly HashSet<string> PwaNoCachePaths = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "/sw.js",
+            "/manifest.json",
+            "/offline.html",
+            "/offline-lesson.html",
+            "/js/db-helper.js"
+        };
+
         private readonly IWebHostEnvironment _env;
         private readonly IConfiguration _config;
 
@@ -90,6 +99,23 @@ namespace MosheSharon
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.Use(async (context, next) =>
+            {
+                context.Response.OnStarting(() =>
+                {
+                    if (PwaNoCachePaths.Contains(context.Request.Path.Value ?? string.Empty))
+                    {
+                        context.Response.Headers["Cache-Control"] = "no-store, no-cache, max-age=0, must-revalidate";
+                        context.Response.Headers["Pragma"] = "no-cache";
+                        context.Response.Headers["Expires"] = "0";
+                    }
+
+                    return Task.CompletedTask;
+                });
+
+                await next();
+            });
 
 
             app.UseMiddleware<CaptureRedirectMiddleware>();

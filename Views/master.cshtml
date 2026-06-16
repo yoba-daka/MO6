@@ -3,9 +3,12 @@
 }
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
 @using Microsoft.Extensions.Options
+@using Microsoft.AspNetCore.Hosting
+@using System.Globalization
 @using MyProject12
 @using Umbraco.Cms.Core.Configuration.Models
 @inject IOptions<HostingSettings> hostingSettings
+@inject IWebHostEnvironment WebHostEnvironment
 @using Umbraco.Cms.Core.PropertyEditors.ValueConverters
 @using Umbraco.Cms.Core.Security;
 @using Umbraco.Cms.Core.WebAssets
@@ -23,6 +26,10 @@
     Layout = null;
     var home = (dynamic)Model.Root();
     string measurementId = _config.GetValue<string>("GoogleAnalytics:MeasurementID");
+    var swFilePath = System.IO.Path.Combine(WebHostEnvironment.WebRootPath ?? string.Empty, "sw.js");
+    var pwaAssetVersion = System.IO.File.Exists(swFilePath)
+        ? System.IO.File.GetLastWriteTimeUtc(swFilePath).Ticks.ToString(CultureInfo.InvariantCulture)
+        : DateTime.UtcNow.Ticks.ToString(CultureInfo.InvariantCulture);
     // var tags = Model.Value<IEnumerable<string>>("tags"); // Replace "tags" with your property alias
     //var debugMode = hostingSettings.Value.Debug;
 }
@@ -31,11 +38,12 @@
 <html lang="he">
 
 <head>
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="/manifest.json?v=@pwaAssetVersion">
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#f77b26" />
+    @await RenderSectionAsync("Head", required: false)
     @if (Model.HasValue("Description"))
     {
         <meta name="description" content="@Model.Value("Description")">
@@ -196,8 +204,17 @@
         (async () => {
           if ('getInstalledRelatedApps' in navigator) {
             try {
+              const currentAppId = new URL('/', window.location.origin).href;
               const apps = await navigator.getInstalledRelatedApps();
-              hasPWA = apps.some(a => a.platform === 'webapp' && a.id === 'https://mo6.co.il/');
+              hasPWA = apps.some(a => {
+                if (a.platform !== 'webapp' || !a.id) return false;
+
+                try {
+                  return new URL(a.id, window.location.origin).href === currentAppId;
+                } catch {
+                  return a.id === currentAppId;
+                }
+              });
             } catch {}
           }
         })();
@@ -374,13 +391,71 @@
           installing = false;
         });
 
+        function hasReloadedForPwaVersion(version) {
+          try {
+            return sessionStorage.getItem(`mo6:pwa-reloaded:${version}`) === '1';
+          } catch {
+            return window.__mo6ReloadedForPwaVersion === version;
+          }
+        }
+
+        function markReloadedForPwaVersion(version) {
+          try {
+            sessionStorage.setItem(`mo6:pwa-reloaded:${version}`, '1');
+          } catch {
+            window.__mo6ReloadedForPwaVersion = version;
+          }
+        }
+
+        function reloadForPwaUpdate(version) {
+          if (window.__mo6ReloadingForPwaUpdate || hasReloadedForPwaVersion(version)) return;
+          window.__mo6ReloadingForPwaUpdate = true;
+          markReloadedForPwaVersion(version);
+          window.location.reload();
+        }
+
+        function activateWaitingServiceWorker(registration) {
+          if (!registration?.waiting) return;
+          registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+        }
+
         if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
-            .then(registration => {
-              console.log('Service Worker registered with scope:', registration.scope);
-              registration.update();
-            })
-            .catch(error => console.log('Service Worker registration failed:', error));
+          const pwaAssetVersion = '@pwaAssetVersion';
+          const serviceWorkerUrl = `/sw.js?v=${encodeURIComponent(pwaAssetVersion)}`;
+          const hadServiceWorkerController = !!navigator.serviceWorker.controller;
+
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (hadServiceWorkerController) {
+              reloadForPwaUpdate(pwaAssetVersion);
+            }
+          });
+
+          window.addEventListener('load', () => {
+            navigator.serviceWorker.register(serviceWorkerUrl, { updateViaCache: 'none' })
+              .then(async registration => {
+                console.log('Service Worker registered with scope:', registration.scope);
+
+                registration.addEventListener('updatefound', () => {
+                  const installingWorker = registration.installing;
+                  if (!installingWorker) return;
+
+                  installingWorker.addEventListener('statechange', () => {
+                    if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                      activateWaitingServiceWorker(registration);
+                    }
+                  });
+                });
+
+                try {
+                  await registration.update();
+                } catch (error) {
+                  console.warn('Service Worker update check failed:', error);
+                }
+
+                activateWaitingServiceWorker(registration);
+              })
+              .catch(error => console.log('Service Worker registration failed:', error));
+          });
         }
     </script>
 

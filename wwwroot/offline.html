@@ -50,7 +50,17 @@
             }
 
                 .lesson-card .image-container img {
+                    width: 100%;
+                    aspect-ratio: 16 / 9;
+                    object-fit: cover;
                     transition: transform 0.3s ease;
+                }
+
+                .lesson-card .image-container .image-placeholder {
+                    width: 100%;
+                    aspect-ratio: 16 / 9;
+                    border-radius: 6px;
+                    background: #d9dee5;
                 }
 
             .lesson-card:hover .image-container img {
@@ -171,19 +181,66 @@
                 document.getElementById('offline-lessons-container').innerHTML = '<p class="text-danger text-center">שגיאה בטעינת מסד הנתונים.</p>';
             }
 
-            window.addEventListener('online', () => {
-                const header = document.querySelector('.offline-header');
-                if (header) {
-                    header.classList.add('is-online');
-                    header.innerHTML = `
-                            <i class="material-icons">cloud_queue</i>
-                            <h1>חזרת לאינטרנט!</h1>
-                            <p class="lead">מעביר אותך בחזרה לאתר המלא...</p>
-                        `;
+            window.addEventListener('online', () => scheduleOnlineProbe(0));
+            window.addEventListener('pageshow', () => scheduleOnlineProbe(500));
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden) {
+                    scheduleOnlineProbe(500);
                 }
-                setTimeout(() => { window.location.href = '/'; }, 2500);
             });
+            scheduleOnlineProbe(1000);
         });
+
+        let onlineRedirectStarted = false;
+        let onlineProbeTimer = null;
+
+        function startOnlineRedirect() {
+            if (onlineRedirectStarted) return;
+            onlineRedirectStarted = true;
+
+            const header = document.querySelector('.offline-header');
+            if (header) {
+                header.classList.add('is-online');
+                header.innerHTML = `
+                        <i class="material-icons">cloud_queue</i>
+                        <h1>חזרת לאינטרנט!</h1>
+                        <p class="lead">מעביר אותך בחזרה לאתר המלא...</p>
+                    `;
+            }
+            setTimeout(() => { window.location.href = '/'; }, 2500);
+        }
+
+        async function probeOnlineStatus() {
+            try {
+                const response = await fetch(`/sw.js?onlineProbe=${Date.now()}`, {
+                    cache: 'no-store',
+                    credentials: 'same-origin'
+                });
+                return response.ok;
+            } catch {
+                return false;
+            }
+        }
+
+        function scheduleOnlineProbe(delayMs = 3000) {
+            if (onlineRedirectStarted) return;
+            if (onlineProbeTimer) {
+                clearTimeout(onlineProbeTimer);
+            }
+            onlineProbeTimer = setTimeout(() => {
+                onlineProbeTimer = null;
+                runOnlineProbe();
+            }, delayMs);
+        }
+
+        async function runOnlineProbe() {
+            if (onlineRedirectStarted) return;
+            if (await probeOnlineStatus()) {
+                startOnlineRedirect();
+                return;
+            }
+            scheduleOnlineProbe();
+        }
 
         function parseExplicitExpirationDate(value) {
             if (typeof value !== 'string') return null;
@@ -212,10 +269,25 @@
 
             try {
                 // 1. Fetch membership status and lessons in parallel for efficiency
-                const [settings, lessons] = await Promise.all([
+                const lessonsRequest = typeof offlineVideoDB.normalizeAllLessons === 'function'
+                    ? offlineVideoDB.normalizeAllLessons()
+                    : offlineVideoDB.getAllLessons();
+                const [settings, lessonsResult] = await Promise.all([
                     offlineVideoDB.getMembershipStatus(),
-                    offlineVideoDB.getAllLessons()
+                    lessonsRequest
                 ]);
+
+                if (lessonsResult?.removedMedia?.length && typeof offlineVideoDB.cleanupRemovedMedia === 'function') {
+                    try {
+                        await offlineVideoDB.cleanupRemovedMedia(lessonsResult.removedMedia);
+                    } catch (cleanupError) {
+                        console.warn('[Offline] Failed to clean normalized media caches.', cleanupError);
+                    }
+                }
+
+                const lessons = Array.isArray(lessonsResult?.records)
+                    ? lessonsResult.records
+                    : (Array.isArray(lessonsResult) ? lessonsResult : []);
 
                 // 2. Determine if membership is expired
                 const expirationMs = resolveMembershipExpirationMs(settings);
@@ -248,13 +320,16 @@
                     const clickAction = isLocked ? `onclick="alert('לא זוהה מנוי בתוקף. יש להתחבר לאינטרנט כדי לחדש.'); return false;"` : '';
                     const playIcon = isLocked ? 'lock' : 'play_arrow';
                     const durationBadge = lesson.duration ? `<span class="time-badge">${lesson.duration}</span>` : '';
+                    const imageMarkup = lesson.imageUrl
+                        ? `<img src="${lesson.imageUrl}" alt="${lesson.title}" class="rounded img-fluid" onerror="this.hidden=true; this.nextElementSibling.hidden=false;"><div class="image-placeholder" hidden></div>`
+                        : '<div class="image-placeholder"></div>';
 
                     // 4. Build the HTML for the card with the lock logic applied
                     html += `
                             <div class="col-lg-3 col-md-4 col-sm-6 m-3">
                                 <a href="${offlineUrl}" class="lesson-card ${lockedClass}" ${clickAction}>
                                     <div class="image-container">
-                                        <img src="${lesson.imageUrl}" alt="${lesson.title}" class="rounded img-fluid">
+                                        ${imageMarkup}
                                         <div class="overlay-content">
                                             <div class="play-button">
                                                 <i class="material-icons">${playIcon}</i>

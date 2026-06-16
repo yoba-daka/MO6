@@ -75,11 +75,6 @@ namespace MyProject12.Controllers
             try
             {
                 var blobClient = _blobService.GetBlobClient(lesson.ContentName, blobPath);
-                if (!await blobClient.ExistsAsync(cancellationToken))
-                {
-                    return NotFound();
-                }
-
                 var download = await blobClient.DownloadContentAsync(cancellationToken);
                 var playlist = download.Value.Content.ToString();
                 var rewritten = RewritePlaylist(lesson.ContentName, blobPath, playlist, access.SasToken);

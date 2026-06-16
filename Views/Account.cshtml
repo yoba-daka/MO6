@@ -205,41 +205,67 @@
                                             </p>
                                         </div>
                                         <div class="modal-footer justify-content-center">
-                                            <button type="button" class="btn btn-link" data-dismiss="modal">חזרה</button>
-                                            <button type="submit" class="btn btn-danger btn-link" onclick="cancelKeva();">לביטול</button>
+                                            <button type="button" class="btn btn-link cancel-keva-dismiss" data-dismiss="modal">חזרה</button>
+                                            <button type="button" id="cancelKevaButton" class="btn btn-danger btn-link" onclick="cancelKeva(event);">
+                                                <i class="fa fa-spinner fa-spin cancel-keva-spinner" aria-hidden="true" style="display:none;"></i>
+                                                <span class="cancel-keva-label">לביטול</span>
+                                            </button>
+                                            <small id="cancelKevaStatus" class="text-muted d-none" aria-live="polite">מבטל את הוראת הקבע...</small>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <form id="hiddenCancelationForm" method="post" data-ajax-success="cancelationSuccess" data-ajax-failure="cancelationFailure" data-ajax="true" data-ajax-method="POST" action="@Url.SurfaceAction("CancelKeva","CustomLogin")" style="display:none;">
+                            <form id="hiddenCancelationForm" method="post" data-ajax-begin="cancelationBegin" data-ajax-success="cancelationSuccess" data-ajax-failure="cancelationFailure" data-ajax="true" data-ajax-method="POST" action="@Url.SurfaceAction("CancelKeva","CustomLogin")" style="display:none;">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="cancel" id="cancel" value="true">
                             </form>
                             <script>
-                                function cancelKeva() { $('#hiddenCancelationForm').submit(); }
+                                var cancelationInProgress = false;
+                                var cancelationSubmitPending = false;
+
+                                function setCancelationLoading(isLoading) {
+                                    var button = $('#cancelKevaButton');
+                                    button.prop('disabled', isLoading).attr('aria-busy', isLoading ? 'true' : 'false');
+                                    button.find('.cancel-keva-spinner').toggle(isLoading);
+                                    button.find('.cancel-keva-label').text(isLoading ? 'מבטל...' : 'לביטול');
+                                    $('.cancel-keva-dismiss').prop('disabled', isLoading);
+                                    $('#cancelKevaStatus').toggleClass('d-none', !isLoading);
+                                }
+
+                                function cancelKeva(event) {
+                                    if (event) event.preventDefault();
+                                    if (cancelationInProgress) return false;
+                                    cancelationInProgress = true;
+                                    cancelationSubmitPending = true;
+                                    setCancelationLoading(true);
+                                    $('#hiddenCancelationForm').submit();
+                                    return false;
+                                }
+
+                                function cancelationBegin() {
+                                    if (cancelationSubmitPending) {
+                                        cancelationSubmitPending = false;
+                                        return true;
+                                    }
+                                    if (cancelationInProgress) return false;
+                                    cancelationInProgress = true;
+                                    setCancelationLoading(true);
+                                    return true;
+                                }
+
                                 function cancelationSuccess() { location.reload(); }
-                                function cancelationFailure() { alert("אירעה שגיאה"); }
+                                function cancelationFailure() {
+                                    cancelationInProgress = false;
+                                    cancelationSubmitPending = false;
+                                    setCancelationLoading(false);
+                                    alert("אירעה שגיאה");
+                                }
                             </script>
                         }
-                        else
+                        else if (membership.isMonthly)
                         {
-                            if (membership.isMonthly)
-                            {
-                                <h4 class="text-danger">הוראת הקבע בוטלה</h4>
-                                <hr />
-                                <div class="row justify-content-center mt-4 account-renewal-options">
-                                    <div class="col-12 col-sm-6 col-md-4 mb-3 account-renewal-option">
-                                        <p class="account-renewal-title">מנוי חודשי בהוראת קבע</p>
-                                        <p class="account-renewal-price"><small>₪</small>@(Model.SubscriptionDirectDebitPrice) לחודש</p>
-                                        <button type="button" data-toggle="modal" data-subscription-monthly="true" data-target="#subscription" class="btn btn-primary btn-raised btn-round">חידוש המנוי</button>
-                                    </div>
-                                    <div class="col-12 col-sm-6 col-md-4 mb-3 account-renewal-option">
-                                        <p class="account-renewal-title">מנוי שנתי תשלום חד פעמי</p>
-                                        <p class="account-renewal-price"><small>₪</small>@(Model.SubscriptionYearlyMonthlyPrice * 12) לשנה / <small>₪</small>@(Model.SubscriptionYearlyMonthlyPrice) לחודש</p>
-                                        <button type="button" data-toggle="modal" data-subscription-monthly="false" data-target="#subscription" class="btn btn-primary btn-raised btn-round">חידוש המנוי</button>
-                                    </div>
-                                </div>
-                            }
+                            <h4 class="text-danger">הוראת הקבע בוטלה</h4>
+                            <p class="text-muted mb-0">אפשר יהיה לחדש את המנוי לאחר תום תקופת המנוי הנוכחית.</p>
                         }
                     </div>
                 }
@@ -403,8 +429,19 @@
                 console.log("[Account PWA] Loading and rendering offline lessons list...");
 
                 try {
-                    const lessons = await offlineVideoDB.getAllLessons();
-                    const downloadedLessons = lessons.filter(l => l.videoStatus === 'completed' || l.audioStatus === 'completed' || l.videoStatus === 'downloading' || l.audioStatus === 'downloading');
+                    const normalized = typeof offlineVideoDB.normalizeAllLessons === 'function'
+                        ? await offlineVideoDB.normalizeAllLessons()
+                        : null;
+                    if (normalized?.removedMedia?.length && typeof offlineVideoDB.cleanupRemovedMedia === 'function') {
+                        try {
+                            await offlineVideoDB.cleanupRemovedMedia(normalized.removedMedia);
+                        } catch (cleanupError) {
+                            console.warn('[Account PWA] Failed to clean normalized media caches.', cleanupError);
+                        }
+                    }
+                    const lessons = normalized?.records || await offlineVideoDB.getAllLessons();
+                    const downloadedLessons = (Array.isArray(lessons) ? lessons : [])
+                        .filter(l => l.videoStatus === 'completed' || l.audioStatus === 'completed' || l.videoStatus === 'downloading' || l.audioStatus === 'downloading');
 
                     if (downloadedLessons.length === 0) {
                         container.innerHTML = '<h4 class="text-center">אין שיעורים שהורדו</h4>';
@@ -463,14 +500,50 @@
                     container.innerHTML = html;
 
                     downloadedLessons.forEach(lesson => {
-                        if (navigator.serviceWorker.controller) {
-                            if (lesson.videoStatus === 'downloading') navigator.serviceWorker.controller.postMessage({ type: 'QUERY_DOWNLOAD_STATUS', payload: { contentName: lesson.contentName, mediaType: 'video' } });
-                            if (lesson.audioStatus === 'downloading') navigator.serviceWorker.controller.postMessage({ type: 'QUERY_DOWNLOAD_STATUS', payload: { contentName: lesson.contentName, mediaType: 'audio' } });
+                        if (lesson.videoStatus === 'downloading') {
+                            postServiceWorkerMessage({ type: 'QUERY_DOWNLOAD_STATUS', payload: { contentName: lesson.contentName, mediaType: 'video' } });
+                        }
+                        if (lesson.audioStatus === 'downloading') {
+                            postServiceWorkerMessage({ type: 'QUERY_DOWNLOAD_STATUS', payload: { contentName: lesson.contentName, mediaType: 'audio' } });
                         }
                     });
                 } catch (error) {
                     console.error('Error loading offline lessons:', error);
                     container.innerHTML = '<p class="text-danger text-center">אירעה שגיאה בטעינת השיעורים.</p>';
+                }
+            }
+
+            async function getServiceWorkerMessageTarget() {
+                if (!('serviceWorker' in navigator)) {
+                    return null;
+                }
+
+                if (navigator.serviceWorker.controller) {
+                    return navigator.serviceWorker.controller;
+                }
+
+                try {
+                    const registration = await navigator.serviceWorker.ready;
+                    return navigator.serviceWorker.controller || registration.active || null;
+                } catch (error) {
+                    console.warn('[Account PWA] Service Worker registration is not ready.', error);
+                    return null;
+                }
+            }
+
+            async function postServiceWorkerMessage(message) {
+                try {
+                    const serviceWorker = await getServiceWorkerMessageTarget();
+                    if (!serviceWorker) {
+                        console.warn('[Account PWA] Service Worker message target is not available.');
+                        return false;
+                    }
+
+                    serviceWorker.postMessage(message);
+                    return true;
+                } catch (error) {
+                    console.warn('[Account PWA] Failed to post Service Worker message.', error);
+                    return false;
                 }
             }
 
@@ -483,11 +556,11 @@
                         const mediaType = btn.data('media-type');
                         const mediaTypeHeb = mediaType === 'video' ? 'וידאו' : 'אודיו';
                         if (confirm(`האם אתה בטוח שברצונך למחוק את ה${mediaTypeHeb} מהמכשיר?`)) {
-                            navigator.serviceWorker.controller?.postMessage({ type: 'DELETE_MEDIA_CACHE', payload: { contentName, mediaType } });
+                            postServiceWorkerMessage({ type: 'DELETE_MEDIA_CACHE', payload: { contentName, mediaType } });
                         }
                     } else if (btn.hasClass('cancel-offline-btn')) {
                         const mediaType = btn.data('media-type');
-                        navigator.serviceWorker.controller?.postMessage({ type: 'CANCEL_DOWNLOAD', payload: { contentName, mediaType } });
+                        postServiceWorkerMessage({ type: 'CANCEL_DOWNLOAD', payload: { contentName, mediaType } });
                     }
                 });
 
@@ -524,7 +597,7 @@
                         progressBar.style.width = payload.progress + '%';
                         progressBar.textContent = payload.progress + '%';
                     }
-                } else if (['DOWNLOAD_COMPLETE', 'DOWNLOAD_CANCELLED', 'DOWNLOAD_FAILED', 'DELETE_MEDIA_CACHE_COMPLETE'].includes(type)) {
+                } else if (['DOWNLOAD_COMPLETE', 'DOWNLOAD_CANCELLED', 'DOWNLOAD_FAILED', 'DELETE_MEDIA_CACHE_COMPLETE', 'DELETE_MEDIA_CACHE_FAILED'].includes(type)) {
                     // The SW has already updated the DB. We just need to redraw.
                     loadOfflineLessons();
                 }

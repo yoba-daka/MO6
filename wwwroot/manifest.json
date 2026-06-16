@@ -2,7 +2,7 @@
   "name": "mo6",
   "short_name": "mo6",
 
-  "id": "https://mo6.co.il/",
+  "id": "/",
   "scope": "/",
   "start_url": "/",
 
@@ -18,7 +18,7 @@
     {
       "platform": "webapp",
       "url": "/manifest.json",
-      "id": "https://mo6.co.il/"
+      "id": "/"
     }
   ],
 

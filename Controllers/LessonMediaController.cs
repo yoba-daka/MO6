@@ -1,4 +1,3 @@
-using Azure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -59,12 +58,6 @@ namespace MyProject12.Controllers
 
             try
             {
-                var blobClient = _blobService.GetBlobClient(lesson.ContentName, audioBlobName);
-                if (!await blobClient.ExistsAsync(cancellationToken))
-                {
-                    return NotFound();
-                }
-
                 var access = await ResolveAudioAccessAsync(lesson, audioBlobName, cancellationToken);
                 if (!access.Allowed)
                 {
@@ -83,11 +76,11 @@ namespace MyProject12.Controllers
 
                 return Redirect(blobUrl);
             }
-            catch (RequestFailedException ex) when (ex.Status == StatusCodes.Status404NotFound)
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
-                return NotFound();
+                throw;
             }
-            catch (RequestFailedException ex)
+            catch (Exception ex)
             {
                 _logger.LogWarning(ex, "Audio redirect failed for {ContentName}/{BlobPath}", contentName, audioBlobName);
                 return StatusCode(StatusCodes.Status502BadGateway);
