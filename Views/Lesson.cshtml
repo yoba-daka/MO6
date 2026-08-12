@@ -365,6 +365,10 @@
         const forcedConnectivityFailureThreshold = 2;
         const mediaConnectivityProbeMinIntervalMs = 2000;
         const mediaPlaybackResumeIntentTtlMs = 15000;
+        const videoQualityValues = [1080, 720, 480, 360, 240];
+        const mobileLifecycleSourceRefreshMs = 15000;
+        let mobileLifecycleSnapshot = null;
+        let mobileLifecycleResumeInProgress = false;
 
         // --- Player Initialization and Helper Functions ---
         function markPlaybackActivity() {
@@ -378,6 +382,10 @@
         function isPlayerActivelyPlaying() {
             return !!player && !player.paused && !player.ended;
         }
+
+        window.mo6ShouldDeferPwaUpdateReload = function () {
+            return !!player && !player.ended;
+        };
 
         function hasMeaningfulProgressChange(existing, time, isVideo) {
             if (!existing) return true;
@@ -453,6 +461,114 @@
             return shouldResume;
         }
 
+        function isStandaloneDisplayMode() {
+            return !!(window.matchMedia?.('(display-mode: standalone)').matches || window.navigator.standalone);
+        }
+
+        function isMobilePlaybackContext() {
+            if (navigator.userAgentData && 'mobile' in navigator.userAgentData) {
+                return !!navigator.userAgentData.mobile || isStandaloneDisplayMode();
+            }
+
+            return isStandaloneDisplayMode() ||
+                /Android|iPhone|iPad|iPod|Mobi|Mobile|Windows Phone|BlackBerry|Opera Mini/i.test(navigator.userAgent || '');
+        }
+
+        function getActiveMediaElement() {
+            return player?.media || document.querySelector('#player, #playerA');
+        }
+
+        function isHtmlMediaElement(mediaElement) {
+            return !!mediaElement &&
+                typeof mediaElement.play === 'function' &&
+                typeof mediaElement.pause === 'function' &&
+                'currentTime' in mediaElement;
+        }
+
+        function captureMobilePlaybackInterruption(reason) {
+            if (!isMobilePlaybackContext()) return;
+
+            const mediaElement = getActiveMediaElement();
+            if (!isHtmlMediaElement(mediaElement) || mediaElement.ended) return;
+
+            const shouldResume = isPlayerActivelyPlaying() ||
+                hasRecentPlaybackActivity() ||
+                (!mediaElement.paused && !mediaElement.ended);
+
+            if (shouldResume) {
+                captureMediaPlaybackResumeIntent();
+            }
+
+            mobileLifecycleSnapshot = {
+                at: Date.now(),
+                mediaType: getActiveMediaType(),
+                time: normalizePlaybackTime(mediaElement.currentTime || player?.currentTime),
+                shouldResume,
+                reason
+            };
+        }
+
+        function shouldRefreshMediaAfterMobileResume(mediaElement, awayMs) {
+            if (!isHtmlMediaElement(mediaElement)) return false;
+            if (mediaElement.error) return true;
+
+            const networkNoSource = typeof HTMLMediaElement !== 'undefined'
+                ? HTMLMediaElement.NETWORK_NO_SOURCE
+                : 3;
+            if (mediaElement.networkState === networkNoSource) return true;
+
+            return awayMs >= mobileLifecycleSourceRefreshMs &&
+                !offlineMediaPlaybackEnabled &&
+                navigator.onLine !== false;
+        }
+
+        async function resumeMobilePlaybackLifecycle(reason) {
+            if (!isMobilePlaybackContext() || mobileLifecycleResumeInProgress || document.visibilityState === 'hidden') return;
+            if (!mobileLifecycleSnapshot) return;
+
+            const snapshot = mobileLifecycleSnapshot;
+            mobileLifecycleSnapshot = null;
+
+            if (!player || snapshot.mediaType !== getActiveMediaType()) return;
+
+            const mediaElement = getActiveMediaElement();
+            if (!isHtmlMediaElement(mediaElement)) return;
+
+            const awayMs = Date.now() - snapshot.at;
+            const resumeIntent = consumeMediaPlaybackResumeIntent();
+            const shouldResume = snapshot.shouldResume || resumeIntent;
+
+            if (shouldRefreshMediaAfterMobileResume(mediaElement, awayMs)) {
+                if (shouldResume) {
+                    captureMediaPlaybackResumeIntent();
+                }
+
+                mobileLifecycleResumeInProgress = true;
+                try {
+                    await reloadActivePlayerFromCurrentState(`mobile-${reason}`);
+                } finally {
+                    mobileLifecycleResumeInProgress = false;
+                }
+                return;
+            }
+
+            if (snapshot.time > 0) {
+                seekPlayerTo(snapshot.time);
+            }
+
+            if (!localTimeUpdater && player) {
+                startLocalTimeUpdater();
+            }
+
+            if (shouldResume && mediaElement?.paused && !mediaElement.ended) {
+                try {
+                    await mediaElement.play();
+                } catch (error) {
+                    console.warn(`[Player] Mobile resume play() failed after ${reason}.`, error);
+                }
+            }
+        }
+
         function requestConnectivityProbeFromMediaFailure(reason) {
             if (lessonConfig.isOffline || offlineMediaPlaybackEnabled) return;
 
@@ -477,6 +593,89 @@
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
             const match = url.match(regExp);
             return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        function getAvailableVideoQualities() {
+            return videoQualityValues.filter(quality => lessonConfig.qualities[`q${quality}`] !== -1);
+        }
+
+        function getVideoQualityValue(resolution) {
+            if (!resolution) return -1;
+
+            const quality = Number(String(resolution).replace('p', ''));
+            return videoQualityValues.includes(quality) ? quality : -1;
+        }
+
+        function getConfiguredHlsQualityIndex(quality) {
+            const numericQuality = Number(quality);
+            if (!Number.isFinite(numericQuality) || numericQuality === -1) return -1;
+
+            const configuredIndex = lessonConfig.qualities[`q${numericQuality}`];
+            return Number.isInteger(configuredIndex) ? configuredIndex : -1;
+        }
+
+        function getHlsLevelIndexForQuality(hls, quality) {
+            const numericQuality = Number(quality);
+            if (!Number.isFinite(numericQuality) || numericQuality === -1) return -1;
+
+            if (hls?.levels?.length) {
+                const manifestLevelIndex = hls.levels.findIndex(level => Number(level?.height) === numericQuality);
+                if (manifestLevelIndex !== -1) return manifestLevelIndex;
+            }
+
+            return getConfiguredHlsQualityIndex(numericQuality);
+        }
+
+        function applyHlsQuality(hls, quality) {
+            if (!hls) return;
+
+            const numericQuality = Number(quality);
+            if (!Number.isFinite(numericQuality) || numericQuality === -1) {
+                hls.currentLevel = -1;
+                return;
+            }
+
+            const levelIndex = getHlsLevelIndexForQuality(hls, numericQuality);
+            if (levelIndex === -1) {
+                console.warn(`[HLS] Requested quality ${numericQuality}p is not available.`);
+                return;
+            }
+
+            hls.currentLevel = levelIndex;
+        }
+
+        function getPlyrVideoSettings(enableQualitySelection) {
+            return enableQualitySelection
+                ? ['captions', 'quality', 'speed']
+                : ['captions', 'speed'];
+        }
+
+        function getPlyrQualityLabels(downloadedResolution) {
+            const labels = { '-1': 'אוטומטי' };
+            videoQualityValues.forEach(quality => {
+                const resolution = `${quality}p`;
+                labels[quality] = `${resolution}${downloadedResolution === resolution ? ' <i class="fa fa-check-circle text-success"></i>' : ''}`;
+            });
+            return labels;
+        }
+
+        function canPlayNativeHls(videoElement) {
+            return !!videoElement?.canPlayType &&
+                !!(videoElement.canPlayType('application/vnd.apple.mpegurl') || videoElement.canPlayType('application/x-mpegURL'));
+        }
+
+        function setNativeHlsSource(videoElement, sourceUrl) {
+            if (!videoElement || !sourceUrl) return false;
+
+            videoElement.removeAttribute('src');
+            videoElement.querySelectorAll('source').forEach(source => source.remove());
+
+            const source = document.createElement('source');
+            source.src = sourceUrl;
+            source.type = 'application/x-mpegURL';
+            videoElement.appendChild(source);
+            videoElement.load();
+            return true;
         }
 
         function getHlsPlaybackUrl(forceRefresh = false, sourceUrl = null) {
@@ -929,7 +1128,7 @@
                 $('#player-wrapper').html('<div class="alert alert-warning text-center"><h3>אתה לא מחובר לאינטרנט</h3><p>הוידאו של שיעור זה לא הורד למכשיר.</p></div>');
                 return;
             }
-            $('#player-wrapper').html(`<video poster="" id="player" playsinline preload="metadata" controls aria-label="${lessonConfig.playerLabel}"></video>`);
+            $('#player-wrapper').html(`<video poster="" id="player" playsinline webkit-playsinline preload="metadata" controls aria-label="${lessonConfig.playerLabel}"></video>`);
             const video = document.querySelector('#player');
             const downloadedQualityIndex = downloadedResolution ? lessonConfig.qualities['q' + downloadedResolution.replace('p', '')] : -1;
             const shouldUseDownloadedVideo = lessonConfig.isOffline && downloadedResolution && localData?.hlsQualityPlaylistUrl;
@@ -938,30 +1137,41 @@
                 : null;
             const hlsSourceUrl = downloadedPlaylistUrl || lessonConfig.hlsMasterPlaylistUrl;
             setOfflineMediaPlaybackEnabled(!!downloadedPlaylistUrl, true);
-            player = new Plyr(video, {
-                title: lessonConfig.playerLabel,
-                controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'],
-                settings: ['captions', 'quality', 'speed'], keyboard: { focused: true, global: true },
-                i18n: { qualityLabel: { '-1': 'אוטומטי', 1080: `1080p${downloadedResolution === '1080p'?' <i class="fa fa-check-circle text-success"></i>':''}`, 720: `720p${downloadedResolution === '720p'?' <i class="fa fa-check-circle text-success"></i>':''}`, 480: `480p${downloadedResolution === '480p'?' <i class="fa fa-check-circle text-success"></i>':''}`, 360: `360p${downloadedResolution === '360p'?' <i class="fa fa-check-circle text-success"></i>':''}`, 240: `240p${downloadedResolution === '240p'?' <i class="fa fa-check-circle text-success"></i>':''}` } }
-            });
-
-            attachTouchScrubberFix();
-            const canUseNativeHls = video.canPlayType('application/vnd.apple.mpegurl') || video.canPlayType('application/x-mpegURL');
+            const canUseHlsJs = !!(window.Hls && Hls.isSupported());
+            const canUseNativeHls = !canUseHlsJs && canPlayNativeHls(video);
+            const availableVideoQualities = getAvailableVideoQualities();
+            const canSelectStreamingQuality = canUseHlsJs && !downloadedPlaylistUrl && availableVideoQualities.length > 1;
+            const downloadedQualityValue = downloadedQualityIndex !== -1 ? getVideoQualityValue(downloadedResolution) : -1;
+            let selectedVideoQuality = !downloadedPlaylistUrl && downloadedQualityValue !== -1 ? downloadedQualityValue : -1;
 
             if (canUseNativeHls) {
-                const recoverNativeSource = createVideoSourceRefreshGuard(video, async (reason, resumeTime, shouldResume) => {
-                    console.warn(`[HLS] Refreshing native source. reason=${reason}, time=${resumeTime}`);
-                    video.pause();
-                    video.src = getHlsPlaybackUrl(true, hlsSourceUrl);
-                    video.load();
-                    restoreVideoPlayback(video, resumeTime, shouldResume);
-                });
-                videoRecoveryCleanup = attachVideoRecovery(video, recoverNativeSource);
-                video.src = getHlsPlaybackUrl(false, hlsSourceUrl);
-                return;
+                setNativeHlsSource(video, getHlsPlaybackUrl(false, hlsSourceUrl));
             }
 
-            if (window.Hls && Hls.isSupported()) {
+            const plyrConfig = {
+                title: lessonConfig.playerLabel,
+                controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'],
+                settings: getPlyrVideoSettings(canSelectStreamingQuality),
+                keyboard: { focused: true, global: true },
+                i18n: { qualityLabel: getPlyrQualityLabels(downloadedResolution) }
+            };
+
+            if (canSelectStreamingQuality) {
+                plyrConfig.quality = {
+                    default: selectedVideoQuality,
+                    options: [...availableVideoQualities, -1]
+                };
+                plyrConfig.customQualityFunction = quality => {
+                    selectedVideoQuality = Number(quality);
+                    applyHlsQuality(window.hls, selectedVideoQuality);
+                };
+            }
+
+            player = new Plyr(video, plyrConfig);
+
+            attachTouchScrubberFix();
+
+            if (canUseHlsJs) {
                 const recoverHlsSource = createVideoSourceRefreshGuard(video, async (reason, resumeTime, shouldResume) => {
                     console.warn(`[HLS] Refreshing source. reason=${reason}, time=${resumeTime}`);
                     if (window.hls) {
@@ -972,44 +1182,55 @@
                 });
 
                 const createHlsInstance = (forceRefresh = false, resumeTime = 0, shouldResume = false) => {
-                const hls = new Hls({ debug: false });
-                if (!downloadedPlaylistUrl && downloadedQualityIndex !== -1) hls.startLevel = downloadedQualityIndex;
-                hls.loadSource(getHlsPlaybackUrl(forceRefresh, hlsSourceUrl));
-                hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                    if (!downloadedPlaylistUrl && downloadedQualityIndex !== -1) hls.currentLevel = downloadedQualityIndex;
-                    if (resumeTime > 0 || shouldResume) {
-                        restoreVideoPlayback(video, resumeTime, shouldResume);
-                    }
-                });
-                hls.on(Hls.Events.ERROR, (event, data) => {
-                    const status = getHlsErrorStatus(data);
-                    const isNetworkError = data?.type === Hls.ErrorTypes.NETWORK_ERROR;
-                    const shouldRefreshSource = isNetworkError && (data?.fatal || status === 0 || status === 401 || status === 403 || status === 404);
+                    const hls = new Hls({ debug: false });
+                    if (!downloadedPlaylistUrl && selectedVideoQuality !== -1) hls.startLevel = getConfiguredHlsQualityIndex(selectedVideoQuality);
+                    hls.loadSource(getHlsPlaybackUrl(forceRefresh, hlsSourceUrl));
+                    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                        if (!downloadedPlaylistUrl) applyHlsQuality(hls, selectedVideoQuality);
+                        if (resumeTime > 0 || shouldResume) {
+                            restoreVideoPlayback(video, resumeTime, shouldResume);
+                        }
+                    });
+                    hls.on(Hls.Events.ERROR, (event, data) => {
+                        const status = getHlsErrorStatus(data);
+                        const isNetworkError = data?.type === Hls.ErrorTypes.NETWORK_ERROR;
+                        const shouldRefreshSource = isNetworkError && (data?.fatal || status === 0 || status === 401 || status === 403 || status === 404);
 
-                    if (shouldRefreshSource) {
-                        recoverHlsSource(`network-${status || 'unknown'}`);
-                        return;
-                    }
+                        if (shouldRefreshSource) {
+                            recoverHlsSource(`network-${status || 'unknown'}`);
+                            return;
+                        }
 
-                    if (!data?.fatal) return;
+                        if (!data?.fatal) return;
 
-                    console.warn('[HLS] Fatal playback error.', data);
-                    if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
-                        recoverHlsSource(`network-${status || 'unknown'}`);
-                    } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
-                        hls.recoverMediaError();
-                    } else {
-                        hls.destroy();
-                        window.hls = null;
-                        $('#player-wrapper').html('<div class="alert alert-danger">שגיאה בטעינת הוידאו. נסה לרענן את הדף.</div>');
-                    }
-                });
-                hls.attachMedia(video);
-                window.hls = hls;
+                        console.warn('[HLS] Fatal playback error.', data);
+                        if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+                            recoverHlsSource(`network-${status || 'unknown'}`);
+                        } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+                            hls.recoverMediaError();
+                        } else {
+                            hls.destroy();
+                            window.hls = null;
+                            $('#player-wrapper').html('<div class="alert alert-danger">שגיאה בטעינת הוידאו. נסה לרענן את הדף.</div>');
+                        }
+                    });
+                    hls.attachMedia(video);
+                    window.hls = hls;
                 };
 
                 videoRecoveryCleanup = attachVideoRecovery(video, recoverHlsSource);
                 createHlsInstance(false);
+                return;
+            }
+
+            if (canUseNativeHls) {
+                const recoverNativeSource = createVideoSourceRefreshGuard(video, async (reason, resumeTime, shouldResume) => {
+                    console.warn(`[HLS] Refreshing native source. reason=${reason}, time=${resumeTime}`);
+                    video.pause();
+                    setNativeHlsSource(video, getHlsPlaybackUrl(true, hlsSourceUrl));
+                    restoreVideoPlayback(video, resumeTime, shouldResume);
+                });
+                videoRecoveryCleanup = attachVideoRecovery(video, recoverNativeSource);
                 return;
             }
 
@@ -2657,6 +2878,7 @@
 
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'hidden') {
+                captureMobilePlaybackInterruption('visibility-hidden');
                 flushCurrentProgress(false);
             } else {
                 if (!localTimeUpdater && player) {
@@ -2667,15 +2889,31 @@
                 } else {
                     scheduleConnectivityProbe(500, true);
                 }
+                resumeMobilePlaybackLifecycle('visibility-visible')
+                    .catch(error => console.warn('[Player] Mobile visibility resume failed.', error));
             }
         });
-        window.addEventListener('pageshow', () => {
+        window.addEventListener('pageshow', event => {
             resendOfflineMediaPlaybackState();
             if (lessonConfig.isOffline || navigator.onLine === false) {
                 scheduleConnectivityProbe(500);
             } else {
                 scheduleConnectivityProbe(500, true);
             }
+            resumeMobilePlaybackLifecycle(event.persisted ? 'pageshow-bfcache' : 'pageshow')
+                .catch(error => console.warn('[Player] Mobile pageshow resume failed.', error));
+        });
+        window.addEventListener('focus', () => {
+            resumeMobilePlaybackLifecycle('focus')
+                .catch(error => console.warn('[Player] Mobile focus resume failed.', error));
+        });
+        document.addEventListener('freeze', () => {
+            captureMobilePlaybackInterruption('freeze');
+            flushCurrentProgress(false);
+        });
+        document.addEventListener('resume', () => {
+            resumeMobilePlaybackLifecycle('document-resume')
+                .catch(error => console.warn('[Player] Mobile document resume failed.', error));
         });
         window.addEventListener('offline', () => {
             handleConnectivityChange('offline', false).catch(error => console.warn('[Connectivity] Offline transition failed.', error));
@@ -2687,6 +2925,7 @@
             scheduleConnectivityProbe(1000);
         }
         window.addEventListener('pagehide', () => {
+            captureMobilePlaybackInterruption('pagehide');
             clearConnectivityProbeTimer();
             clearDownloadStatusRefresh();
             if (offlineMediaPlaybackEnabled) {

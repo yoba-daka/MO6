@@ -39,17 +39,39 @@ namespace MyProject12.Services
             _client = new AmazonSimpleEmailServiceClient(awsAccessKey, awsSecretKey, regionEndpoint);
         }
 
-        public async Task SendHtmlEmail(string toAddress, string subject, string htmlBody, string sender = "")
+        public async Task SendHtmlEmail(string toAddress, string subject, string htmlBody, string sender = "", string? plainTextBody = null)
         {
             sender = sender == "" ? senderEmail : sender;
+            var body = new Body
+            {
+                Html = new Content
+                {
+                    Charset = "UTF-8",
+                    Data = htmlBody
+                }
+            };
+
+            if (!string.IsNullOrWhiteSpace(plainTextBody))
+            {
+                body.Text = new Content
+                {
+                    Charset = "UTF-8",
+                    Data = plainTextBody
+                };
+            }
+
             var sendRequest = new SendEmailRequest
             {
                 Source = $"Moshe Sharon<{sender}>",
                 Destination = new Destination { ToAddresses = new List<string> { toAddress } },
                 Message = new Message
                 {
-                    Subject = new Content(subject),
-                    Body = new Body { Html = new Content(htmlBody) }
+                    Subject = new Content
+                    {
+                        Charset = "UTF-8",
+                        Data = subject
+                    },
+                    Body = body
                 }
             };
 
@@ -92,43 +114,47 @@ namespace MyProject12.Services
 
             messageBody = ExtractContentFromRTE(rawContent);
 
+            var absoluteLink = BuildAbsoluteUrl(link);
             string emailContent = $@"
             <div dir='rtl' style='font-family: Arial, sans-serif;'>
                 <h2 style='color: #f77b26;'>הודעת מערכת</h2>
-                <p><strong>שלום {name}!</strong></p>
+                <p><strong>שלום {WebUtility.HtmlEncode(name)}!</strong></p>
                 {messageBody}
                 <br />
                 <h2 style='color: #f77b26;'>אימות כתובת אימייל</h2>
-                <a href='{BuildAbsoluteUrl(link)}' style='background-color: #f77b26; color: #ffffff; padding: 10px 15px; text-decoration: none; border-radius: 4px;'>נא ללחוץ כאן לאימות</a>
-                <p>קוד האימות שלך הוא: <strong>{code}</strong></p>
+                {BuildEmailActionLinkHtml(absoluteLink, "נא ללחוץ כאן לאימות")}
+                <p>קוד האימות שלך הוא: <strong>{WebUtility.HtmlEncode(code)}</strong></p>
                 <p>הלינק והקוד תקפים ל24 שעות בלבד</p>
             </div>";
 
-            await SendHtmlEmail(email, "אימות מנוי חדש", emailContent);
+            await SendHtmlEmail(email, "אימות מנוי חדש", emailContent, plainTextBody: BuildVerificationPlainText(name, absoluteLink, code));
         }
 
         public async Task SendVerificationEmail(string name, string email, string code, string link)
         {
+            var absoluteLink = BuildAbsoluteUrl(link);
             string emailContent = $@"
             <div dir='rtl' style='font-family: Arial, sans-serif;'>
                 <h2 style='color: #f77b26;'>אימות כתובת אימייל</h2>
-                <p>שלום {name}!</p>
-                <a href='{BuildAbsoluteUrl(link)}' style='background-color: #f77b26; color: #ffffff; padding: 10px 15px; text-decoration: none; border-radius: 4px;'>נא ללחוץ כאן לאימות</a>
-                <p>קוד האימות שלך הוא: <strong>{code}</strong></p>
+                <p>שלום {WebUtility.HtmlEncode(name)}!</p>
+                {BuildEmailActionLinkHtml(absoluteLink, "נא ללחוץ כאן לאימות")}
+                <p>קוד האימות שלך הוא: <strong>{WebUtility.HtmlEncode(code)}</strong></p>
                 <p>הלינק והקוד תקפים ל24 שעות בלבד</p>
             </div>";
 
-            await SendHtmlEmail(email, "אימות חשבון חדש", emailContent);
+            await SendHtmlEmail(email, "אימות חשבון חדש", emailContent, plainTextBody: BuildVerificationPlainText(name, absoluteLink, code));
         }
 
-        public async Task SendManagementNewMemberEmail(string name, string newMemberEmail, string email, string[] args = null)
+        public async Task SendManagementNewMemberEmail(string name, string newMemberEmail, string email, string[]? args = null)
         {
-            string conArgs = string.Concat(args.Select(x=>$@"<p>{x}</p>"));
+            string conArgs = args == null
+                ? string.Empty
+                : string.Concat(args.Select(x => $@"<p>{WebUtility.HtmlEncode(x)}</p>"));
             string emailContent = $@"
             <div dir='rtl' style='font-family: Arial, sans-serif;'>
                 <h2 style='color: #f77b26;'>משתמש חדש</h2>
-                <p>{name}</p>
-                <p>{newMemberEmail}</p>
+                <p>{WebUtility.HtmlEncode(name)}</p>
+                <p>{WebUtility.HtmlEncode(newMemberEmail)}</p>
                 {conArgs}
             </div>";
 
@@ -153,31 +179,33 @@ namespace MyProject12.Services
 
         public async Task SendChangeEmailEmail(string name, string email, string code, string link)
         {
+            var absoluteLink = BuildAbsoluteUrl(link);
             string emailContent = $@"
             <div dir='rtl' style='font-family: Arial, sans-serif;'>
                 <h2 style='color: #f77b26;'>אימות כתובת אימייל חדשה</h2>
-                <p>שלום {name}!</p>
-                <a href='{BuildAbsoluteUrl(link)}' style='background-color: #f77b26; color: #ffffff; padding: 10px 15px; text-decoration: none; border-radius: 4px;'>נא ללחוץ כאן לאימות</a>
+                <p>שלום {WebUtility.HtmlEncode(name)}!</p>
+                {BuildEmailActionLinkHtml(absoluteLink, "נא ללחוץ כאן לאימות")}
                 <p>הלינק תקף ל24 שעות בלבד</p>
             </div>";
 
             //         < p > קוד האימות שלך הוא: < strong >{ code}</ strong ></ p >
 
 
-            await SendHtmlEmail(email, "כתובת האימייל שונתה", emailContent);
+            await SendHtmlEmail(email, "כתובת האימייל שונתה", emailContent, plainTextBody: BuildActionPlainText(name, absoluteLink, "לאימות כתובת האימייל החדשה"));
         }
         public async Task SendPasswordResetEmail(string name, string email, string link)
         {
 
+            var absoluteLink = BuildAbsoluteUrl(link);
             string emailContent = $@"
             <div dir='rtl' style='font-family: Arial, sans-serif;'>
                 <h2 style='color: #f77b26;'>איפוס סיסמא</h2>
-                <p>שלום {name}!</p>
-                <a href='{BuildAbsoluteUrl(link)}' style='background-color: #f77b26; color: #ffffff; padding: 10px 15px; text-decoration: none; border-radius: 4px;'>נא ללחוץ כאן לאיפוס סיסמא</a>
+                <p>שלום {WebUtility.HtmlEncode(name)}!</p>
+                {BuildEmailActionLinkHtml(absoluteLink, "נא ללחוץ כאן לאיפוס סיסמא")}
                 <p>הקישור בתוקף למשך 24 שעות.</p>
             </div>";
 
-            await SendHtmlEmail(email, "איפוס סיסמא", emailContent);
+            await SendHtmlEmail(email, "איפוס סיסמא", emailContent, plainTextBody: BuildActionPlainText(name, absoluteLink, "לאיפוס הסיסמה"));
         }
 
 
@@ -296,6 +324,43 @@ namespace MyProject12.Services
                 .Where(x => !string.IsNullOrWhiteSpace(x))
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();
+        }
+
+        private static string BuildEmailActionLinkHtml(string absoluteLink, string buttonText)
+        {
+            var safeLink = WebUtility.HtmlEncode(absoluteLink);
+            var safeButtonText = WebUtility.HtmlEncode(buttonText);
+
+            return $@"
+                <p>
+                    <a href='{safeLink}' target='_blank' rel='noopener' style='display: inline-block; background-color: #f77b26; color: #ffffff; padding: 10px 15px; text-decoration: none; border-radius: 4px;'>{safeButtonText}</a>
+                </p>
+                <p>אם הכפתור אינו נפתח, אפשר להעתיק את הקישור הזה לדפדפן:</p>
+                <p dir='ltr' style='text-align: left; word-break: break-all;'>
+                    <a href='{safeLink}' target='_blank' rel='noopener'>{safeLink}</a>
+                </p>";
+        }
+
+        private static string BuildVerificationPlainText(string name, string absoluteLink, string code)
+        {
+            return $@"שלום {name},
+
+לאימות כתובת האימייל יש לפתוח את הקישור:
+{absoluteLink}
+
+קוד האימות שלך הוא: {code}
+
+הלינק והקוד תקפים ל24 שעות בלבד";
+        }
+
+        private static string BuildActionPlainText(string name, string absoluteLink, string actionDescription)
+        {
+            return $@"שלום {name},
+
+{actionDescription} יש לפתוח את הקישור:
+{absoluteLink}
+
+הקישור בתוקף למשך 24 שעות";
         }
 
         private static string NormalizeBaseUrl(string? baseUrl)

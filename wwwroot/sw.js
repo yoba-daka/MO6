@@ -3,7 +3,7 @@
  */
 importScripts('/js/db-helper.js');
 
-const APP_VERSION = '20260615-22';
+const APP_VERSION = '20260615-23';
 const APP_SHELL_CACHE_PREFIX = 'app-shell-cache-';
 const APP_SHELL_CACHE_NAME = `${APP_SHELL_CACHE_PREFIX}${APP_VERSION}`;
 const APP_SHELL_LOCAL_URLS = [
@@ -154,7 +154,6 @@ self.addEventListener('install', event => {
                 ));
             })
     );
-    self.skipWaiting();
 });
 
 self.addEventListener('activate', event => {

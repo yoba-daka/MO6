@@ -394,9 +394,15 @@
             },
             getQualityOptions: function () {
                 var player = this;
-                return z.getSources.call(this).map(function (e) {
+                var sourceQualities = z.getSources.call(this).map(function (e) {
                     return Number(e.getAttribute("size"))
-                }).filter(Boolean)
+                }).filter(Boolean);
+                if (sourceQualities.length || !this.config.hasOwnProperty('customQualityFunction') || typeof this.config.customQualityFunction !== 'function') {
+                    return sourceQualities;
+                }
+                return this.config.quality.options.filter(function (quality) {
+                    return Number(quality) !== -1
+                })
             },
             extend: function () {
                 if (this.isHTML5) {

@@ -43,6 +43,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#f77b26" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="@home.HeaderTitle" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <link rel="apple-touch-icon" href="/images/icons/192-any.png?v=@pwaAssetVersion" />
     @await RenderSectionAsync("Head", required: false)
     @if (Model.HasValue("Description"))
     {
@@ -407,8 +412,70 @@
           }
         }
 
+        const pwaUpdateRetryMs = 15000;
+        let pendingPwaUpdateRegistration = null;
+        let pendingPwaUpdateReloadVersion = null;
+        let pwaUpdateRetryTimer = null;
+
+        function shouldDeferPwaUpdate() {
+          if (document.visibilityState === 'hidden') return true;
+
+          if (typeof window.mo6ShouldDeferPwaUpdateReload === 'function') {
+            try {
+              if (window.mo6ShouldDeferPwaUpdateReload()) return true;
+            } catch (error) {
+              console.warn('PWA update defer check failed:', error);
+            }
+          }
+
+          return false;
+        }
+
+        function schedulePendingPwaUpdateCheck(delayMs = pwaUpdateRetryMs) {
+          if (pwaUpdateRetryTimer) clearTimeout(pwaUpdateRetryTimer);
+          pwaUpdateRetryTimer = setTimeout(() => {
+            pwaUpdateRetryTimer = null;
+            runPendingPwaUpdate();
+          }, delayMs);
+        }
+
+        function runPendingPwaUpdate() {
+          if (shouldDeferPwaUpdate()) {
+            if (pendingPwaUpdateRegistration || pendingPwaUpdateReloadVersion) {
+              schedulePendingPwaUpdateCheck();
+            }
+            return;
+          }
+
+          if (pendingPwaUpdateRegistration?.waiting) {
+            const registration = pendingPwaUpdateRegistration;
+            pendingPwaUpdateRegistration = null;
+            activateWaitingServiceWorker(registration);
+            return;
+          }
+
+          if (pendingPwaUpdateReloadVersion) {
+            const version = pendingPwaUpdateReloadVersion;
+            pendingPwaUpdateReloadVersion = null;
+            reloadForPwaUpdate(version);
+          }
+        }
+
+        document.addEventListener('visibilitychange', () => {
+          if (!document.hidden) {
+            runPendingPwaUpdate();
+          }
+        });
+        window.addEventListener('pageshow', runPendingPwaUpdate);
+
         function reloadForPwaUpdate(version) {
           if (window.__mo6ReloadingForPwaUpdate || hasReloadedForPwaVersion(version)) return;
+          if (shouldDeferPwaUpdate()) {
+            pendingPwaUpdateReloadVersion = version;
+            schedulePendingPwaUpdateCheck();
+            return;
+          }
+
           window.__mo6ReloadingForPwaUpdate = true;
           markReloadedForPwaVersion(version);
           window.location.reload();
@@ -416,6 +483,12 @@
 
         function activateWaitingServiceWorker(registration) {
           if (!registration?.waiting) return;
+          if (shouldDeferPwaUpdate()) {
+            pendingPwaUpdateRegistration = registration;
+            schedulePendingPwaUpdateCheck();
+            return;
+          }
+
           registration.waiting.postMessage({ type: 'SKIP_WAITING' });
         }
 

@@ -4,7 +4,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="mo6">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>טוען שיעור...</title>
+    <link rel="apple-touch-icon" href="/images/icons/192-any.png">
     <link rel="stylesheet" href="/css/material-kit.css?v=2.0.6">
     <link rel="stylesheet" href="/css/plyr.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" />
@@ -108,7 +113,10 @@
         const pageLoadedAt = Date.now();
         const progressSaveMinDeltaSeconds = 1;
         const progressActivityGraceMs = 30000;
+        const mobileLifecycleSourceRefreshMs = 15000;
         let lastPlaybackActivityAt = 0;
+        let mobileLifecycleSnapshot = null;
+        let mobileLifecycleResumeInProgress = false;
 
         function normalizePlaybackTime(value) {
             const seconds = Number(value);
@@ -125,6 +133,121 @@
 
         function isPlayerActivelyPlaying() {
             return !!player && !player.paused && !player.ended;
+        }
+
+        function isStandaloneDisplayMode() {
+            return !!(window.matchMedia?.('(display-mode: standalone)').matches || window.navigator.standalone);
+        }
+
+        function isMobilePlaybackContext() {
+            if (navigator.userAgentData && 'mobile' in navigator.userAgentData) {
+                return !!navigator.userAgentData.mobile || isStandaloneDisplayMode();
+            }
+
+            return isStandaloneDisplayMode() ||
+                /Android|iPhone|iPad|iPod|Mobi|Mobile|Windows Phone|BlackBerry|Opera Mini/i.test(navigator.userAgent || '');
+        }
+
+        function getActiveMediaType() {
+            return $('#videoB').hasClass('active') ? 'video' : 'audio';
+        }
+
+        function getActiveMediaElement() {
+            return player?.media || document.querySelector('#player, #playerA');
+        }
+
+        function isHtmlMediaElement(mediaElement) {
+            return !!mediaElement &&
+                typeof mediaElement.play === 'function' &&
+                typeof mediaElement.pause === 'function' &&
+                'currentTime' in mediaElement;
+        }
+
+        function captureOfflinePlaybackInterruption(reason) {
+            if (!isMobilePlaybackContext()) return;
+
+            const mediaElement = getActiveMediaElement();
+            if (!isHtmlMediaElement(mediaElement) || mediaElement.ended) return;
+
+            mobileLifecycleSnapshot = {
+                at: Date.now(),
+                mediaType: getActiveMediaType(),
+                time: normalizePlaybackTime(mediaElement.currentTime || player?.currentTime),
+                shouldResume: isPlayerActivelyPlaying() ||
+                    hasRecentPlaybackActivity() ||
+                    (!mediaElement.paused && !mediaElement.ended),
+                reason
+            };
+        }
+
+        function shouldReinitializeOfflineMedia(mediaElement, awayMs) {
+            if (!isHtmlMediaElement(mediaElement)) return false;
+            if (mediaElement.error) return true;
+
+            const networkNoSource = typeof HTMLMediaElement !== 'undefined'
+                ? HTMLMediaElement.NETWORK_NO_SOURCE
+                : 3;
+            if (mediaElement.networkState === networkNoSource) return true;
+
+            return awayMs >= mobileLifecycleSourceRefreshMs;
+        }
+
+        async function resumeOfflineMobilePlaybackLifecycle(reason) {
+            if (!isMobilePlaybackContext() || mobileLifecycleResumeInProgress || document.visibilityState === 'hidden') return;
+            if (!mobileLifecycleSnapshot || !currentLessonData || !player) return;
+
+            const snapshot = mobileLifecycleSnapshot;
+            mobileLifecycleSnapshot = null;
+
+            if (snapshot.mediaType !== getActiveMediaType()) return;
+
+            const mediaElement = getActiveMediaElement();
+            if (!isHtmlMediaElement(mediaElement)) return;
+
+            const awayMs = Date.now() - snapshot.at;
+            const shouldResume = !!snapshot.shouldResume;
+
+            if (shouldReinitializeOfflineMedia(mediaElement, awayMs)) {
+                mobileLifecycleResumeInProgress = true;
+                try {
+                    const isVideo = snapshot.mediaType === 'video';
+                    if (snapshot.time > 0) {
+                        saveStoredProgress(snapshot.time, isVideo, true);
+                        currentLessonData.lastPlayed = {
+                            ...(currentLessonData.lastPlayed || {}),
+                            time: snapshot.time,
+                            isVideo,
+                            updatedAt: Date.now()
+                        };
+                    }
+
+                    clearPlayer();
+                    if (isVideo) {
+                        initOfflineVideoPlayer();
+                    } else {
+                        initOfflineAudioPlayer();
+                    }
+                } finally {
+                    mobileLifecycleResumeInProgress = false;
+                }
+            }
+
+            if (snapshot.time > 0) {
+                seekPlayerTo(snapshot.time);
+            }
+
+            if (!timeUpdater && player) {
+                startSavingTimestamp();
+            }
+
+            const resumedMediaElement = getActiveMediaElement();
+            if (shouldResume && isHtmlMediaElement(resumedMediaElement) && resumedMediaElement.paused && !resumedMediaElement.ended) {
+                try {
+                    await resumedMediaElement.play();
+                } catch (error) {
+                    console.warn(`[OfflinePlayer] Mobile resume play() failed after ${reason}.`, error);
+                }
+            }
         }
 
         function hasMeaningfulProgressChange(existing, time, isVideo) {
@@ -1027,7 +1150,7 @@
             const qualityPlaylistUrl = currentLessonData.hlsQualityPlaylistUrl;
             if (!qualityPlaylistUrl) { return showError('שגיאה: כתובת הוידאו לא נשמרה כראוי.'); }
             const playlistUrlWithoutSAS = qualityPlaylistUrl.split('?')[0];
-            playerWrapper.innerHTML = `<video poster="${currentLessonData.imageUrl || ''}" id="player" playsinline preload="metadata" controls></video>`;
+            playerWrapper.innerHTML = `<video poster="${currentLessonData.imageUrl || ''}" id="player" playsinline webkit-playsinline preload="metadata" controls></video>`;
             const video = document.querySelector('#player');
             player = new Plyr(video, { controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'pip', 'fullscreen', 'settings'], settings: ['speed'], keyboard: { focused: true, global: true } });
             attachTouchScrubberFix();
@@ -1199,12 +1322,39 @@
 
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'hidden') {
+                captureOfflinePlaybackInterruption('visibility-hidden');
                 flushOfflineProgress(false);
-            } else if (!timeUpdater && player) {
-                startSavingTimestamp();
+            } else {
+                if (!timeUpdater && player) {
+                    startSavingTimestamp();
+                }
+                resumeOfflineMobilePlaybackLifecycle('visibility-visible')
+                    .catch(error => console.warn('[OfflinePlayer] Mobile visibility resume failed.', error));
             }
         });
-        window.addEventListener('pagehide', () => flushOfflineProgress(true));
+        window.addEventListener('pageshow', event => {
+            if (!timeUpdater && player) {
+                startSavingTimestamp();
+            }
+            resumeOfflineMobilePlaybackLifecycle(event.persisted ? 'pageshow-bfcache' : 'pageshow')
+                .catch(error => console.warn('[OfflinePlayer] Mobile pageshow resume failed.', error));
+        });
+        window.addEventListener('focus', () => {
+            resumeOfflineMobilePlaybackLifecycle('focus')
+                .catch(error => console.warn('[OfflinePlayer] Mobile focus resume failed.', error));
+        });
+        document.addEventListener('freeze', () => {
+            captureOfflinePlaybackInterruption('freeze');
+            flushOfflineProgress(false);
+        });
+        document.addEventListener('resume', () => {
+            resumeOfflineMobilePlaybackLifecycle('document-resume')
+                .catch(error => console.warn('[OfflinePlayer] Mobile document resume failed.', error));
+        });
+        window.addEventListener('pagehide', () => {
+            captureOfflinePlaybackInterruption('pagehide');
+            flushOfflineProgress(true);
+        });
         window.addEventListener('beforeunload', () => flushOfflineProgress(true));
     </script>
 </body>
