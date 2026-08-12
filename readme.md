@@ -95,6 +95,42 @@ Run:
 docker run --name mo6-local-test -d -p 8080:80 mo6:local
 ```
 
+## Production Deployment
+Production deploys are handled by GitHub Actions from the `main` branch.
+
+Workflow:
+
+```text
+.github/workflows/deploy-main.yml
+```
+
+Normal deploy flow:
+
+1. Commit the intended changes.
+2. Push to `main`.
+3. GitHub Actions runs the deploy workflow.
+4. The workflow tests the project, builds the Docker image, pushes it to ACR, and restarts the Azure Web App.
+
+The workflow pushes these image tags:
+
+```text
+moshe.azurecr.io/mo6:latest
+moshe.azurecr.io/mo6:<github-sha>
+```
+
+Azure target:
+
+```text
+Resource group: mo6
+Web App: mo6
+ACR: moshe.azurecr.io
+Image: mo6
+```
+
+Docs-only commits that should not deploy can use `[skip ci]` in the commit message.
+
+More operational details for future automation/LLM agents are in `DEPLOYMENT_FOR_LLMS.md`.
+
 ## Notes
 - Current payment/harness implementation details are documented in `SESSION_2026-02-16_payments_fix.md`.
 - Production JSON webhook mapping now guards all required `Transactions` string fields against null values (important for callbacks that omit optional card fields).
