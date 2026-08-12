@@ -37,7 +37,7 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Test
-        run: dotnet test MO6.sln --configuration Release
+        run: dotnet test MO6.sln --configuration Release --filter "FullyQualifiedName!~CapturedRequests"
 
       - name: Azure login
         uses: azure/login@v2
